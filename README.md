@@ -26,3 +26,5 @@ Definidas en `.env.example`, deben copiarse a `.env.local` con los valores reale
 Este proyecto está desplegado en Vercel.
 
 URL de producción: [https://lunchies-sandy.vercel.app](https://lunchies-sandy.vercel.app)
+
+El repositorio de GitHub está conectado al proyecto en Vercel: cada push a `main` dispara un deploy de producción automático.

@@ -25,4 +25,4 @@ Definidas en `.env.example`, deben copiarse a `.env.local` con los valores reale
 
 Este proyecto está desplegado en Vercel.
 
-URL de producción: _(pendiente)_
+URL de producción: [https://lunchies-sandy.vercel.app](https://lunchies-sandy.vercel.app)

@@ -2,8 +2,10 @@ import Link from "next/link";
 
 const links = [
   { href: "/", label: "Home" },
+  { href: "/how-it-works", label: "How it works" },
+  { href: "/plans", label: "Plans" },
+  { href: "/about", label: "About us" },
   { href: "/docs", label: "Docs" },
-  { href: "/roadmap", label: "Roadmap" },
 ];
 
 export default function Navbar() {
@@ -13,7 +15,7 @@ export default function Navbar() {
         <Link href="/" className="text-lg font-bold text-leaf-700">
           Lunchies 🍎
         </Link>
-        <ul className="flex items-center gap-4 text-sm font-medium text-leaf-800 sm:gap-6">
+        <ul className="hidden items-center gap-6 text-sm font-medium text-leaf-800 md:flex">
           {links.map((link) => (
             <li key={link.href}>
               <Link
@@ -24,15 +26,13 @@ export default function Navbar() {
               </Link>
             </li>
           ))}
-          <li>
-            <a
-              href="#"
-              className="transition-colors hover:text-peach-500"
-            >
-              GitHub
-            </a>
-          </li>
         </ul>
+        <a
+          href="#"
+          className="rounded-full bg-leaf-600 px-5 py-2 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-leaf-700"
+        >
+          Get started
+        </a>
       </nav>
     </header>
   );

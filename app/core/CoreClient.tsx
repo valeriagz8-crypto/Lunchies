@@ -73,6 +73,17 @@ export default function CoreClient() {
     setSaveMessage(null);
   }
 
+  async function handleDelete(id: string) {
+    if (!window.confirm("Delete this saved lunch plan?")) return;
+
+    const { error } = await supabase.from("core_outputs").delete().eq("id", id);
+
+    if (!error) {
+      setSavedPlans((prev) => prev.filter((row) => row.id !== id));
+      setExpandedId((prev) => (prev === id ? null : prev));
+    }
+  }
+
   async function handleSave() {
     if (!plan) return;
     setSaving(true);
@@ -340,9 +351,9 @@ export default function CoreClient() {
                               </button>
                               <button
                                 type="button"
-                                disabled
-                                title="Coming soon"
-                                className="cursor-not-allowed rounded-full border border-leaf-100 px-2 py-1 text-xs text-leaf-300"
+                                onClick={() => handleDelete(row.id)}
+                                title="Delete plan"
+                                className="rounded-full border border-red-200 px-2 py-1 text-xs text-red-500 transition-colors hover:bg-red-50"
                               >
                                 🗑️
                               </button>

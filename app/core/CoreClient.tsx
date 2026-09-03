@@ -28,6 +28,29 @@ const DAY_ICONS: Record<string, string> = {
   Friday: "🍲",
 };
 
+const VALUE_PROPS = [
+  {
+    icon: "🌱",
+    title: "Balanced & healthy",
+    description: "Nutritious meals for growing minds and bodies.",
+  },
+  {
+    icon: "🙂",
+    title: "Kid-approved",
+    description: "Tasty recipes kids love, every time.",
+  },
+  {
+    icon: "⏱️",
+    title: "Saves you time",
+    description: "Plan once and we help you all week long.",
+  },
+  {
+    icon: "🛡️",
+    title: "Made for families",
+    description: "Allergies, preferences and schedules — handled.",
+  },
+];
+
 function toggleTag(list: string[], tag: string) {
   return list.includes(tag)
     ? list.filter((item) => item !== tag)
@@ -48,6 +71,7 @@ export default function CoreClient() {
   const [savedPlans, setSavedPlans] = useState<SavedPlan[]>([]);
   const [loadingSaved, setLoadingSaved] = useState(true);
   const [expandedId, setExpandedId] = useState<string | null>(null);
+  const [visibleRows, setVisibleRows] = useState(5);
 
   async function loadSavedPlans() {
     setLoadingSaved(true);
@@ -107,23 +131,36 @@ export default function CoreClient() {
 
   return (
     <section className="mx-auto max-w-5xl px-4 py-16 sm:px-6">
-      <div className="text-center">
-        <h1 className="text-3xl font-bold text-leaf-700 sm:text-4xl">
-          Generative Core Agent
-        </h1>
-        <p className="mt-3 text-lg text-leaf-800">
-          Tell us about your child and we&apos;ll put together a 5-day lunch
-          plan in seconds.
-        </p>
+      <div className="grid items-center gap-8 md:grid-cols-2">
+        <div>
+          <h1 className="text-3xl font-extrabold tracking-tight text-gray-800 sm:text-4xl">
+            Create a personalized 5-day{" "}
+            <span className="text-peach-500">lunch plan</span>
+          </h1>
+          <p className="mt-4 max-w-md text-lg text-gray-600">
+            Tell us about your child and we&apos;ll create a balanced, tasty
+            and fun lunch plan just for them.
+          </p>
+        </div>
+        <div className="flex justify-center md:justify-end">
+          <span className="text-[8rem] leading-none" aria-hidden="true">
+            🍱
+          </span>
+        </div>
       </div>
 
       <div className="mt-12 grid gap-8 lg:grid-cols-3">
         <div className="space-y-8 lg:col-span-2">
           {/* Section 1: Form */}
           <div className="rounded-2xl border border-leaf-100 bg-leaf-50 p-6 shadow-sm">
-            <h2 className="text-lg font-semibold text-leaf-700">
-              Tell us about your child
-            </h2>
+            <div className="flex items-center gap-3">
+              <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-leaf-600 text-sm font-bold text-white">
+                1
+              </span>
+              <h2 className="flex items-center gap-2 text-lg font-semibold text-leaf-700">
+                <span aria-hidden="true">📝</span> Tell us about your child
+              </h2>
+            </div>
 
             <div className="mt-5">
               <label className="block text-sm font-medium text-leaf-800">
@@ -203,13 +240,24 @@ export default function CoreClient() {
             >
               Generate menu
             </button>
+
+            <div className="mt-5 flex items-start gap-2 rounded-lg bg-white px-3 py-2 text-xs text-leaf-600">
+              <span aria-hidden="true">ℹ️</span>
+              <span>
+                We&apos;ll use this information to create a balanced and
+                personalized lunch plan for your child.
+              </span>
+            </div>
           </div>
 
           {/* Section 2: Output */}
           <div className="rounded-2xl border border-leaf-100 bg-white p-6 shadow-sm">
             <div className="flex flex-wrap items-center gap-3">
-              <h2 className="text-lg font-semibold text-leaf-700">
-                Your 5-day lunch plan
+              <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-leaf-600 text-sm font-bold text-white">
+                2
+              </span>
+              <h2 className="flex items-center gap-2 text-lg font-semibold text-leaf-700">
+                <span aria-hidden="true">🍽️</span> Your 5-day lunch plan
               </h2>
               {generated && (
                 <span className="rounded-full bg-leaf-100 px-3 py-1 text-xs font-semibold text-leaf-700">
@@ -275,15 +323,24 @@ export default function CoreClient() {
                     </span>
                   )}
                 </div>
+                <p className="mt-3 flex items-center gap-1.5 text-xs text-leaf-600">
+                  <span aria-hidden="true">🔒</span>
+                  Your plan will be saved so you can see it later.
+                </p>
               </>
             )}
           </div>
 
           {/* Section 3: Saved plans */}
           <div className="rounded-2xl border border-leaf-100 bg-white p-6 shadow-sm">
-            <h2 className="text-lg font-semibold text-leaf-700">
-              Your saved lunch plans
-            </h2>
+            <div className="flex items-center gap-3">
+              <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-leaf-600 text-sm font-bold text-white">
+                3
+              </span>
+              <h2 className="flex items-center gap-2 text-lg font-semibold text-leaf-700">
+                <span aria-hidden="true">📋</span> Your saved lunch plans
+              </h2>
+            </div>
 
             <div className="mt-4 overflow-x-auto">
               <table className="w-full min-w-[640px] text-left text-sm">
@@ -316,7 +373,7 @@ export default function CoreClient() {
                   )}
 
                   {!loadingSaved &&
-                    savedPlans.map((row) => (
+                    savedPlans.slice(0, visibleRows).map((row) => (
                       <Fragment key={row.id}>
                         <tr className="border-b border-leaf-50 align-top text-leaf-800">
                           <td className="py-3 pr-4">
@@ -392,6 +449,19 @@ export default function CoreClient() {
                 </tbody>
               </table>
             </div>
+
+            {!loadingSaved && savedPlans.length > 0 && (
+              <div className="mt-4 flex justify-center">
+                <button
+                  type="button"
+                  onClick={() => setVisibleRows((prev) => prev + 5)}
+                  disabled={visibleRows >= savedPlans.length}
+                  className="rounded-full border border-leaf-200 px-6 py-2 text-sm font-semibold text-leaf-700 transition-colors hover:bg-leaf-50 disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  Load more
+                </button>
+              </div>
+            )}
           </div>
         </div>
 
@@ -432,6 +502,20 @@ export default function CoreClient() {
             🔒 Your plans are saved securely in our database.
           </p>
         </aside>
+      </div>
+
+      <div className="mt-16 grid gap-10 sm:grid-cols-2 md:grid-cols-4">
+        {VALUE_PROPS.map((prop) => (
+          <div key={prop.title} className="text-center sm:text-left">
+            <span className="text-3xl" aria-hidden="true">
+              {prop.icon}
+            </span>
+            <h2 className="mt-3 text-lg font-semibold text-leaf-700">
+              {prop.title}
+            </h2>
+            <p className="mt-1 text-sm text-gray-600">{prop.description}</p>
+          </div>
+        ))}
       </div>
     </section>
   );

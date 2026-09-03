@@ -71,6 +71,51 @@ export default function DocsPage() {
           res.
         </p>
       </div>
+
+      <div className="mt-10 rounded-2xl border border-leaf-100 bg-leaf-50 p-6 text-left shadow-sm sm:p-8">
+        <h2 className="text-xl font-bold text-leaf-700">
+          Week 1 — Generative Core Agent Prompts
+        </h2>
+        <p className="mt-3 text-leaf-800">
+          Los 5 prompts que usamos con Claude Code esta semana para construir
+          el Generative Core Agent en <code>/core</code>, en orden:
+        </p>
+
+        <ol className="mt-4 list-decimal space-y-5 pl-5 text-leaf-800">
+          <li>
+            <strong>Generador de menú (/core):</strong> crear la tabla{" "}
+            <code>core_outputs</code> en Supabase con insert y select reales,
+            y construir la página <code>/core</code> completa: formulario de
+            edad, alergias y preferencias del niño, generación de un plan de
+            5 días a partir de listas fijas en el código (sin IA), guardado
+            del plan en Supabase y una tabla con los planes guardados.
+          </li>
+          <li>
+            <strong>Botón de borrar:</strong> habilitar el botón 🗑️ de la
+            tabla &quot;Your saved lunch plans&quot; para que borre el
+            registro real en Supabase (incluyendo la política RLS de{" "}
+            <code>DELETE</code>) y lo quite de la lista visualmente.
+          </li>
+          <li>
+            <strong>Link del navbar:</strong> cambiar el link
+            &quot;Plans&quot; del navbar para que apunte a <code>/core</code>{" "}
+            en vez de a la página anterior.
+          </li>
+          <li>
+            <strong>Corrección — no repetir guarnición ni fruta:</strong>{" "}
+            aplicar la misma regla de &quot;no repetir el día
+            anterior&quot; que ya existía para la proteína también a la
+            guarnición y a la fruta del menú generado.
+          </li>
+          <li>
+            <strong>Corrección — emoji de tofu y combinaciones naturales:</strong>{" "}
+            arreglar el emoji de &quot;Tofu bites&quot; (se veía como un
+            cuadro vacío) y agrupar proteínas, guarniciones y frutas por tema
+            (clásico, desayuno, mediterráneo, asiático, plant-based) para que
+            las combinaciones generadas se sientan más armónicas.
+          </li>
+        </ol>
+      </div>
     </section>
   );
 }

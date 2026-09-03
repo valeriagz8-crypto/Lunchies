@@ -4,8 +4,15 @@ export type MenuItem = {
   emoji: string;
 };
 
-type ProteinItem = MenuItem & { redMeat?: boolean; vegetarian?: boolean };
-type SideItem = MenuItem & { type: "veggie" | "carb" };
+type MealGroup = "classic" | "breakfast" | "mediterranean" | "asian" | "plant";
+
+type ProteinItem = MenuItem & {
+  redMeat?: boolean;
+  vegetarian?: boolean;
+  group: MealGroup;
+};
+type SideItem = MenuItem & { type: "veggie" | "carb"; groups: MealGroup[] };
+type FruitItem = MenuItem & { groups: MealGroup[] };
 
 export const ALLERGY_OPTIONS = [
   "Peanuts",
@@ -29,38 +36,168 @@ export const CHILD_AGE_OPTIONS = Array.from(
 );
 
 const PROTEINS: ProteinItem[] = [
-  { name: "Grilled chicken", allergens: [], emoji: "🍗" },
-  { name: "Turkey slices", allergens: [], emoji: "🦃" },
-  { name: "Beef strips", allergens: [], redMeat: true, emoji: "🥩" },
-  { name: "Scrambled eggs", allergens: ["Eggs"], vegetarian: true, emoji: "🍳" },
-  { name: "Cheese cubes", allergens: ["Dairy"], vegetarian: true, emoji: "🧀" },
-  { name: "Black beans", allergens: [], vegetarian: true, emoji: "🫘" },
-  { name: "Tofu bites", allergens: ["Soy"], vegetarian: true, emoji: "⬜" },
-  { name: "Shrimp bites", allergens: ["Shellfish"], emoji: "🍤" },
+  { name: "Grilled chicken", allergens: [], emoji: "🍗", group: "classic" },
+  { name: "Turkey slices", allergens: [], emoji: "🦃", group: "classic" },
+  {
+    name: "Beef strips",
+    allergens: [],
+    redMeat: true,
+    emoji: "🥩",
+    group: "classic",
+  },
+  {
+    name: "Scrambled eggs",
+    allergens: ["Eggs"],
+    vegetarian: true,
+    emoji: "🍳",
+    group: "breakfast",
+  },
+  {
+    name: "Cheese cubes",
+    allergens: ["Dairy"],
+    vegetarian: true,
+    emoji: "🧀",
+    group: "mediterranean",
+  },
+  {
+    name: "Black beans",
+    allergens: [],
+    vegetarian: true,
+    emoji: "🫘",
+    group: "plant",
+  },
+  {
+    name: "Tofu bites",
+    allergens: ["Soy"],
+    vegetarian: true,
+    emoji: "🍢",
+    group: "asian",
+  },
+  { name: "Shrimp bites", allergens: ["Shellfish"], emoji: "🍤", group: "asian" },
 ];
 
 const SIDES: SideItem[] = [
-  { name: "Steamed broccoli", allergens: [], type: "veggie", emoji: "🥦" },
-  { name: "Carrot sticks", allergens: [], type: "veggie", emoji: "🥕" },
-  { name: "Green beans", allergens: [], type: "veggie", emoji: "🫛" },
-  { name: "Corn", allergens: [], type: "veggie", emoji: "🌽" },
-  { name: "Hummus & cucumber", allergens: [], type: "veggie", emoji: "🥒" },
-  { name: "Brown rice", allergens: [], type: "carb", emoji: "🍚" },
-  { name: "Quinoa", allergens: [], type: "carb", emoji: "🌾" },
-  { name: "Sweet potato mash", allergens: [], type: "carb", emoji: "🍠" },
-  { name: "Whole wheat pasta", allergens: ["Gluten"], type: "carb", emoji: "🍝" },
-  { name: "Whole grain toast", allergens: ["Gluten"], type: "carb", emoji: "🍞" },
+  {
+    name: "Steamed broccoli",
+    allergens: [],
+    type: "veggie",
+    emoji: "🥦",
+    groups: ["classic", "asian", "plant"],
+  },
+  {
+    name: "Carrot sticks",
+    allergens: [],
+    type: "veggie",
+    emoji: "🥕",
+    groups: ["classic", "plant"],
+  },
+  {
+    name: "Green beans",
+    allergens: [],
+    type: "veggie",
+    emoji: "🫛",
+    groups: ["classic", "mediterranean", "plant"],
+  },
+  {
+    name: "Corn",
+    allergens: [],
+    type: "veggie",
+    emoji: "🌽",
+    groups: ["classic", "plant"],
+  },
+  {
+    name: "Hummus & cucumber",
+    allergens: [],
+    type: "veggie",
+    emoji: "🥒",
+    groups: ["mediterranean", "plant"],
+  },
+  {
+    name: "Brown rice",
+    allergens: [],
+    type: "carb",
+    emoji: "🍚",
+    groups: ["asian", "classic", "plant"],
+  },
+  {
+    name: "Quinoa",
+    allergens: [],
+    type: "carb",
+    emoji: "🌾",
+    groups: ["mediterranean", "plant", "classic"],
+  },
+  {
+    name: "Sweet potato mash",
+    allergens: [],
+    type: "carb",
+    emoji: "🍠",
+    groups: ["classic", "breakfast", "plant"],
+  },
+  {
+    name: "Whole wheat pasta",
+    allergens: ["Gluten"],
+    type: "carb",
+    emoji: "🍝",
+    groups: ["mediterranean", "classic"],
+  },
+  {
+    name: "Whole grain toast",
+    allergens: ["Gluten"],
+    type: "carb",
+    emoji: "🍞",
+    groups: ["breakfast", "classic"],
+  },
 ];
 
-const FRUITS: MenuItem[] = [
-  { name: "Apple slices", allergens: [], emoji: "🍎" },
-  { name: "Banana", allergens: [], emoji: "🍌" },
-  { name: "Orange segments", allergens: [], emoji: "🍊" },
-  { name: "Grapes", allergens: [], emoji: "🍇" },
-  { name: "Strawberries", allergens: [], emoji: "🍓" },
-  { name: "Mango chunks", allergens: [], emoji: "🥭" },
-  { name: "Pineapple chunks", allergens: [], emoji: "🍍" },
-  { name: "Watermelon cubes", allergens: [], emoji: "🍉" },
+const FRUITS: FruitItem[] = [
+  {
+    name: "Apple slices",
+    allergens: [],
+    emoji: "🍎",
+    groups: ["classic", "breakfast", "plant"],
+  },
+  {
+    name: "Banana",
+    allergens: [],
+    emoji: "🍌",
+    groups: ["breakfast", "classic", "plant"],
+  },
+  {
+    name: "Orange segments",
+    allergens: [],
+    emoji: "🍊",
+    groups: ["breakfast", "mediterranean", "classic"],
+  },
+  {
+    name: "Grapes",
+    allergens: [],
+    emoji: "🍇",
+    groups: ["mediterranean", "classic"],
+  },
+  {
+    name: "Strawberries",
+    allergens: [],
+    emoji: "🍓",
+    groups: ["breakfast", "classic"],
+  },
+  {
+    name: "Mango chunks",
+    allergens: [],
+    emoji: "🥭",
+    groups: ["asian", "plant"],
+  },
+  {
+    name: "Pineapple chunks",
+    allergens: [],
+    emoji: "🍍",
+    groups: ["asian", "plant"],
+  },
+  {
+    name: "Watermelon cubes",
+    allergens: [],
+    emoji: "🍉",
+    groups: ["classic", "asian", "plant"],
+  },
 ];
 
 const ALL_ITEMS: MenuItem[] = [...PROTEINS, ...SIDES, ...FRUITS];
@@ -127,13 +264,27 @@ export function generateWeekPlan(
     );
     lastProtein = protein.name;
 
-    const sideCandidates = sidePool.filter((item) => item.name !== lastSide);
-    const side = pickRandom(sideCandidates.length > 0 ? sideCandidates : sidePool);
+    const themedSides = sidePool.filter((item) =>
+      item.groups.includes(protein.group),
+    );
+    const sideBasePool = themedSides.length > 0 ? themedSides : sidePool;
+    const sideCandidates = sideBasePool.filter(
+      (item) => item.name !== lastSide,
+    );
+    const side = pickRandom(
+      sideCandidates.length > 0 ? sideCandidates : sideBasePool,
+    );
     lastSide = side.name;
 
-    const fruitCandidates = fruitPool.filter((item) => item.name !== lastFruit);
+    const themedFruits = fruitPool.filter((item) =>
+      item.groups.includes(protein.group),
+    );
+    const fruitBasePool = themedFruits.length > 0 ? themedFruits : fruitPool;
+    const fruitCandidates = fruitBasePool.filter(
+      (item) => item.name !== lastFruit,
+    );
     const fruit = pickRandom(
-      fruitCandidates.length > 0 ? fruitCandidates : fruitPool,
+      fruitCandidates.length > 0 ? fruitCandidates : fruitBasePool,
     );
     lastFruit = fruit.name;
 

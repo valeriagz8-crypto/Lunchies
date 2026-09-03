@@ -116,20 +116,32 @@ export function generateWeekPlan(
   if (fruitPool.length === 0) fruitPool = FRUITS;
 
   let lastProtein = "";
+  let lastSide = "";
+  let lastFruit = "";
   return DAYS.map((day) => {
-    const candidates = proteinPool.filter(
+    const proteinCandidates = proteinPool.filter(
       (item) => item.name !== lastProtein,
     );
     const protein = pickRandom(
-      candidates.length > 0 ? candidates : proteinPool,
+      proteinCandidates.length > 0 ? proteinCandidates : proteinPool,
     );
     lastProtein = protein.name;
+
+    const sideCandidates = sidePool.filter((item) => item.name !== lastSide);
+    const side = pickRandom(sideCandidates.length > 0 ? sideCandidates : sidePool);
+    lastSide = side.name;
+
+    const fruitCandidates = fruitPool.filter((item) => item.name !== lastFruit);
+    const fruit = pickRandom(
+      fruitCandidates.length > 0 ? fruitCandidates : fruitPool,
+    );
+    lastFruit = fruit.name;
 
     return {
       day,
       protein: protein.name,
-      side: pickRandom(sidePool).name,
-      fruit: pickRandom(fruitPool).name,
+      side: side.name,
+      fruit: fruit.name,
     };
   });
 }

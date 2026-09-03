@@ -21,6 +21,22 @@ Definidas en `.env.example`, deben copiarse a `.env.local` con los valores reale
 | `NEXT_PUBLIC_SUPABASE_URL` | URL del proyecto de Supabase. |
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Llave pública (anon) de Supabase para el cliente. |
 
+## /core — Generative Core Agent
+
+Página que genera un plan de comida de 5 días (lunes a viernes) a partir de la edad, las alergias y las preferencias del niño. La generación es 100% con listas fijas en el código (sin IA externa), evitando los ingredientes marcados como alergia y sin repetir la misma proteína, guarnición ni fruta en días consecutivos.
+
+**Tecnologías:**
+
+- Next.js (App Router) para la página y la lógica de generación en el cliente.
+- Supabase para guardar y borrar los planes generados (tabla `core_outputs`, con insert/select/delete reales vía `@supabase/supabase-js`).
+
+**Cómo probarlo localmente:**
+
+1. Corre el SQL de la tabla `core_outputs` y sus políticas RLS (insert, select y delete) en el editor SQL de tu proyecto de Supabase.
+2. Copia tus credenciales de Supabase a `.env.local` (ver sección [Variables de entorno](#variables-de-entorno)).
+3. Levanta el proyecto con `npm run dev` y abre [http://localhost:3000/core](http://localhost:3000/core).
+4. Llena el formulario, genera un menú, guárdalo y verifica que aparezca en la tabla "Your saved lunch plans".
+
 ## Despliegue
 
 Este proyecto está desplegado en Vercel.

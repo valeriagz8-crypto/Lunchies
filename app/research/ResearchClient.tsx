@@ -87,6 +87,41 @@ function getPriceBounds(price: string): [number, number] {
   return [Math.min(...numbers), Math.max(...numbers)];
 }
 
+const TOTAL_COMPETITORS_COUNT = COMPETITORS.length;
+const DIRECT_COMPETITORS_COUNT = COMPETITORS.filter(
+  (c) => c.type === "Direct",
+).length;
+const ALL_PRICE_BOUNDS = COMPETITORS.map((c) => getPriceBounds(c.price));
+const MIN_COMPETITOR_PRICE = Math.min(
+  ...ALL_PRICE_BOUNDS.map(([low]) => low),
+);
+const MAX_COMPETITOR_PRICE = Math.max(
+  ...ALL_PRICE_BOUNDS.map(([, high]) => high),
+);
+
+const KPI_CARDS = [
+  {
+    icon: "📊",
+    value: `${TOTAL_COMPETITORS_COUNT}`,
+    label: "competitors tracked",
+  },
+  {
+    icon: "🎯",
+    value: `${DIRECT_COMPETITORS_COUNT}`,
+    label: "direct competitors",
+  },
+  {
+    icon: "💰",
+    value: `$${MIN_COMPETITOR_PRICE}–$${MAX_COMPETITOR_PRICE}`,
+    label: "price range /week",
+  },
+  {
+    icon: "🔍",
+    value: "1",
+    label: "clear gap identified",
+  },
+];
+
 function buildResearchInsight(topic: string, tags: string[]): string {
   const directCompetitors = COMPETITORS.filter((c) => c.type === "Direct");
   const directLows = directCompetitors.map((c) => getPriceBounds(c.price)[0]);
@@ -338,6 +373,24 @@ export default function ResearchClient() {
             🔎
           </span>
         </div>
+      </div>
+
+      {/* KPI widget */}
+      <div className="mt-8 grid grid-cols-2 gap-3 sm:grid-cols-4">
+        {KPI_CARDS.map((kpi) => (
+          <div
+            key={kpi.label}
+            className="rounded-2xl border border-leaf-100 bg-leaf-50 p-4 text-center shadow-sm"
+          >
+            <span className="text-2xl" aria-hidden="true">
+              {kpi.icon}
+            </span>
+            <p className="mt-1 text-xl font-extrabold text-leaf-800">
+              {kpi.value}
+            </p>
+            <p className="text-xs text-leaf-600">{kpi.label}</p>
+          </div>
+        ))}
       </div>
 
       {/* Reading guide */}

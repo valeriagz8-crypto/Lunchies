@@ -81,6 +81,58 @@ function buildResearchSummary(
   return summary;
 }
 
+function getPriceBounds(price: string): [number, number] {
+  const numbers = price.match(/\d+/g)?.map(Number) ?? [];
+  if (numbers.length === 0) return [Infinity, Infinity];
+  return [Math.min(...numbers), Math.max(...numbers)];
+}
+
+function buildResearchInsight(topic: string, tags: string[]): string {
+  const directCompetitors = COMPETITORS.filter((c) => c.type === "Direct");
+  const directLows = directCompetitors.map((c) => getPriceBounds(c.price)[0]);
+  const directHighs = directCompetitors.map((c) => getPriceBounds(c.price)[1]);
+  const minPrice = Math.min(...directLows);
+  const maxPrice = Math.max(...directHighs);
+
+  const sentences: string[] = [
+    `there are ${directCompetitors.length} direct competitors in this space, with prices ranging from $${minPrice} to $${maxPrice}/week`,
+  ];
+
+  const wantsAllergyInsight =
+    topic.toLowerCase().includes("allerg") || tags.includes("Allergies");
+  if (wantsAllergyInsight) {
+    const allergyCompetitors = COMPETITORS.filter(
+      (c) => c.name !== "Lunchies" && /allerg/i.test(c.strength),
+    ).length;
+    sentences.push(
+      allergyCompetitors === 0
+        ? "None of them combine allergy-safety with personalization — that's the gap Lunchies fills"
+        : `Only ${allergyCompetitors} of them mention allergy-safety as a strength — most still don't combine it with personalization`,
+    );
+  }
+
+  const wantsPricingInsight =
+    topic.toLowerCase().includes("pricing") || tags.includes("Pricing");
+  if (wantsPricingInsight) {
+    const midpoints = COMPETITORS.map((c) => {
+      const [low, high] = getPriceBounds(c.price);
+      return (low + high) / 2;
+    });
+    const average = Math.round(
+      midpoints.reduce((sum, value) => sum + value, 0) / midpoints.length,
+    );
+    sentences.push(
+      `On average, competitors charge around $${average}/week — useful context for pricing Lunchies`,
+    );
+  }
+
+  sentences.push(
+    `Given that ${MEXICO_STAT.value} of school-age children in Mexico face weight-related health issues, this problem is backed by real data`,
+  );
+
+  return `Based on your research: ${sentences.join(". ")}.`;
+}
+
 const TOPIC_OPTIONS = [
   "Allergy-friendly lunches",
   "Pricing",
@@ -185,6 +237,7 @@ export default function ResearchClient() {
   const [countryFilter, setCountryFilter] = useState<string>("All");
 
   const [researchSummary, setResearchSummary] = useState<string | null>(null);
+  const [researchInsight, setResearchInsight] = useState<string | null>(null);
   const [appliedTags, setAppliedTags] = useState<string[]>([]);
 
   const countryOptions = useMemo(
@@ -235,6 +288,7 @@ export default function ResearchClient() {
     setResearchSummary(
       buildResearchSummary(topic, problem, targetUser, location, tags),
     );
+    setResearchInsight(buildResearchInsight(topic, tags));
     setAppliedTags(tags);
     document
       .getElementById("competitors")
@@ -491,6 +545,13 @@ export default function ResearchClient() {
           <div className="flex items-start gap-2 rounded-xl border border-peach-200 bg-peach-50 px-4 py-3 text-sm text-peach-800">
             <span aria-hidden="true">🧭</span>
             <span>{researchSummary}</span>
+          </div>
+        )}
+
+        {researchInsight && (
+          <div className="flex items-start gap-2 rounded-xl border border-leaf-200 bg-leaf-50 px-4 py-3 text-sm text-leaf-800">
+            <span aria-hidden="true">✨</span>
+            <span>{researchInsight}</span>
           </div>
         )}
 

@@ -37,6 +37,58 @@ Página que genera un plan de comida de 5 días (lunes a viernes) a partir de la
 3. Levanta el proyecto con `npm run dev` y abre [http://localhost:3000/core](http://localhost:3000/core).
 4. Llena el formulario, genera un menú, guárdalo y verifica que aparezca en la tabla "Your saved lunch plans".
 
+## /research — Research + Benchmarking Dashboard
+
+Página que reúne evidencia del problema (papás con poco tiempo que no siempre pueden preparar lonches saludables y personalizados), ejemplos globales, contexto de México, y una comparación de competidores y sustitutos, organizado en un dashboard simple.
+
+**Incluye:**
+
+- Formulario de intake (research topic, problem to validate, target user, location/market, tags de aprendizaje).
+- 5 tarjetas de "Global examples" (Yumble, Little Spoon, Chefs for Kids, Foodini, Kiddos).
+- Sección "Mexico" con el dato de ENSANUT sobre sobrepeso/obesidad infantil.
+- Tabla de 8 competidores/sustitutos (directos, indirectos y sustitutos) con búsqueda por nombre y filtros por tipo y país, 100% client-side.
+- "Risk map": cuadrante 2x2 (market saturation vs. threat level) hecho con SVG simple, sin librerías de gráficas.
+- "Save your research": guarda el intake en Supabase (tabla `research_notes`) y muestra abajo la lista de research guardado previamente.
+
+Los datos de ejemplos globales y competidores están fijos en el código (`lib/researchData.ts`), sin scraping ni APIs en vivo.
+
+**Tecnologías:**
+
+- Next.js (App Router) para la página, filtros/búsqueda de la tabla y el risk map en el cliente.
+- Supabase para guardar y listar el research (tabla `research_notes`, con insert/select reales vía `@supabase/supabase-js`).
+
+**Cómo probarlo localmente:**
+
+1. Corre este SQL en el editor SQL de tu proyecto de Supabase para crear la tabla `research_notes` y sus políticas RLS (insert y select):
+
+   ```sql
+   create table research_notes (
+     id uuid primary key default gen_random_uuid(),
+     created_at timestamptz not null default now(),
+     topic text not null,
+     problem text not null,
+     target_user text not null,
+     location text not null,
+     tags text[] not null default '{}'
+   );
+
+   alter table research_notes enable row level security;
+
+   create policy "Allow public insert on research_notes"
+     on research_notes for insert
+     to anon
+     with check (true);
+
+   create policy "Allow public select on research_notes"
+     on research_notes for select
+     to anon
+     using (true);
+   ```
+
+2. Copia tus credenciales de Supabase a `.env.local` (ver sección [Variables de entorno](#variables-de-entorno)).
+3. Levanta el proyecto con `npm run dev` y abre [http://localhost:3000/research](http://localhost:3000/research).
+4. Llena el formulario de intake, guarda el research y verifica que aparezca en "Previously saved research". Prueba también la búsqueda y los filtros de la tabla de competidores.
+
 ## Despliegue
 
 Este proyecto está desplegado en Vercel.

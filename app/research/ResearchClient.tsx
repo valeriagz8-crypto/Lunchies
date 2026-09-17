@@ -330,6 +330,13 @@ export default function ResearchClient() {
       ?.scrollIntoView({ behavior: "smooth", block: "start" });
   }
 
+  function handleResetFilters() {
+    setSearch("");
+    setTypeFilter("All");
+    setCountryFilter("All");
+    setAppliedTags([]);
+  }
+
   async function handleSave() {
     if (!canSave) return;
     setSaving(true);
@@ -666,6 +673,13 @@ export default function ResearchClient() {
                 </option>
               ))}
             </select>
+            <button
+              type="button"
+              onClick={handleResetFilters}
+              className="rounded-lg border border-leaf-200 px-3 py-2 text-sm font-semibold text-leaf-700 transition-colors hover:bg-leaf-50"
+            >
+              Reset filters
+            </button>
           </div>
 
           <div className="mt-4 overflow-x-auto">

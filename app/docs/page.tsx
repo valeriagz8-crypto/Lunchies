@@ -116,6 +116,53 @@ export default function DocsPage() {
           </li>
         </ol>
       </div>
+
+      <div className="mt-10 rounded-2xl border border-leaf-100 bg-leaf-50 p-6 text-left shadow-sm sm:p-8">
+        <h2 className="text-xl font-bold text-leaf-700">
+          Week 2 — Research + Benchmarking Dashboard Prompts
+        </h2>
+        <p className="mt-3 text-leaf-800">
+          Los prompts principales que usamos con Claude Code esta semana para
+          construir el dashboard de research en <code>/research</code>, en
+          orden:
+        </p>
+
+        <ol className="mt-4 list-decimal space-y-5 pl-5 text-leaf-800">
+          <li>
+            <strong>Dashboard completo (/research):</strong> construir la
+            página completa según el Build Discipline Packet — formulario de
+            intake, 5 tarjetas de &quot;Global examples&quot;, sección
+            &quot;Mexico&quot; con el dato de ENSANUT, tabla de 8
+            competidores/sustitutos con búsqueda y filtros, un risk map en
+            SVG, y guardado del research en Supabase (tabla{" "}
+            <code>research_notes</code>) con su lista de research guardado.
+          </li>
+          <li>
+            <strong>Dropdowns con &quot;Other&quot;:</strong> convertir los
+            4 campos de texto libre del formulario de intake (research
+            topic, problem, target user, location) en menús desplegables con
+            opciones predefinidas, cada uno con una opción &quot;Other&quot;
+            que muestra un campo de texto para escribir algo distinto, sin
+            cambiar qué se guarda en Supabase.
+          </li>
+          <li>
+            <strong>Análisis calculado con &quot;Start research&quot;:</strong>{" "}
+            hacer que el botón &quot;Start research&quot; genere un resumen
+            narrativo con los valores del formulario, un análisis calculado
+            localmente a partir de <code>COMPETITORS</code> (conteo de
+            competidores directos, rango de precios, gap de
+            allergy-safety, precio promedio y el dato de México), y que
+            resalte u ordene las filas de la tabla según los tags
+            seleccionados — todo sin ninguna llamada externa.
+          </li>
+          <li>
+            <strong>Widget de KPIs:</strong> agregar una fila de 4 tarjetas
+            con estadísticas rápidas (competidores totales, competidores
+            directos, rango de precio y gap identificado) calculadas
+            dinámicamente del array <code>COMPETITORS</code>.
+          </li>
+        </ol>
+      </div>
     </section>
   );
 }

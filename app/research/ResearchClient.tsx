@@ -108,9 +108,11 @@ export default function ResearchClient() {
     <section className="mx-auto max-w-5xl px-4 py-16 sm:px-6">
       <div className="grid items-center gap-8 md:grid-cols-2">
         <div>
-          <h1 className="text-3xl font-extrabold tracking-tight text-gray-800 sm:text-4xl">
-            Research &{" "}
-            <span className="text-peach-500">benchmarking dashboard</span>
+          <span className="flex items-center gap-1.5 text-sm font-bold uppercase tracking-wide text-peach-500">
+            <span aria-hidden="true">🔍</span> Research
+          </span>
+          <h1 className="mt-2 whitespace-nowrap text-3xl font-extrabold tracking-tight text-gray-800 sm:text-4xl">
+            Research &amp; <span className="text-peach-500">Benchmarking</span>
           </h1>
           <p className="mt-4 max-w-md text-lg text-gray-600">
             This page shows why Lunchies matters: real proof that parents
@@ -119,10 +121,52 @@ export default function ResearchClient() {
           </p>
         </div>
         <div className="flex justify-center md:justify-end">
-          <span className="text-[8rem] leading-none" aria-hidden="true">
+          <span className="text-6xl leading-none" aria-hidden="true">
             🔎
           </span>
         </div>
+      </div>
+
+      {/* Reading guide */}
+      <div className="mt-8 flex flex-wrap items-center justify-center gap-x-2 gap-y-3 rounded-full border border-leaf-100 bg-leaf-50 px-4 py-3 text-center text-xs font-medium text-leaf-700 sm:text-sm">
+        <span className="flex items-center gap-1.5">
+          <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-leaf-600 text-[10px] font-bold text-white">
+            1
+          </span>
+          See if the problem is real{" "}
+          <span className="text-leaf-500">(Mexico stat)</span>
+        </span>
+        <span aria-hidden="true" className="text-leaf-400">
+          →
+        </span>
+        <span className="flex items-center gap-1.5">
+          <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-leaf-600 text-[10px] font-bold text-white">
+            2
+          </span>
+          See who else is solving it{" "}
+          <span className="text-leaf-500">
+            (global examples + competitors)
+          </span>
+        </span>
+        <span aria-hidden="true" className="text-leaf-400">
+          →
+        </span>
+        <span className="flex items-center gap-1.5">
+          <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-leaf-600 text-[10px] font-bold text-white">
+            3
+          </span>
+          See how risky each one is{" "}
+          <span className="text-leaf-500">(risk map)</span>
+        </span>
+        <span aria-hidden="true" className="text-leaf-400">
+          →
+        </span>
+        <span className="flex items-center gap-1.5">
+          <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-leaf-600 text-[10px] font-bold text-white">
+            4
+          </span>
+          Save what you learned
+        </span>
       </div>
 
       <div className="mt-12 space-y-8">
@@ -221,13 +265,21 @@ export default function ResearchClient() {
 
         {/* Section 2: Global examples */}
         <div className="rounded-2xl border border-leaf-100 bg-white p-6 shadow-sm">
-          <div className="flex items-center gap-3">
-            <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-leaf-600 text-sm font-bold text-white">
-              2
-            </span>
-            <h2 className="flex items-center gap-2 text-lg font-semibold text-leaf-700">
-              <span aria-hidden="true">🌍</span> Global examples
-            </h2>
+          <div className="flex items-center justify-between gap-3">
+            <div className="flex items-center gap-3">
+              <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-leaf-600 text-sm font-bold text-white">
+                2
+              </span>
+              <h2 className="flex items-center gap-2 text-lg font-semibold text-leaf-700">
+                <span aria-hidden="true">🌍</span> Global examples
+              </h2>
+            </div>
+            <a
+              href="#competitors"
+              className="shrink-0 text-sm font-semibold text-peach-600 transition-colors hover:text-peach-700"
+            >
+              See more examples →
+            </a>
           </div>
           <p className="mt-2 text-sm text-leaf-600">
             These are companies in other countries already doing something
@@ -283,7 +335,10 @@ export default function ResearchClient() {
         </div>
 
         {/* Section 4: Competitors table */}
-        <div className="rounded-2xl border border-leaf-100 bg-white p-6 shadow-sm">
+        <div
+          id="competitors"
+          className="scroll-mt-20 rounded-2xl border border-leaf-100 bg-white p-6 shadow-sm"
+        >
           <div className="flex items-center gap-3">
             <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-leaf-600 text-sm font-bold text-white">
               4
@@ -406,11 +461,30 @@ export default function ResearchClient() {
           </div>
         </div>
 
-        {/* Section 6: Save research */}
+        {/* Section 6: The gap */}
+        <div className="rounded-2xl border border-peach-100 bg-peach-50 p-6 shadow-sm">
+          <div className="flex items-center gap-3">
+            <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-peach-500 text-sm font-bold text-white">
+              6
+            </span>
+            <h2 className="flex items-center gap-2 text-lg font-semibold text-peach-700">
+              <span aria-hidden="true">🎯</span> So, what&apos;s the gap?
+            </h2>
+          </div>
+          <p className="mt-3 text-sm text-peach-800">
+            Parents in Mexico really do struggle with this — over a third of
+            school-age kids already face weight-related health issues.
+            Several companies compete on price or convenience, but none
+            combine personalization, allergy-safety, and affordability the
+            way Lunchies does. That&apos;s the gap Lunchies is built to fill.
+          </p>
+        </div>
+
+        {/* Section 7: Save research */}
         <div className="rounded-2xl border border-leaf-100 bg-white p-6 shadow-sm">
           <div className="flex items-center gap-3">
             <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-leaf-600 text-sm font-bold text-white">
-              6
+              7
             </span>
             <h2 className="flex items-center gap-2 text-lg font-semibold text-leaf-700">
               <span aria-hidden="true">💾</span> Save your research

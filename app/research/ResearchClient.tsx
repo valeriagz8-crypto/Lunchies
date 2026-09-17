@@ -29,6 +29,92 @@ function toggleTag(list: string[], tag: string) {
     : [...list, tag];
 }
 
+const TOPIC_OPTIONS = [
+  "Allergy-friendly lunches",
+  "Pricing",
+  "Personalization",
+  "Delivery speed",
+  "Nutrition quality",
+  "Convenience",
+  "Other",
+];
+
+const PROBLEM_OPTIONS = [
+  "Parents don't have time to prepare lunch",
+  "Parents worry about allergies/safety",
+  "Existing options are too expensive",
+  "Existing options aren't personalized",
+  "Parents don't trust delivery quality",
+  "Other",
+];
+
+const TARGET_USER_OPTIONS = [
+  "Parents of children ages 3-5",
+  "Parents of children ages 6-12",
+  "Parents of teenagers",
+  "Schools / institutions",
+  "Other",
+];
+
+const LOCATION_OPTIONS = ["Mexico City", "Guadalajara", "Monterrey", "Other"];
+
+function SelectWithOther({
+  label,
+  options,
+  value,
+  onChange,
+  otherPlaceholder,
+}: {
+  label: string;
+  options: string[];
+  value: string;
+  onChange: (value: string) => void;
+  otherPlaceholder: string;
+}) {
+  const [isOther, setIsOther] = useState(false);
+
+  function handleSelectChange(newValue: string) {
+    if (newValue === "Other") {
+      setIsOther(true);
+      onChange("");
+    } else {
+      setIsOther(false);
+      onChange(newValue);
+    }
+  }
+
+  return (
+    <div>
+      <label className="block text-sm font-medium text-leaf-800">
+        {label}
+      </label>
+      <select
+        value={isOther ? "Other" : value}
+        onChange={(e) => handleSelectChange(e.target.value)}
+        className="mt-2 w-full rounded-lg border border-leaf-200 bg-white px-3 py-2 text-sm text-leaf-900 focus:border-leaf-500 focus:outline-none"
+      >
+        <option value="" disabled>
+          Select an option
+        </option>
+        {options.map((option) => (
+          <option key={option} value={option}>
+            {option}
+          </option>
+        ))}
+      </select>
+      {isOther && (
+        <input
+          type="text"
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          placeholder={otherPlaceholder}
+          className="mt-2 w-full rounded-lg border border-leaf-200 bg-white px-3 py-2 text-sm text-leaf-900 focus:border-leaf-500 focus:outline-none"
+        />
+      )}
+    </div>
+  );
+}
+
 export default function ResearchClient() {
   const [topic, setTopic] = useState("");
   const [problem, setProblem] = useState("");
@@ -81,6 +167,12 @@ export default function ResearchClient() {
   }, []);
 
   const canSave = topic.trim() && problem.trim() && targetUser.trim() && location.trim();
+
+  function handleStartResearch() {
+    document
+      .getElementById("competitors")
+      ?.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
 
   async function handleSave() {
     if (!canSave) return;
@@ -187,54 +279,36 @@ export default function ResearchClient() {
           </p>
 
           <div className="mt-5 grid gap-5 sm:grid-cols-2">
-            <div>
-              <label className="block text-sm font-medium text-leaf-800">
-                Research topic
-              </label>
-              <input
-                type="text"
-                value={topic}
-                onChange={(e) => setTopic(e.target.value)}
-                placeholder="e.g. Personalized allergy-friendly lunches"
-                className="mt-2 w-full rounded-lg border border-leaf-200 bg-white px-3 py-2 text-sm text-leaf-900 focus:border-leaf-500 focus:outline-none"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-leaf-800">
-                Target user
-              </label>
-              <input
-                type="text"
-                value={targetUser}
-                onChange={(e) => setTargetUser(e.target.value)}
-                placeholder="e.g. Busy parents of school-age kids"
-                className="mt-2 w-full rounded-lg border border-leaf-200 bg-white px-3 py-2 text-sm text-leaf-900 focus:border-leaf-500 focus:outline-none"
-              />
-            </div>
+            <SelectWithOther
+              label="Research topic"
+              options={TOPIC_OPTIONS}
+              value={topic}
+              onChange={setTopic}
+              otherPlaceholder="Describe your research topic"
+            />
+            <SelectWithOther
+              label="Target user"
+              options={TARGET_USER_OPTIONS}
+              value={targetUser}
+              onChange={setTargetUser}
+              otherPlaceholder="Describe your target user"
+            />
             <div className="sm:col-span-2">
-              <label className="block text-sm font-medium text-leaf-800">
-                Problem to validate
-              </label>
-              <textarea
+              <SelectWithOther
+                label="Problem to validate"
+                options={PROBLEM_OPTIONS}
                 value={problem}
-                onChange={(e) => setProblem(e.target.value)}
-                rows={3}
-                placeholder="What problem are you trying to confirm exists?"
-                className="mt-2 w-full rounded-lg border border-leaf-200 bg-white px-3 py-2 text-sm text-leaf-900 focus:border-leaf-500 focus:outline-none"
+                onChange={setProblem}
+                otherPlaceholder="Describe the problem you're trying to confirm"
               />
             </div>
-            <div>
-              <label className="block text-sm font-medium text-leaf-800">
-                Location / market
-              </label>
-              <input
-                type="text"
-                value={location}
-                onChange={(e) => setLocation(e.target.value)}
-                placeholder="e.g. Mexico City"
-                className="mt-2 w-full rounded-lg border border-leaf-200 bg-white px-3 py-2 text-sm text-leaf-900 focus:border-leaf-500 focus:outline-none"
-              />
-            </div>
+            <SelectWithOther
+              label="Location / market"
+              options={LOCATION_OPTIONS}
+              value={location}
+              onChange={setLocation}
+              otherPlaceholder="Describe your location or market"
+            />
           </div>
 
           <div className="mt-6">
@@ -261,6 +335,18 @@ export default function ResearchClient() {
               })}
             </div>
           </div>
+
+          <button
+            type="button"
+            onClick={handleStartResearch}
+            className="mt-7 rounded-full bg-leaf-600 px-8 py-3 font-semibold text-white shadow-sm transition-colors hover:bg-leaf-700"
+          >
+            Start research
+          </button>
+          <p className="mt-3 text-xs text-leaf-600">
+            This won&apos;t fetch new data — it just organizes your research
+            focus so the sections below make more sense.
+          </p>
         </div>
 
         {/* Section 2: Global examples */}

@@ -9,6 +9,7 @@ import {
   LEARNING_TAGS,
   MEXICO_STAT,
   TYPE_COLORS,
+  type Competitor,
   type CompetitorType,
 } from "@/lib/researchData";
 import RiskMap from "@/components/RiskMap";
@@ -27,6 +28,57 @@ function toggleTag(list: string[], tag: string) {
   return list.includes(tag)
     ? list.filter((item) => item !== tag)
     : [...list, tag];
+}
+
+function getLowPrice(price: string): number {
+  const match = price.match(/\d+/);
+  return match ? parseInt(match[0], 10) : Infinity;
+}
+
+function isRelevantRow(c: Competitor, appliedTags: string[]): boolean {
+  const text = `${c.strength} ${c.weakness}`.toLowerCase();
+  if (appliedTags.includes("Allergies") && text.includes("allerg")) {
+    return true;
+  }
+  if (
+    appliedTags.includes("Distribution") &&
+    (text.includes("available") || text.includes("convenient"))
+  ) {
+    return true;
+  }
+  return false;
+}
+
+function buildResearchSummary(
+  topic: string,
+  problem: string,
+  targetUser: string,
+  location: string,
+  tags: string[],
+): string {
+  const clauses: string[] = [];
+
+  const opening = topic ? `You're researching ${topic}` : "You're researching this";
+  clauses.push(opening);
+
+  if (problem) {
+    clauses.push(`to find out if '${problem}' is true`);
+  }
+
+  const audience: string[] = [];
+  if (targetUser) audience.push(`for ${targetUser}`);
+  if (location) audience.push(`in ${location}`);
+  if (audience.length > 0) {
+    clauses.push(audience.join(" "));
+  }
+
+  let summary = `${clauses.join(" ")}.`;
+
+  if (tags.length > 0) {
+    summary += ` You want to learn about: ${tags.join(", ")}.`;
+  }
+
+  return summary;
 }
 
 const TOPIC_OPTIONS = [
@@ -132,6 +184,9 @@ export default function ResearchClient() {
   const [typeFilter, setTypeFilter] = useState<CompetitorType | "All">("All");
   const [countryFilter, setCountryFilter] = useState<string>("All");
 
+  const [researchSummary, setResearchSummary] = useState<string | null>(null);
+  const [appliedTags, setAppliedTags] = useState<string[]>([]);
+
   const countryOptions = useMemo(
     () => ["All", ...Array.from(new Set(COMPETITORS.map((c) => c.country)))],
     [],
@@ -139,14 +194,22 @@ export default function ResearchClient() {
 
   const filteredCompetitors = useMemo(() => {
     const query = search.trim().toLowerCase();
-    return COMPETITORS.filter((c) => {
+    const matches = COMPETITORS.filter((c) => {
       const matchesSearch = query ? c.name.toLowerCase().includes(query) : true;
       const matchesType = typeFilter === "All" ? true : c.type === typeFilter;
       const matchesCountry =
         countryFilter === "All" ? true : c.country === countryFilter;
       return matchesSearch && matchesType && matchesCountry;
     });
-  }, [search, typeFilter, countryFilter]);
+
+    if (appliedTags.includes("Pricing")) {
+      return [...matches].sort(
+        (a, b) => getLowPrice(a.price) - getLowPrice(b.price),
+      );
+    }
+
+    return matches;
+  }, [search, typeFilter, countryFilter, appliedTags]);
 
   async function loadSavedNotes() {
     setLoadingSaved(true);
@@ -169,6 +232,10 @@ export default function ResearchClient() {
   const canSave = topic.trim() && problem.trim() && targetUser.trim() && location.trim();
 
   function handleStartResearch() {
+    setResearchSummary(
+      buildResearchSummary(topic, problem, targetUser, location, tags),
+    );
+    setAppliedTags(tags);
     document
       .getElementById("competitors")
       ?.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -420,6 +487,13 @@ export default function ResearchClient() {
           </p>
         </div>
 
+        {researchSummary && (
+          <div className="flex items-start gap-2 rounded-xl border border-peach-200 bg-peach-50 px-4 py-3 text-sm text-peach-800">
+            <span aria-hidden="true">🧭</span>
+            <span>{researchSummary}</span>
+          </div>
+        )}
+
         {/* Section 4: Competitors table */}
         <div
           id="competitors"
@@ -500,26 +574,48 @@ export default function ResearchClient() {
                     </td>
                   </tr>
                 )}
-                {filteredCompetitors.map((c) => (
-                  <tr
-                    key={c.name}
-                    className="border-b border-leaf-50 align-top text-leaf-800"
-                  >
-                    <td className="py-3 pr-4 font-medium">{c.name}</td>
-                    <td className="py-3 pr-4">
-                      <span
-                        className="rounded-full px-2.5 py-1 text-xs font-semibold text-white"
-                        style={{ backgroundColor: TYPE_COLORS[c.type] }}
+                {filteredCompetitors.map((c) => {
+                  const highlighted = isRelevantRow(c, appliedTags);
+                  const cellBorder = highlighted
+                    ? "border-y-2 border-peach-400"
+                    : "";
+                  return (
+                    <tr
+                      key={c.name}
+                      className="border-b border-leaf-50 align-top text-leaf-800"
+                    >
+                      <td
+                        className={`py-3 pr-4 font-medium ${cellBorder} ${
+                          highlighted ? "border-l-2 border-peach-400 pl-2" : ""
+                        }`}
                       >
-                        {c.type}
-                      </span>
-                    </td>
-                    <td className="py-3 pr-4">{c.country}</td>
-                    <td className="py-3 pr-4">{c.price}</td>
-                    <td className="py-3 pr-4">{c.strength}</td>
-                    <td className="py-3 pr-4">{c.weakness}</td>
-                  </tr>
-                ))}
+                        {c.name}
+                      </td>
+                      <td className={`py-3 pr-4 ${cellBorder}`}>
+                        <span
+                          className="rounded-full px-2.5 py-1 text-xs font-semibold text-white"
+                          style={{ backgroundColor: TYPE_COLORS[c.type] }}
+                        >
+                          {c.type}
+                        </span>
+                      </td>
+                      <td className={`py-3 pr-4 ${cellBorder}`}>
+                        {c.country}
+                      </td>
+                      <td className={`py-3 pr-4 ${cellBorder}`}>{c.price}</td>
+                      <td className={`py-3 pr-4 ${cellBorder}`}>
+                        {c.strength}
+                      </td>
+                      <td
+                        className={`py-3 pr-4 ${cellBorder} ${
+                          highlighted ? "border-r-2 border-peach-400" : ""
+                        }`}
+                      >
+                        {c.weakness}
+                      </td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           </div>

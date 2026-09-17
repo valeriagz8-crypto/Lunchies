@@ -6,7 +6,7 @@ export default function DocsPage() {
           Documentación
         </h1>
         <p className="mt-4 text-lg text-leaf-800">
-          Documentación próximamente.
+          Cómo funciona /core y /research por dentro.
         </p>
       </div>
 

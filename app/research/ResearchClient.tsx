@@ -260,6 +260,7 @@ export default function ResearchClient() {
   const [targetUser, setTargetUser] = useState("");
   const [location, setLocation] = useState("");
   const [tags, setTags] = useState<string[]>([]);
+  const [formResetKey, setFormResetKey] = useState(0);
 
   const [saving, setSaving] = useState(false);
   const [saveMessage, setSaveMessage] = useState<string | null>(null);
@@ -335,6 +336,15 @@ export default function ResearchClient() {
     setTypeFilter("All");
     setCountryFilter("All");
     setAppliedTags([]);
+  }
+
+  function handleResetForm() {
+    setTopic("");
+    setProblem("");
+    setTargetUser("");
+    setLocation("");
+    setTags([]);
+    setFormResetKey((key) => key + 1);
   }
 
   async function handleSave() {
@@ -461,6 +471,7 @@ export default function ResearchClient() {
 
           <div className="mt-5 grid gap-5 sm:grid-cols-2">
             <SelectWithOther
+              key={`topic-${formResetKey}`}
               label="Research topic"
               options={TOPIC_OPTIONS}
               value={topic}
@@ -468,6 +479,7 @@ export default function ResearchClient() {
               otherPlaceholder="Describe your research topic"
             />
             <SelectWithOther
+              key={`target-user-${formResetKey}`}
               label="Target user"
               options={TARGET_USER_OPTIONS}
               value={targetUser}
@@ -476,6 +488,7 @@ export default function ResearchClient() {
             />
             <div className="sm:col-span-2">
               <SelectWithOther
+                key={`problem-${formResetKey}`}
                 label="Problem to validate"
                 options={PROBLEM_OPTIONS}
                 value={problem}
@@ -484,6 +497,7 @@ export default function ResearchClient() {
               />
             </div>
             <SelectWithOther
+              key={`location-${formResetKey}`}
               label="Location / market"
               options={LOCATION_OPTIONS}
               value={location}
@@ -517,13 +531,22 @@ export default function ResearchClient() {
             </div>
           </div>
 
-          <button
-            type="button"
-            onClick={handleStartResearch}
-            className="mt-7 rounded-full bg-leaf-600 px-8 py-3 font-semibold text-white shadow-sm transition-colors hover:bg-leaf-700"
-          >
-            Start research
-          </button>
+          <div className="mt-7 flex flex-wrap items-center gap-3">
+            <button
+              type="button"
+              onClick={handleStartResearch}
+              className="rounded-full bg-leaf-600 px-8 py-3 font-semibold text-white shadow-sm transition-colors hover:bg-leaf-700"
+            >
+              Start research
+            </button>
+            <button
+              type="button"
+              onClick={handleResetForm}
+              className="rounded-full border border-leaf-200 px-5 py-2.5 text-sm font-semibold text-leaf-700 transition-colors hover:bg-leaf-50"
+            >
+              Reset form
+            </button>
+          </div>
           <p className="mt-3 text-xs text-leaf-600">
             This won&apos;t fetch new data — it just organizes your research
             focus so the sections below make more sense.

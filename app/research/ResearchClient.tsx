@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import {
+  COMPETITOR_EMOJIS,
   COMPETITORS,
   COUNTRY_FLAGS,
   GLOBAL_EXAMPLES,
@@ -397,10 +398,18 @@ export default function ResearchClient() {
     <section className="mx-auto max-w-5xl px-4 py-16 sm:px-6">
       <div className="grid items-center gap-8 md:grid-cols-2">
         <div>
-          <span className="flex items-center gap-1.5 text-sm font-bold uppercase tracking-wide text-peach-500">
-            <span aria-hidden="true">🔍</span> Research
-          </span>
-          <h1 className="mt-2 whitespace-nowrap text-3xl font-extrabold tracking-tight text-gray-800 sm:text-4xl">
+          <div className="flex items-center gap-3">
+            <span
+              className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-peach-100 text-3xl"
+              aria-hidden="true"
+            >
+              🔍
+            </span>
+            <span className="text-sm font-bold uppercase tracking-wide text-peach-500">
+              Research
+            </span>
+          </div>
+          <h1 className="mt-3 whitespace-nowrap text-3xl font-extrabold tracking-tight text-gray-800 sm:text-4xl">
             Research &amp; <span className="text-peach-500">Benchmarking</span>
           </h1>
           <p className="mt-4 max-w-md text-lg text-gray-600">
@@ -785,6 +794,7 @@ export default function ResearchClient() {
                           highlighted ? "border-l-2 border-peach-400 pl-2" : ""
                         }`}
                       >
+                        <span aria-hidden="true">{COMPETITOR_EMOJIS[c.name]}</span>{" "}
                         {c.name}
                       </td>
                       <td className={`py-3 pr-4 ${cellBorder}`}>
@@ -818,7 +828,7 @@ export default function ResearchClient() {
         </div>
 
         {/* Section 5: Risk map */}
-        <div className="rounded-2xl border border-leaf-100 bg-white p-6 shadow-sm">
+        <div className="rounded-2xl border border-leaf-100 bg-leaf-50 p-6 shadow-sm">
           <div className="flex items-center gap-3">
             <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-leaf-600 text-sm font-bold text-white">
               5
@@ -845,8 +855,14 @@ export default function ResearchClient() {
             <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-peach-500 text-sm font-bold text-white">
               6
             </span>
-            <h2 className="flex items-center gap-2 text-lg font-semibold text-peach-700">
-              <span aria-hidden="true">🎯</span> So, what&apos;s the gap?
+            <span
+              className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-peach-100 text-2xl"
+              aria-hidden="true"
+            >
+              🎯
+            </span>
+            <h2 className="text-lg font-semibold text-peach-700">
+              So, what&apos;s the gap?
             </h2>
           </div>
           <p className="mt-3 text-sm text-peach-800">

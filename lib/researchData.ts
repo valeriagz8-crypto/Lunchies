@@ -54,6 +54,17 @@ export const TYPE_COLORS: Record<CompetitorType, string> = {
   Substitute: "#65b87e",
 };
 
+export const COMPETITOR_EMOJIS: Record<string, string> = {
+  Lunchies: "🍱",
+  NutriKids: "🥗",
+  KidzLunch: "🍽️",
+  Colebox: "🌿",
+  "Lunch & Go": "🚀",
+  Superama: "🏪",
+  Homemade: "🏠",
+  "School cafeteria": "🏫",
+};
+
 export type Competitor = {
   name: string;
   type: CompetitorType;

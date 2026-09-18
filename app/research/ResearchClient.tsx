@@ -276,10 +276,22 @@ export default function ResearchClient() {
   const [researchInsight, setResearchInsight] = useState<string | null>(null);
   const [appliedTags, setAppliedTags] = useState<string[]>([]);
 
+  const [sortColumn, setSortColumn] = useState<"name" | "price" | null>(null);
+  const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
+
   const countryOptions = useMemo(
     () => ["All", ...Array.from(new Set(COMPETITORS.map((c) => c.country)))],
     [],
   );
+
+  function handleSortClick(column: "name" | "price") {
+    if (sortColumn === column) {
+      setSortDirection((prev) => (prev === "asc" ? "desc" : "asc"));
+    } else {
+      setSortColumn(column);
+      setSortDirection("asc");
+    }
+  }
 
   const filteredCompetitors = useMemo(() => {
     const query = search.trim().toLowerCase();
@@ -291,6 +303,16 @@ export default function ResearchClient() {
       return matchesSearch && matchesType && matchesCountry;
     });
 
+    if (sortColumn) {
+      return [...matches].sort((a, b) => {
+        const comparison =
+          sortColumn === "name"
+            ? a.name.localeCompare(b.name)
+            : getLowPrice(a.price) - getLowPrice(b.price);
+        return sortDirection === "asc" ? comparison : -comparison;
+      });
+    }
+
     if (appliedTags.includes("Pricing")) {
       return [...matches].sort(
         (a, b) => getLowPrice(a.price) - getLowPrice(b.price),
@@ -298,7 +320,7 @@ export default function ResearchClient() {
     }
 
     return matches;
-  }, [search, typeFilter, countryFilter, appliedTags]);
+  }, [search, typeFilter, countryFilter, appliedTags, sortColumn, sortDirection]);
 
   async function loadSavedNotes() {
     setLoadingSaved(true);
@@ -336,6 +358,8 @@ export default function ResearchClient() {
     setTypeFilter("All");
     setCountryFilter("All");
     setAppliedTags([]);
+    setSortColumn(null);
+    setSortDirection("asc");
   }
 
   function handleResetForm() {
@@ -709,10 +733,30 @@ export default function ResearchClient() {
             <table className="w-full min-w-[720px] text-left text-sm">
               <thead>
                 <tr className="border-b border-leaf-100 text-leaf-600">
-                  <th className="py-2 pr-4 font-medium">Name</th>
+                  <th
+                    onClick={() => handleSortClick("name")}
+                    className="cursor-pointer select-none py-2 pr-4 font-medium hover:text-leaf-800"
+                  >
+                    Name{" "}
+                    {sortColumn === "name" && (
+                      <span aria-hidden="true">
+                        {sortDirection === "asc" ? "↑" : "↓"}
+                      </span>
+                    )}
+                  </th>
                   <th className="py-2 pr-4 font-medium">Type</th>
                   <th className="py-2 pr-4 font-medium">Country</th>
-                  <th className="py-2 pr-4 font-medium">Price (weekly)</th>
+                  <th
+                    onClick={() => handleSortClick("price")}
+                    className="cursor-pointer select-none py-2 pr-4 font-medium hover:text-leaf-800"
+                  >
+                    Price (weekly){" "}
+                    {sortColumn === "price" && (
+                      <span aria-hidden="true">
+                        {sortDirection === "asc" ? "↑" : "↓"}
+                      </span>
+                    )}
+                  </th>
                   <th className="py-2 pr-4 font-medium">Strength</th>
                   <th className="py-2 pr-4 font-medium">Weakness</th>
                 </tr>
@@ -721,7 +765,8 @@ export default function ResearchClient() {
                 {filteredCompetitors.length === 0 && (
                   <tr>
                     <td colSpan={6} className="py-4 text-leaf-600">
-                      No competitors match your search or filters.
+                      No competitors match your search — try a different
+                      name, type, or country.
                     </td>
                   </tr>
                 )}

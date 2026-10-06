@@ -17,6 +17,23 @@ import {
 type CustomersByPlan = Record<PlanKey, number>;
 type BillingPeriod = "monthly" | "annual";
 
+type TestStatus = "idle" | "running" | "pass" | "fail" | "manual";
+
+type TestResult = {
+  id: string;
+  label: string;
+  status: TestStatus;
+  detail?: string;
+};
+
+const TEST_DEFINITIONS: { id: string; label: string }[] = [
+  { id: "calc", label: "Calculator updates revenue correctly" },
+  { id: "toggle", label: "Monthly/annual toggle works" },
+  { id: "scenario", label: "Scenario logic applies correctly" },
+  { id: "persistence", label: "Inputs save and load" },
+  { id: "responsive", label: "Responsive on mobile" },
+];
+
 type SavedScenario = {
   id: string;
   created_at: string;
@@ -63,6 +80,11 @@ export default function PricingClient() {
   const [savedScenarios, setSavedScenarios] = useState<SavedScenario[]>([]);
   const [loadingSaved, setLoadingSaved] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
+
+  const [testResults, setTestResults] = useState<TestResult[]>(
+    TEST_DEFINITIONS.map((test) => ({ ...test, status: "idle" })),
+  );
+  const [runningTests, setRunningTests] = useState(false);
 
   function updateCustomers(plan: PlanKey, value: number) {
     setCustomers((prev) => ({ ...prev, [plan]: clampCustomers(value) }));
@@ -120,6 +142,130 @@ export default function PricingClient() {
       await loadSavedScenarios();
     }
     setSaving(false);
+  }
+
+  async function runTests() {
+    setRunningTests(true);
+    setTestResults(
+      TEST_DEFINITIONS.map((test) => ({ ...test, status: "running" })),
+    );
+
+    const results: TestResult[] = [];
+    const showProgress = () =>
+      setTestResults([
+        ...results,
+        ...TEST_DEFINITIONS.slice(results.length).map((test) => ({
+          ...test,
+          status: "running" as TestStatus,
+        })),
+      ]);
+
+    // 1. Calculator updates revenue correctly
+    const baseCustomers: CustomersByPlan = {
+      basic: 150,
+      plus: 100,
+      premium: 50,
+    };
+    const baseResult = calculateRevenue(baseCustomers, "base");
+    const calcPass = baseResult.monthly === 640000;
+    results.push({
+      ...TEST_DEFINITIONS[0],
+      status: calcPass ? "pass" : "fail",
+      detail: `Expected ${formatMXN(640000)}, got ${formatMXN(baseResult.monthly)}.`,
+    });
+    showProgress();
+
+    // 2. Monthly/annual toggle works
+    const togglePass = baseResult.annual === baseResult.monthly * 12;
+    results.push({
+      ...TEST_DEFINITIONS[1],
+      status: togglePass ? "pass" : "fail",
+      detail: `${formatMXN(baseResult.monthly)} × 12 = ${formatMXN(
+        baseResult.monthly * 12,
+      )}, got ${formatMXN(baseResult.annual)}.`,
+    });
+    showProgress();
+
+    // 3. Scenario logic applies correctly
+    const conservativeResult = calculateRevenue(baseCustomers, "conservative");
+    const optimisticResult = calculateRevenue(baseCustomers, "optimistic");
+    const scenarioPass =
+      conservativeResult.monthly === 384000 &&
+      optimisticResult.monthly === 896000;
+    results.push({
+      ...TEST_DEFINITIONS[2],
+      status: scenarioPass ? "pass" : "fail",
+      detail: `Conservative: ${formatMXN(
+        conservativeResult.monthly,
+      )}, Optimistic: ${formatMXN(optimisticResult.monthly)}.`,
+    });
+    showProgress();
+
+    // 4. Inputs save and load
+    let persistencePass = false;
+    let persistenceDetail = "";
+    try {
+      const { error: insertError } = await supabase
+        .from("pricing_scenarios")
+        .insert({
+          name: "__test__",
+          scenario: "base",
+          billing_period: "monthly",
+          customers_basic: 1,
+          customers_plus: 2,
+          customers_premium: 3,
+          monthly_revenue: 123,
+          annual_revenue: 1476,
+        });
+      if (insertError) {
+        throw new Error(`insert failed: ${insertError.message}`);
+      }
+
+      const { data, error: selectError } = await supabase
+        .from("pricing_scenarios")
+        .select("*")
+        .eq("name", "__test__")
+        .order("created_at", { ascending: false })
+        .limit(1);
+      if (selectError) {
+        throw new Error(`select failed: ${selectError.message}`);
+      }
+
+      const row = data?.[0] as SavedScenario | undefined;
+      if (
+        !row ||
+        row.customers_basic !== 1 ||
+        row.customers_plus !== 2 ||
+        row.customers_premium !== 3
+      ) {
+        throw new Error("read-back row did not match what was inserted");
+      }
+      persistencePass = true;
+      persistenceDetail = "Inserted a row, read it back, and it matched.";
+    } catch (err) {
+      persistenceDetail =
+        err instanceof Error ? err.message : "Unexpected error.";
+    } finally {
+      await supabase.from("pricing_scenarios").delete().eq("name", "__test__");
+    }
+    results.push({
+      ...TEST_DEFINITIONS[3],
+      status: persistencePass ? "pass" : "fail",
+      detail: persistenceDetail,
+    });
+    showProgress();
+
+    // 5. Responsive on mobile — manual check only
+    results.push({
+      ...TEST_DEFINITIONS[4],
+      status: "manual",
+      detail:
+        "Resize your browser or open this page on a phone — sections should stack into a single column.",
+    });
+    setTestResults(results);
+
+    await loadSavedScenarios();
+    setRunningTests(false);
   }
 
   return (
@@ -440,6 +586,59 @@ export default function PricingClient() {
               </tbody>
             </table>
           </div>
+        </div>
+
+        {/* Testing evidence */}
+        <div className="rounded-2xl border border-leaf-100 bg-leaf-50 p-6 shadow-sm">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <h2 className="flex items-center gap-2 text-lg font-semibold text-leaf-700">
+              <span aria-hidden="true">🧪</span> Testing evidence
+            </h2>
+            <button
+              type="button"
+              onClick={runTests}
+              disabled={runningTests}
+              className="rounded-full bg-leaf-600 px-5 py-2 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-leaf-700 disabled:cursor-not-allowed disabled:opacity-60"
+            >
+              {runningTests ? "Running..." : "Run tests"}
+            </button>
+          </div>
+          <ul className="mt-5 space-y-3">
+            {testResults.map((test) => (
+              <li
+                key={test.id}
+                className="rounded-xl border border-leaf-100 bg-white p-4"
+              >
+                <div className="flex items-center justify-between gap-3">
+                  <span className="text-sm font-medium text-leaf-800">
+                    {test.label}
+                  </span>
+                  <span
+                    className={`rounded-full px-3 py-1 text-xs font-bold uppercase tracking-wide ${
+                      test.status === "pass"
+                        ? "bg-leaf-100 text-leaf-700"
+                        : test.status === "fail"
+                          ? "bg-red-100 text-red-700"
+                          : test.status === "manual"
+                            ? "bg-peach-100 text-peach-700"
+                            : "bg-gray-100 text-gray-500"
+                    }`}
+                  >
+                    {test.status === "idle"
+                      ? "Not run"
+                      : test.status === "running"
+                        ? "Running..."
+                        : test.status === "manual"
+                          ? "Manual check"
+                          : test.status}
+                  </span>
+                </div>
+                {test.detail && (
+                  <p className="mt-2 text-xs text-leaf-600">{test.detail}</p>
+                )}
+              </li>
+            ))}
+          </ul>
         </div>
       </div>
     </section>

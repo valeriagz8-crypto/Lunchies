@@ -1,9 +1,6 @@
 import Link from "next/link";
 import { FEATURES, PLANS, SEGMENTS, type PlanId } from "@/lib/productData";
-
-function formatWeekly(price: number): string {
-  return `$${price.toLocaleString("en-US")}/week`;
-}
+import { formatWeekly } from "@/lib/pricing";
 
 function includesPlan(plans: PlanId[], plan: PlanId): boolean {
   return plans.includes(plan);

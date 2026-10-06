@@ -32,3 +32,7 @@ export function calculateRevenue(
 export function formatMXN(amount: number): string {
   return `$${Math.round(amount).toLocaleString("en-US")} MXN`;
 }
+
+export function formatWeekly(price: number): string {
+  return `$${price.toLocaleString("en-US")}/week`;
+}

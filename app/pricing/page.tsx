@@ -1,10 +1,9 @@
+import PricingClient from "./PricingClient";
+
+// This page will read/write Supabase live from the browser, so it has no
+// meaningful static output — skip prerendering it at build time.
+export const dynamic = "force-dynamic";
+
 export default function PricingPage() {
-  return (
-    <section className="mx-auto max-w-3xl px-4 py-24 text-center sm:px-6">
-      <h1 className="text-3xl font-bold text-leaf-700 sm:text-4xl">
-        Pricing
-      </h1>
-      <p className="mt-4 text-lg text-leaf-800">Muy pronto.</p>
-    </section>
-  );
+  return <PricingClient />;
 }

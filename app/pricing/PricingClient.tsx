@@ -1,6 +1,7 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { supabase } from "@/lib/supabase";
 import { PLANS } from "@/lib/productData";
 import { calculateRevenue, formatMXN, formatWeekly } from "@/lib/pricing";
 import {
@@ -15,6 +16,19 @@ import {
 
 type CustomersByPlan = Record<PlanKey, number>;
 type BillingPeriod = "monthly" | "annual";
+
+type SavedScenario = {
+  id: string;
+  created_at: string;
+  name: string;
+  scenario: ScenarioKey;
+  billing_period: BillingPeriod;
+  customers_basic: number;
+  customers_plus: number;
+  customers_premium: number;
+  monthly_revenue: number;
+  annual_revenue: number;
+};
 
 const MAX_CUSTOMERS = 500;
 
@@ -41,8 +55,71 @@ export default function PricingClient() {
     [customers, scenario],
   );
 
+  const [scenarioName, setScenarioName] = useState("");
+  const [nameError, setNameError] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [saveMessage, setSaveMessage] = useState<string | null>(null);
+
+  const [savedScenarios, setSavedScenarios] = useState<SavedScenario[]>([]);
+  const [loadingSaved, setLoadingSaved] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
+
   function updateCustomers(plan: PlanKey, value: number) {
     setCustomers((prev) => ({ ...prev, [plan]: clampCustomers(value) }));
+  }
+
+  async function loadSavedScenarios() {
+    setLoadingSaved(true);
+    setLoadError(null);
+
+    const { data, error } = await supabase
+      .from("pricing_scenarios")
+      .select("*")
+      .neq("name", "__test__")
+      .order("created_at", { ascending: false })
+      .limit(10);
+
+    if (error) {
+      setLoadError("Could not load saved scenarios.");
+    } else {
+      setSavedScenarios((data ?? []) as SavedScenario[]);
+    }
+    setLoadingSaved(false);
+  }
+
+  useEffect(() => {
+    loadSavedScenarios();
+  }, []);
+
+  async function handleSave() {
+    if (!scenarioName.trim()) {
+      setNameError(true);
+      setSaveMessage(null);
+      return;
+    }
+    setNameError(false);
+    setSaving(true);
+    setSaveMessage(null);
+
+    const { error } = await supabase.from("pricing_scenarios").insert({
+      name: scenarioName.trim(),
+      scenario,
+      billing_period: billingPeriod,
+      customers_basic: customers.basic,
+      customers_plus: customers.plus,
+      customers_premium: customers.premium,
+      monthly_revenue: revenue.monthly,
+      annual_revenue: revenue.annual,
+    });
+
+    if (error) {
+      setSaveMessage("Could not save this scenario. Please try again.");
+    } else {
+      setSaveMessage("Scenario saved!");
+      setScenarioName("");
+      await loadSavedScenarios();
+    }
+    setSaving(false);
   }
 
   return (
@@ -262,6 +339,104 @@ export default function PricingClient() {
                     </td>
                   ))}
                 </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        {/* Save this scenario */}
+        <div className="rounded-2xl border border-leaf-100 bg-leaf-50 p-6 shadow-sm">
+          <h2 className="flex items-center gap-2 text-lg font-semibold text-leaf-700">
+            <span aria-hidden="true">💾</span> Save this scenario
+          </h2>
+          <p className="mt-2 text-sm text-leaf-600">
+            Give this scenario a name to save it, along with the current
+            inputs and estimated revenue.
+          </p>
+          <div className="mt-4 flex flex-wrap items-start gap-3">
+            <div>
+              <input
+                type="text"
+                value={scenarioName}
+                onChange={(event) => setScenarioName(event.target.value)}
+                placeholder="e.g. Launch month target"
+                className="w-64 rounded-lg border border-leaf-200 px-3 py-2 text-sm text-leaf-800 focus:border-leaf-500 focus:outline-none"
+              />
+              {nameError && (
+                <p className="mt-1 text-xs font-medium text-red-600">
+                  Please enter a name for this scenario.
+                </p>
+              )}
+            </div>
+            <button
+              type="button"
+              onClick={handleSave}
+              disabled={saving}
+              className="rounded-full bg-peach-500 px-6 py-2.5 font-semibold text-white shadow-sm transition-colors hover:bg-peach-600 disabled:cursor-not-allowed disabled:opacity-60"
+            >
+              {saving ? "Saving..." : "Save scenario"}
+            </button>
+            {saveMessage && (
+              <span className="self-center text-sm font-medium text-leaf-700">
+                {saveMessage}
+              </span>
+            )}
+          </div>
+        </div>
+
+        {/* Saved scenarios */}
+        <div className="rounded-2xl border border-leaf-100 bg-white p-6 shadow-sm">
+          <h2 className="flex items-center gap-2 text-lg font-semibold text-leaf-700">
+            <span aria-hidden="true">📋</span> Saved scenarios
+          </h2>
+          <div className="mt-5 overflow-x-auto">
+            <table className="w-full min-w-[480px] text-left text-sm">
+              <thead>
+                <tr className="border-b border-leaf-100 text-leaf-600">
+                  <th className="py-2 pr-4 font-medium">Name</th>
+                  <th className="py-2 pr-4 font-medium">Date</th>
+                  <th className="py-2 pr-4 font-medium">Monthly revenue</th>
+                </tr>
+              </thead>
+              <tbody>
+                {loadingSaved && (
+                  <tr>
+                    <td colSpan={3} className="py-4 text-leaf-600">
+                      Loading saved scenarios...
+                    </td>
+                  </tr>
+                )}
+                {!loadingSaved && loadError && (
+                  <tr>
+                    <td colSpan={3} className="py-4 text-red-600">
+                      {loadError}
+                    </td>
+                  </tr>
+                )}
+                {!loadingSaved && !loadError && savedScenarios.length === 0 && (
+                  <tr>
+                    <td colSpan={3} className="py-4 text-leaf-600">
+                      No saved scenarios yet — name one above and click Save
+                      scenario.
+                    </td>
+                  </tr>
+                )}
+                {!loadingSaved &&
+                  !loadError &&
+                  savedScenarios.map((row) => (
+                    <tr
+                      key={row.id}
+                      className="border-b border-leaf-50 text-leaf-800"
+                    >
+                      <td className="py-3 pr-4">{row.name}</td>
+                      <td className="py-3 pr-4">
+                        {new Date(row.created_at).toLocaleDateString()}
+                      </td>
+                      <td className="py-3 pr-4">
+                        {formatMXN(row.monthly_revenue)}
+                      </td>
+                    </tr>
+                  ))}
               </tbody>
             </table>
           </div>

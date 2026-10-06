@@ -2,9 +2,9 @@ export type PlanKey = "basic" | "plus" | "premium";
 export type ScenarioKey = "conservative" | "base" | "optimistic";
 
 export const WEEKLY_PRICES: Record<PlanKey, number> = {
-  basic: 400,
-  plus: 600,
-  premium: 800,
+  basic: 300,
+  plus: 450,
+  premium: 600,
 };
 
 export const WEEKS_PER_MONTH = 4;

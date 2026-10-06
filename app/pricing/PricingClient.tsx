@@ -167,11 +167,11 @@ export default function PricingClient() {
       premium: 50,
     };
     const baseResult = calculateRevenue(baseCustomers, "base");
-    const calcPass = baseResult.monthly === 640000;
+    const calcPass = baseResult.monthly === 480000;
     results.push({
       ...TEST_DEFINITIONS[0],
       status: calcPass ? "pass" : "fail",
-      detail: `Expected ${formatMXN(640000)}, got ${formatMXN(baseResult.monthly)}.`,
+      detail: `Expected ${formatMXN(480000)}, got ${formatMXN(baseResult.monthly)}.`,
     });
     showProgress();
 
@@ -190,8 +190,8 @@ export default function PricingClient() {
     const conservativeResult = calculateRevenue(baseCustomers, "conservative");
     const optimisticResult = calculateRevenue(baseCustomers, "optimistic");
     const scenarioPass =
-      conservativeResult.monthly === 384000 &&
-      optimisticResult.monthly === 896000;
+      conservativeResult.monthly === 288000 &&
+      optimisticResult.monthly === 672000;
     results.push({
       ...TEST_DEFINITIONS[2],
       status: scenarioPass ? "pass" : "fail",
@@ -488,6 +488,102 @@ export default function PricingClient() {
               </tbody>
             </table>
           </div>
+          <p className="mt-4 text-xs italic text-leaf-600">
+            Prices, customer counts and multipliers are founder assumptions,
+            anchored to the benchmarks below.
+          </p>
+        </div>
+
+        {/* Market benchmarks */}
+        <div className="rounded-2xl border border-leaf-100 bg-leaf-50 p-6 shadow-sm">
+          <h2 className="flex items-center gap-2 text-lg font-semibold text-leaf-700">
+            <span aria-hidden="true">🇲🇽</span> Market benchmarks (Mexico)
+          </h2>
+          <ul className="mt-4 space-y-4 text-sm text-leaf-800">
+            <li>
+              <p className="font-semibold text-leaf-700">
+                Homemade healthy lunch
+              </p>
+              <p className="mt-1">
+                $18 to $37 per day, about $25 on average (about $125 per
+                week).
+              </p>
+              <p className="mt-1 text-xs text-leaf-600">
+                Source:{" "}
+                <a
+                  href="https://www.alcontacto.com.mx/2025/08/31/cuanto-cuesta-hoy-mandar-un-lunch-saludable-a-los-ninos-en-mexico/"
+                  target="_blank"
+                  rel="noreferrer noopener"
+                  className="text-peach-600 underline hover:text-peach-700"
+                >
+                  Al Contacto, Aug 2025 (Profeco and SNIIM data)
+                </a>
+              </p>
+            </li>
+            <li>
+              <p className="font-semibold text-leaf-700">
+                Average family spend on school food and lunch
+              </p>
+              <p className="mt-1">
+                About $1,500 per month per student (about $250 per week).
+              </p>
+              <p className="mt-1 text-xs text-leaf-600">
+                Source:{" "}
+                <a
+                  href="https://www.record.com.mx/historia/cuanto-cuesta-el-regreso-a-clases-esto-es-lo-que-gastan-las-familias-mexicanas-en-transporte-y-comida-2026081902365258129"
+                  target="_blank"
+                  rel="noreferrer noopener"
+                  className="text-peach-600 underline hover:text-peach-700"
+                >
+                  ANPEC via Récord, Aug 2026
+                </a>
+              </p>
+            </li>
+            <li>
+              <p className="font-semibold text-leaf-700">
+                Full-day kids meal delivery in CDMX (Manyar Plan Infantil)
+              </p>
+              <p className="mt-1">
+                $380 per day, includes breakfast, lunch, dinner and 2
+                snacks, minimum 20 days.
+              </p>
+              <p className="mt-1 text-xs text-leaf-600">
+                Source:{" "}
+                <a
+                  href="https://www.manyar.com.mx/plan-infantil/"
+                  target="_blank"
+                  rel="noreferrer noopener"
+                  className="text-peach-600 underline hover:text-peach-700"
+                >
+                  manyar.com.mx/plan-infantil
+                </a>
+              </p>
+            </li>
+            <li>
+              <p className="font-semibold text-leaf-700">
+                Direct competitor LunchyBox (CDMX)
+              </p>
+              <p className="mt-1">
+                School lunch delivery to school or home, prices not
+                published.
+              </p>
+              <p className="mt-1 text-xs text-leaf-600">
+                Source:{" "}
+                <a
+                  href="https://lunchybox.app/"
+                  target="_blank"
+                  rel="noreferrer noopener"
+                  className="text-peach-600 underline hover:text-peach-700"
+                >
+                  lunchybox.app
+                </a>
+              </p>
+            </li>
+          </ul>
+          <p className="mt-4 text-xs italic text-leaf-600">
+            No public price was found for a lunch-only school delivery
+            service.
+          </p>
         </div>
 
         {/* Save this scenario */}

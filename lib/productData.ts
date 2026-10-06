@@ -1,3 +1,5 @@
+import { WEEKLY_PRICES } from "./pricingAssumptions";
+
 export type PlanId = "basic" | "plus" | "premium";
 
 export type Plan = {
@@ -12,7 +14,7 @@ export const PLANS: Plan[] = [
   {
     id: "basic",
     name: "Basic",
-    weeklyPrice: 400,
+    weeklyPrice: WEEKLY_PRICES.basic,
     tagline: "Essential meal planning for busy families.",
     bullets: [
       "Personalized meal ideas",
@@ -24,7 +26,7 @@ export const PLANS: Plan[] = [
   {
     id: "plus",
     name: "Plus",
-    weeklyPrice: 600,
+    weeklyPrice: WEEKLY_PRICES.plus,
     tagline: "More customization and flexibility.",
     bullets: [
       "Everything in Basic",
@@ -36,7 +38,7 @@ export const PLANS: Plan[] = [
   {
     id: "premium",
     name: "Premium",
-    weeklyPrice: 800,
+    weeklyPrice: WEEKLY_PRICES.premium,
     tagline: "The most complete and personalized experience.",
     bullets: [
       "Everything in Plus",

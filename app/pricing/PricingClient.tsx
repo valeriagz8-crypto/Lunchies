@@ -642,7 +642,7 @@ export default function PricingClient() {
           </div>
           <p className="mt-4 text-xs italic text-leaf-600">
             Prices, customer counts and multipliers are founder assumptions,
-            anchored to the benchmarks below.
+            anchored to the sources below.
           </p>
           <div className="mt-3">
             <p className="text-xs font-semibold text-leaf-700">Sources</p>
@@ -655,7 +655,8 @@ export default function PricingClient() {
                   className="underline hover:text-leaf-700"
                 >
                   Al Contacto, Aug 2025 (Profeco and SNIIM data)
-                </a>
+                </a>{" "}
+                — homemade lunch price range
               </li>
               <li>
                 <a
@@ -665,7 +666,8 @@ export default function PricingClient() {
                   className="underline hover:text-leaf-700"
                 >
                   ANPEC via Récord, Aug 2026
-                </a>
+                </a>{" "}
+                — family school spending
               </li>
               <li>
                 <a
@@ -674,8 +676,9 @@ export default function PricingClient() {
                   rel="noreferrer noopener"
                   className="underline hover:text-leaf-700"
                 >
-                  manyar.com.mx/plan-infantil
-                </a>
+                  manyar.com.mx/plan-infantil, Oct 2026
+                </a>{" "}
+                — full-day meal plan price
               </li>
               <li>
                 <a
@@ -684,8 +687,9 @@ export default function PricingClient() {
                   rel="noreferrer noopener"
                   className="underline hover:text-leaf-700"
                 >
-                  lunchybox.app
-                </a>
+                  lunchybox.app, Oct 2026
+                </a>{" "}
+                — lunch delivery price
               </li>
             </ul>
           </div>

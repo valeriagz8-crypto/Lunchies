@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import Image from "next/image";
 import { supabase } from "@/lib/supabase";
 import { PLANS } from "@/lib/productData";
 import { calculateRevenue, formatMXN, formatWeekly } from "@/lib/pricing";
@@ -13,6 +14,22 @@ import {
   type PlanKey,
   type ScenarioKey,
 } from "@/lib/pricingAssumptions";
+import { caveat } from "@/lib/fonts";
+import {
+  BookmarkIcon,
+  ChartIcon,
+  CheckIcon,
+  ChefHatIcon,
+  ClipboardCheckIcon,
+  CoinIcon,
+  CrownIcon,
+  HeartIcon,
+  InfoIcon,
+  LeafIcon,
+  MapPinIcon,
+  SlidersIcon,
+  TableIcon,
+} from "@/components/icons";
 
 type CustomersByPlan = Record<PlanKey, number>;
 type BillingPeriod = "monthly" | "annual";
@@ -60,7 +77,31 @@ function clampCustomers(value: number): number {
   return Math.min(MAX_CUSTOMERS, Math.max(0, Math.round(value)));
 }
 
-export default function PricingClient() {
+const PLAN_ICONS: Record<PlanKey, typeof LeafIcon> = {
+  basic: LeafIcon,
+  plus: ChefHatIcon,
+  premium: CrownIcon,
+};
+
+const SCENARIO_HEADER_BG: Record<ScenarioKey, string> = {
+  conservative: "bg-leaf-100",
+  base: "bg-yellow-100",
+  optimistic: "bg-blue-100",
+};
+
+const TEST_BADGE: Record<TestStatus, { label: string; className: string }> = {
+  idle: { label: "NOT RUN", className: "bg-gray-100 text-gray-500" },
+  running: { label: "RUNNING...", className: "bg-gray-100 text-gray-500" },
+  pass: { label: "PASS", className: "bg-leaf-100 text-leaf-700" },
+  fail: { label: "FAIL", className: "bg-red-100 text-red-700" },
+  manual: { label: "MANUAL CHECK", className: "bg-peach-100 text-peach-700" },
+};
+
+export default function PricingClient({
+  hasBowlImage,
+}: {
+  hasBowlImage: boolean;
+}) {
   const [billingPeriod, setBillingPeriod] = useState<BillingPeriod>("monthly");
   const [scenario, setScenario] = useState<ScenarioKey>("base");
   const [customers, setCustomers] = useState<CustomersByPlan>(
@@ -274,467 +315,493 @@ export default function PricingClient() {
       <div className="grid items-center gap-8 md:grid-cols-2">
         <div>
           <div className="flex items-center gap-3">
-            <span
-              className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-peach-100 text-3xl"
-              aria-hidden="true"
-            >
-              🧮
+            <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-peach-100 text-peach-600">
+              <ChartIcon className="h-7 w-7" />
             </span>
             <span className="text-sm font-bold uppercase tracking-wide text-peach-500">
               Pricing
             </span>
           </div>
           <h1 className="mt-3 text-3xl font-extrabold tracking-tight text-gray-800 sm:text-4xl">
-            Estimate your <span className="text-leaf-600">impact</span>.
+            Estimate your <span className="text-peach-500">impact.</span>
           </h1>
           <p className="mt-4 max-w-md text-lg text-gray-600">
             Play with different scenarios and see the potential revenue for
             Lunchies.
           </p>
         </div>
-        <div className="flex justify-center md:justify-end">
-          <span className="text-6xl leading-none" aria-hidden="true">
-            📊
-          </span>
+        <div className="flex flex-col items-center md:items-end">
+          {hasBowlImage ? (
+            <Image
+              src="/images/bowl.png"
+              alt="Bowl illustration"
+              width={320}
+              height={320}
+              className="h-auto w-full max-w-xs"
+            />
+          ) : (
+            <div className="aspect-square w-full max-w-xs rounded-3xl border border-dashed border-leaf-200 bg-white/60" />
+          )}
+          <p
+            className={`mt-4 flex items-center gap-2 text-2xl text-leaf-700 ${caveat.className}`}
+          >
+            Good food, brighter futures
+            <HeartIcon className="h-5 w-5 text-peach-500" />
+          </p>
         </div>
       </div>
 
       <div className="mt-12 space-y-8">
-        {/* Scenario + billing toggles */}
-        <div className="rounded-2xl border border-leaf-100 bg-leaf-50 p-6 shadow-sm">
-          <h2 className="flex items-center gap-2 text-lg font-semibold text-leaf-700">
-            <span aria-hidden="true">🎛️</span> Scenario
-          </h2>
-          <div className="mt-4 grid gap-6 sm:grid-cols-2">
-            <div>
-              <p className="text-sm font-medium text-leaf-700">
-                Billing period
-              </p>
-              <div className="mt-2 inline-flex rounded-full border border-leaf-200 bg-white p-1">
-                {(["monthly", "annual"] as BillingPeriod[]).map((period) => (
-                  <button
-                    key={period}
-                    type="button"
-                    onClick={() => setBillingPeriod(period)}
-                    className={`rounded-full px-4 py-1.5 text-sm font-semibold capitalize transition-colors ${
-                      billingPeriod === period
-                        ? "bg-leaf-600 text-white"
-                        : "text-leaf-700 hover:bg-leaf-50"
-                    }`}
-                  >
-                    {period}
-                  </button>
-                ))}
-              </div>
+        {/* Top row: billing period + scenario */}
+        <div className="grid gap-6 md:grid-cols-2">
+          <div className="rounded-2xl border border-leaf-100 bg-white p-6 shadow-sm">
+            <h2 className="text-sm font-semibold text-leaf-700">
+              Billing period
+            </h2>
+            <div className="mt-3 inline-flex rounded-full border border-leaf-200 bg-leaf-50 p-1">
+              {(["monthly", "annual"] as BillingPeriod[]).map((period) => (
+                <button
+                  key={period}
+                  type="button"
+                  onClick={() => setBillingPeriod(period)}
+                  className={`rounded-full px-4 py-1.5 text-sm font-semibold capitalize transition-colors ${
+                    billingPeriod === period
+                      ? "bg-leaf-600 text-white"
+                      : "text-leaf-700 hover:bg-white"
+                  }`}
+                >
+                  {period}
+                </button>
+              ))}
             </div>
-            <div>
-              <p className="text-sm font-medium text-leaf-700">
-                Growth scenario
-              </p>
-              <div className="mt-2 inline-flex flex-wrap rounded-full border border-leaf-200 bg-white p-1">
-                {SCENARIOS.map((key) => (
-                  <button
-                    key={key}
-                    type="button"
-                    onClick={() => setScenario(key)}
-                    className={`rounded-full px-4 py-1.5 text-sm font-semibold transition-colors ${
-                      scenario === key
-                        ? "bg-leaf-600 text-white"
-                        : "text-leaf-700 hover:bg-leaf-50"
-                    }`}
-                  >
-                    {SCENARIO_LABELS[key]}
-                  </button>
-                ))}
-              </div>
+          </div>
+          <div className="rounded-2xl border border-leaf-100 bg-white p-6 shadow-sm">
+            <h2 className="flex items-center gap-2 text-sm font-semibold text-leaf-700">
+              Scenario
+              <InfoIcon className="h-4 w-4 text-leaf-400" />
+            </h2>
+            <div className="mt-3 inline-flex flex-wrap rounded-full border border-leaf-200 bg-leaf-50 p-1">
+              {SCENARIOS.map((key) => (
+                <button
+                  key={key}
+                  type="button"
+                  onClick={() => setScenario(key)}
+                  className={`rounded-full px-4 py-1.5 text-sm font-semibold transition-colors ${
+                    scenario === key
+                      ? "bg-leaf-600 text-white"
+                      : "text-leaf-700 hover:bg-white"
+                  }`}
+                >
+                  {SCENARIO_LABELS[key]}
+                </button>
+              ))}
             </div>
           </div>
         </div>
 
-        {/* Customers per plan */}
+        {/* Number of customers per plan */}
         <div className="rounded-2xl border border-leaf-100 bg-white p-6 shadow-sm">
           <h2 className="flex items-center gap-2 text-lg font-semibold text-leaf-700">
-            <span aria-hidden="true">👨‍👩‍👧</span> Customers per plan
+            <SlidersIcon className="h-5 w-5 text-leaf-600" />
+            Number of customers per plan
           </h2>
+          <p className="mt-1 text-sm text-leaf-600">
+            Adjust the number of active customers in each plan.
+          </p>
           <div className="mt-5 space-y-6">
-            {PLANS.map((plan) => (
-              <div key={plan.id}>
-                <div className="flex items-center justify-between">
-                  <label
-                    htmlFor={`customers-${plan.id}`}
-                    className="text-sm font-medium text-leaf-800"
-                  >
-                    {plan.name}{" "}
-                    <span className="text-leaf-500">
-                      ({formatWeekly(WEEKLY_PRICES[plan.id])})
+            {PLANS.map((plan) => {
+              const PlanIcon = PLAN_ICONS[plan.id];
+              return (
+                <div key={plan.id}>
+                  <div className="flex items-center gap-2 text-sm font-medium text-leaf-800">
+                    <PlanIcon className="h-5 w-5 text-leaf-600" />
+                    <span>
+                      {plan.name}{" "}
+                      <span className="text-leaf-500">
+                        (${WEEKLY_PRICES[plan.id].toLocaleString("en-US")} /
+                        week)
+                      </span>
                     </span>
-                  </label>
-                  <input
-                    type="number"
-                    min={0}
-                    max={MAX_CUSTOMERS}
-                    value={customers[plan.id]}
-                    onChange={(event) =>
-                      updateCustomers(plan.id, Number(event.target.value))
-                    }
-                    className="w-20 rounded-lg border border-leaf-200 px-2 py-1 text-right text-sm text-leaf-800 focus:border-leaf-500 focus:outline-none"
-                  />
+                  </div>
+                  <div className="mt-3 flex items-center gap-3">
+                    <input
+                      aria-label={`${plan.name} customers`}
+                      type="range"
+                      min={0}
+                      max={MAX_CUSTOMERS}
+                      value={customers[plan.id]}
+                      onChange={(event) =>
+                        updateCustomers(plan.id, Number(event.target.value))
+                      }
+                      className="flex-1 accent-leaf-600"
+                    />
+                    <div className="flex shrink-0 items-center gap-2 rounded-lg border border-leaf-200 px-3 py-1.5">
+                      <input
+                        type="number"
+                        min={0}
+                        max={MAX_CUSTOMERS}
+                        value={customers[plan.id]}
+                        onChange={(event) =>
+                          updateCustomers(plan.id, Number(event.target.value))
+                        }
+                        className="w-14 text-right text-sm text-leaf-800 focus:outline-none"
+                      />
+                      <span className="text-xs text-leaf-500">customers</span>
+                    </div>
+                  </div>
                 </div>
-                <input
-                  id={`customers-${plan.id}`}
-                  type="range"
-                  min={0}
-                  max={MAX_CUSTOMERS}
-                  value={customers[plan.id]}
-                  onChange={(event) =>
-                    updateCustomers(plan.id, Number(event.target.value))
-                  }
-                  className="mt-2 w-full accent-leaf-600"
-                />
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Two-column layout: left = revenue/assumptions/benchmarks/save, right = saved/testing */}
+        <div className="grid gap-8 md:grid-cols-2 md:items-start">
+          <div className="space-y-8">
+            {/* Estimated revenue */}
+            <div className="rounded-2xl border border-leaf-100 bg-white p-6 shadow-sm">
+              <h2 className="flex items-center gap-2 text-lg font-semibold text-leaf-700">
+                <CoinIcon className="h-5 w-5 text-leaf-600" />
+                Estimated revenue
+              </h2>
+              <p className="mt-1 text-sm text-leaf-600">
+                Based on the selected number of customers and scenario.
+              </p>
+              <div className="mt-5 grid gap-4 sm:grid-cols-2">
+                <div className="rounded-2xl border border-leaf-200 bg-leaf-50 p-6 text-center">
+                  <span className="mx-auto flex h-10 w-10 items-center justify-center rounded-full bg-leaf-100 text-leaf-700">
+                    <CoinIcon className="h-5 w-5" />
+                  </span>
+                  <p className="mt-3 text-sm font-medium text-leaf-700">
+                    Monthly revenue
+                  </p>
+                  <p className="mt-1 text-3xl font-extrabold text-leaf-700">
+                    {formatMXN(revenue.monthly)}
+                  </p>
+                </div>
+                <div className="rounded-2xl border border-red-200 bg-red-50 p-6 text-center">
+                  <span className="mx-auto flex h-10 w-10 items-center justify-center rounded-full bg-red-100 text-red-700">
+                    <ChartIcon className="h-5 w-5" />
+                  </span>
+                  <p className="mt-3 text-sm font-medium text-red-700">
+                    Annual revenue
+                  </p>
+                  <p className="mt-1 text-3xl font-extrabold text-red-700">
+                    {formatMXN(revenue.annual)}
+                  </p>
+                </div>
               </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Estimated revenue */}
-        <div className="rounded-2xl border border-leaf-100 bg-leaf-50 p-6 shadow-sm">
-          <h2 className="flex items-center gap-2 text-lg font-semibold text-leaf-700">
-            <span aria-hidden="true">💰</span> Estimated revenue
-          </h2>
-          <div className="mt-5 grid gap-6 sm:grid-cols-2">
-            <div
-              className={`rounded-2xl border bg-white p-6 text-center shadow-sm transition-colors ${
-                billingPeriod === "monthly"
-                  ? "border-leaf-500 ring-2 ring-leaf-200"
-                  : "border-leaf-100"
-              }`}
-            >
-              <p className="text-sm font-medium text-leaf-600">
-                Monthly revenue
-              </p>
-              <p className="mt-2 text-3xl font-extrabold text-leaf-700">
-                {formatMXN(revenue.monthly)}
-              </p>
             </div>
-            <div
-              className={`rounded-2xl border bg-white p-6 text-center shadow-sm transition-colors ${
-                billingPeriod === "annual"
-                  ? "border-leaf-500 ring-2 ring-leaf-200"
-                  : "border-leaf-100"
-              }`}
-            >
-              <p className="text-sm font-medium text-leaf-600">
-                Annual revenue
-              </p>
-              <p className="mt-2 text-3xl font-extrabold text-leaf-700">
-                {formatMXN(revenue.annual)}
-              </p>
-            </div>
-          </div>
-        </div>
 
-        {/* Key assumptions */}
-        <div className="rounded-2xl border border-leaf-100 bg-white p-6 shadow-sm">
-          <h2 className="flex items-center gap-2 text-lg font-semibold text-leaf-700">
-            <span aria-hidden="true">📐</span> Key assumptions
-          </h2>
-          <div className="mt-5 overflow-x-auto">
-            <table className="w-full min-w-[480px] text-left text-sm">
-              <thead>
-                <tr className="border-b border-leaf-100 text-leaf-600">
-                  <th className="py-2 pr-4 font-medium">Assumption</th>
-                  {SCENARIOS.map((key) => (
-                    <th
-                      key={key}
-                      className="py-2 pr-4 text-center font-medium"
-                    >
-                      {SCENARIO_LABELS[key]}
-                    </th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {PLANS.map((plan) => (
-                  <tr
-                    key={plan.id}
-                    className="border-b border-leaf-50 text-leaf-800"
-                  >
-                    <td className="py-3 pr-4">
-                      Weekly price — {plan.name}
-                    </td>
-                    {SCENARIOS.map((key) => (
-                      <td key={key} className="py-3 pr-4 text-center">
-                        {formatWeekly(WEEKLY_PRICES[plan.id])}
-                      </td>
+            {/* Key assumptions */}
+            <div className="rounded-2xl border border-leaf-100 bg-white p-6 shadow-sm">
+              <h2 className="flex items-center gap-2 text-lg font-semibold text-leaf-700">
+                <TableIcon className="h-5 w-5 text-leaf-600" />
+                Key assumptions
+              </h2>
+              <p className="mt-1 text-sm text-leaf-600">
+                These inputs are used to calculate the revenue.
+              </p>
+              <div className="mt-5 overflow-x-auto">
+                <table className="w-full min-w-[480px] text-left text-sm">
+                  <thead>
+                    <tr>
+                      <th className="py-2 pr-4 font-medium text-leaf-600">
+                        Assumption
+                      </th>
+                      {SCENARIOS.map((key) => (
+                        <th
+                          key={key}
+                          className={`rounded-t-lg py-2 px-3 text-center font-semibold text-gray-800 ${SCENARIO_HEADER_BG[key]}`}
+                        >
+                          {SCENARIO_LABELS[key]}
+                        </th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {PLANS.map((plan) => (
+                      <tr
+                        key={plan.id}
+                        className="border-b border-leaf-50 text-leaf-800"
+                      >
+                        <td className="py-3 pr-4">
+                          Weekly price — {plan.name}
+                        </td>
+                        {SCENARIOS.map((key) => (
+                          <td key={key} className="py-3 pr-4 text-center">
+                            {formatWeekly(WEEKLY_PRICES[plan.id])}
+                          </td>
+                        ))}
+                      </tr>
                     ))}
-                  </tr>
-                ))}
-                <tr className="border-b border-leaf-50 text-leaf-800">
-                  <td className="py-3 pr-4">Weeks per month</td>
-                  {SCENARIOS.map((key) => (
-                    <td key={key} className="py-3 pr-4 text-center">
-                      {WEEKS_PER_MONTH}
-                    </td>
-                  ))}
-                </tr>
-                <tr className="text-leaf-800">
-                  <td className="py-3 pr-4">Scenario multiplier</td>
-                  {SCENARIOS.map((key) => (
-                    <td key={key} className="py-3 pr-4 text-center">
-                      {SCENARIO_MULTIPLIERS[key]}x
-                    </td>
-                  ))}
-                </tr>
-              </tbody>
-            </table>
-          </div>
-          <p className="mt-4 text-xs italic text-leaf-600">
-            Prices, customer counts and multipliers are founder assumptions,
-            anchored to the benchmarks below.
-          </p>
-        </div>
-
-        {/* Market benchmarks */}
-        <div className="rounded-2xl border border-leaf-100 bg-leaf-50 p-6 shadow-sm">
-          <h2 className="flex items-center gap-2 text-lg font-semibold text-leaf-700">
-            <span aria-hidden="true">🇲🇽</span> Market benchmarks (Mexico)
-          </h2>
-          <ul className="mt-4 space-y-4 text-sm text-leaf-800">
-            <li>
-              <p className="font-semibold text-leaf-700">
-                Homemade healthy lunch
+                    <tr className="border-b border-leaf-50 text-leaf-800">
+                      <td className="py-3 pr-4">Weeks per month</td>
+                      {SCENARIOS.map((key) => (
+                        <td key={key} className="py-3 pr-4 text-center">
+                          {WEEKS_PER_MONTH}
+                        </td>
+                      ))}
+                    </tr>
+                    <tr className="text-leaf-800">
+                      <td className="py-3 pr-4">Scenario multiplier</td>
+                      {SCENARIOS.map((key) => (
+                        <td key={key} className="py-3 pr-4 text-center">
+                          {SCENARIO_MULTIPLIERS[key]}x
+                        </td>
+                      ))}
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+              <p className="mt-4 text-xs italic text-leaf-600">
+                Prices, customer counts and multipliers are founder
+                assumptions, anchored to the benchmarks below.
               </p>
-              <p className="mt-1">
-                $18 to $37 per day, about $25 on average (about $125 per
-                week).
-              </p>
-              <p className="mt-1 text-xs text-leaf-600">
-                Source:{" "}
-                <a
-                  href="https://www.alcontacto.com.mx/2025/08/31/cuanto-cuesta-hoy-mandar-un-lunch-saludable-a-los-ninos-en-mexico/"
-                  target="_blank"
-                  rel="noreferrer noopener"
-                  className="text-peach-600 underline hover:text-peach-700"
-                >
-                  Al Contacto, Aug 2025 (Profeco and SNIIM data)
-                </a>
-              </p>
-            </li>
-            <li>
-              <p className="font-semibold text-leaf-700">
-                Average family spend on school food and lunch
-              </p>
-              <p className="mt-1">
-                About $1,500 per month per student (about $250 per week).
-              </p>
-              <p className="mt-1 text-xs text-leaf-600">
-                Source:{" "}
-                <a
-                  href="https://www.record.com.mx/historia/cuanto-cuesta-el-regreso-a-clases-esto-es-lo-que-gastan-las-familias-mexicanas-en-transporte-y-comida-2026081902365258129"
-                  target="_blank"
-                  rel="noreferrer noopener"
-                  className="text-peach-600 underline hover:text-peach-700"
-                >
-                  ANPEC via Récord, Aug 2026
-                </a>
-              </p>
-            </li>
-            <li>
-              <p className="font-semibold text-leaf-700">
-                Full-day kids meal delivery in CDMX (Manyar Plan Infantil)
-              </p>
-              <p className="mt-1">
-                $380 per day, includes breakfast, lunch, dinner and 2
-                snacks, minimum 20 days.
-              </p>
-              <p className="mt-1 text-xs text-leaf-600">
-                Source:{" "}
-                <a
-                  href="https://www.manyar.com.mx/plan-infantil/"
-                  target="_blank"
-                  rel="noreferrer noopener"
-                  className="text-peach-600 underline hover:text-peach-700"
-                >
-                  manyar.com.mx/plan-infantil
-                </a>
-              </p>
-            </li>
-            <li>
-              <p className="font-semibold text-leaf-700">
-                Direct competitor LunchyBox (CDMX)
-              </p>
-              <p className="mt-1">
-                School lunch delivery to school or home, prices not
-                published.
-              </p>
-              <p className="mt-1 text-xs text-leaf-600">
-                Source:{" "}
-                <a
-                  href="https://lunchybox.app/"
-                  target="_blank"
-                  rel="noreferrer noopener"
-                  className="text-peach-600 underline hover:text-peach-700"
-                >
-                  lunchybox.app
-                </a>
-              </p>
-            </li>
-          </ul>
-          <p className="mt-4 text-xs italic text-leaf-600">
-            No public price was found for a lunch-only school delivery
-            service.
-          </p>
-        </div>
-
-        {/* Save this scenario */}
-        <div className="rounded-2xl border border-leaf-100 bg-leaf-50 p-6 shadow-sm">
-          <h2 className="flex items-center gap-2 text-lg font-semibold text-leaf-700">
-            <span aria-hidden="true">💾</span> Save this scenario
-          </h2>
-          <p className="mt-2 text-sm text-leaf-600">
-            Give this scenario a name to save it, along with the current
-            inputs and estimated revenue.
-          </p>
-          <div className="mt-4 flex flex-wrap items-start gap-3">
-            <div>
-              <input
-                type="text"
-                value={scenarioName}
-                onChange={(event) => setScenarioName(event.target.value)}
-                placeholder="e.g. Launch month target"
-                className="w-64 rounded-lg border border-leaf-200 px-3 py-2 text-sm text-leaf-800 focus:border-leaf-500 focus:outline-none"
-              />
-              {nameError && (
-                <p className="mt-1 text-xs font-medium text-red-600">
-                  Please enter a name for this scenario.
-                </p>
-              )}
             </div>
-            <button
-              type="button"
-              onClick={handleSave}
-              disabled={saving}
-              className="rounded-full bg-peach-500 px-6 py-2.5 font-semibold text-white shadow-sm transition-colors hover:bg-peach-600 disabled:cursor-not-allowed disabled:opacity-60"
-            >
-              {saving ? "Saving..." : "Save scenario"}
-            </button>
-            {saveMessage && (
-              <span className="self-center text-sm font-medium text-leaf-700">
-                {saveMessage}
-              </span>
-            )}
-          </div>
-        </div>
 
-        {/* Saved scenarios */}
-        <div className="rounded-2xl border border-leaf-100 bg-white p-6 shadow-sm">
-          <h2 className="flex items-center gap-2 text-lg font-semibold text-leaf-700">
-            <span aria-hidden="true">📋</span> Saved scenarios
-          </h2>
-          <div className="mt-5 overflow-x-auto">
-            <table className="w-full min-w-[480px] text-left text-sm">
-              <thead>
-                <tr className="border-b border-leaf-100 text-leaf-600">
-                  <th className="py-2 pr-4 font-medium">Name</th>
-                  <th className="py-2 pr-4 font-medium">Date</th>
-                  <th className="py-2 pr-4 font-medium">Monthly revenue</th>
-                </tr>
-              </thead>
-              <tbody>
+            {/* Market benchmarks */}
+            <div className="rounded-2xl border border-leaf-100 bg-leaf-50 p-6 shadow-sm">
+              <h2 className="flex items-center gap-2 text-lg font-semibold text-leaf-700">
+                <MapPinIcon className="h-5 w-5 text-leaf-600" />
+                Market benchmarks (Mexico)
+              </h2>
+              <ul className="mt-4 space-y-4 text-sm text-leaf-800">
+                <li>
+                  <p className="font-semibold text-leaf-700">
+                    Homemade healthy lunch
+                  </p>
+                  <p className="mt-1">
+                    $18 to $37 per day, about $25 on average (about $125 per
+                    week).
+                  </p>
+                  <p className="mt-1 text-xs text-leaf-600">
+                    Source:{" "}
+                    <a
+                      href="https://www.alcontacto.com.mx/2025/08/31/cuanto-cuesta-hoy-mandar-un-lunch-saludable-a-los-ninos-en-mexico/"
+                      target="_blank"
+                      rel="noreferrer noopener"
+                      className="text-peach-600 underline hover:text-peach-700"
+                    >
+                      Al Contacto, Aug 2025 (Profeco and SNIIM data)
+                    </a>
+                  </p>
+                </li>
+                <li>
+                  <p className="font-semibold text-leaf-700">
+                    Average family spend on school food and lunch
+                  </p>
+                  <p className="mt-1">
+                    About $1,500 per month per student (about $250 per
+                    week).
+                  </p>
+                  <p className="mt-1 text-xs text-leaf-600">
+                    Source:{" "}
+                    <a
+                      href="https://www.record.com.mx/historia/cuanto-cuesta-el-regreso-a-clases-esto-es-lo-que-gastan-las-familias-mexicanas-en-transporte-y-comida-2026081902365258129"
+                      target="_blank"
+                      rel="noreferrer noopener"
+                      className="text-peach-600 underline hover:text-peach-700"
+                    >
+                      ANPEC via Récord, Aug 2026
+                    </a>
+                  </p>
+                </li>
+                <li>
+                  <p className="font-semibold text-leaf-700">
+                    Full-day kids meal delivery in CDMX (Manyar Plan
+                    Infantil)
+                  </p>
+                  <p className="mt-1">
+                    $380 per day, includes breakfast, lunch, dinner and 2
+                    snacks, minimum 20 days.
+                  </p>
+                  <p className="mt-1 text-xs text-leaf-600">
+                    Source:{" "}
+                    <a
+                      href="https://www.manyar.com.mx/plan-infantil/"
+                      target="_blank"
+                      rel="noreferrer noopener"
+                      className="text-peach-600 underline hover:text-peach-700"
+                    >
+                      manyar.com.mx/plan-infantil
+                    </a>
+                  </p>
+                </li>
+                <li>
+                  <p className="font-semibold text-leaf-700">
+                    Direct competitor LunchyBox (CDMX)
+                  </p>
+                  <p className="mt-1">
+                    School lunch delivery to school or home, prices not
+                    published.
+                  </p>
+                  <p className="mt-1 text-xs text-leaf-600">
+                    Source:{" "}
+                    <a
+                      href="https://lunchybox.app/"
+                      target="_blank"
+                      rel="noreferrer noopener"
+                      className="text-peach-600 underline hover:text-peach-700"
+                    >
+                      lunchybox.app
+                    </a>
+                  </p>
+                </li>
+              </ul>
+              <p className="mt-4 text-xs italic text-leaf-600">
+                No public price was found for a lunch-only school delivery
+                service.
+              </p>
+            </div>
+
+            {/* Save this scenario */}
+            <div className="rounded-2xl border border-leaf-100 bg-white p-6 shadow-sm">
+              <h2 className="flex items-center gap-2 text-lg font-semibold text-leaf-700">
+                <BookmarkIcon className="h-5 w-5 text-leaf-600" />
+                Save this scenario
+              </h2>
+              <p className="mt-1 text-sm text-leaf-600">
+                Keep a record of your inputs and results to compare
+                different scenarios.
+              </p>
+              <div className="mt-4 flex flex-wrap items-start gap-3">
+                <div>
+                  <input
+                    type="text"
+                    value={scenarioName}
+                    onChange={(event) => setScenarioName(event.target.value)}
+                    placeholder="Scenario name (e.g. Base case - CDMX)"
+                    className="w-64 rounded-lg border border-leaf-200 px-3 py-2 text-sm text-leaf-800 focus:border-leaf-500 focus:outline-none"
+                  />
+                  {nameError && (
+                    <p className="mt-1 text-xs font-medium text-red-600">
+                      Please enter a name for this scenario.
+                    </p>
+                  )}
+                </div>
+                <button
+                  type="button"
+                  onClick={handleSave}
+                  disabled={saving}
+                  className="rounded-full bg-leaf-600 px-6 py-2.5 font-semibold text-white shadow-sm transition-colors hover:bg-leaf-700 disabled:cursor-not-allowed disabled:opacity-60"
+                >
+                  {saving ? "Saving..." : "Save scenario"}
+                </button>
+                {saveMessage && (
+                  <span className="self-center text-sm font-medium text-leaf-700">
+                    {saveMessage}
+                  </span>
+                )}
+              </div>
+            </div>
+          </div>
+
+          <div className="space-y-8">
+            {/* Saved scenarios */}
+            <div className="rounded-2xl border border-leaf-100 bg-white p-6 shadow-sm">
+              <h2 className="flex items-center gap-2 text-lg font-semibold text-leaf-700">
+                <ClipboardCheckIcon className="h-5 w-5 text-leaf-600" />
+                Saved scenarios
+              </h2>
+              <p className="mt-1 text-sm text-leaf-600">
+                View and compare your previous scenario analyses.
+              </p>
+              <div className="mt-5 space-y-3">
                 {loadingSaved && (
-                  <tr>
-                    <td colSpan={3} className="py-4 text-leaf-600">
-                      Loading saved scenarios...
-                    </td>
-                  </tr>
+                  <p className="text-sm text-leaf-600">
+                    Loading saved scenarios...
+                  </p>
                 )}
                 {!loadingSaved && loadError && (
-                  <tr>
-                    <td colSpan={3} className="py-4 text-red-600">
-                      {loadError}
-                    </td>
-                  </tr>
-                )}
-                {!loadingSaved && !loadError && savedScenarios.length === 0 && (
-                  <tr>
-                    <td colSpan={3} className="py-4 text-leaf-600">
-                      No saved scenarios yet — name one above and click Save
-                      scenario.
-                    </td>
-                  </tr>
+                  <p className="text-sm text-red-600">{loadError}</p>
                 )}
                 {!loadingSaved &&
                   !loadError &&
+                  savedScenarios.length === 0 && (
+                    <p className="text-sm text-leaf-600">
+                      No saved scenarios yet — name one above and click Save
+                      scenario.
+                    </p>
+                  )}
+                {!loadingSaved &&
+                  !loadError &&
                   savedScenarios.map((row) => (
-                    <tr
+                    <div
                       key={row.id}
-                      className="border-b border-leaf-50 text-leaf-800"
+                      className="flex items-center gap-3 rounded-xl border border-leaf-100 bg-leaf-50 p-4"
                     >
-                      <td className="py-3 pr-4">{row.name}</td>
-                      <td className="py-3 pr-4">
-                        {new Date(row.created_at).toLocaleDateString()}
-                      </td>
-                      <td className="py-3 pr-4">
+                      <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-leaf-100 text-leaf-700">
+                        <BookmarkIcon className="h-4 w-4" />
+                      </span>
+                      <div className="min-w-0 flex-1">
+                        <p className="truncate text-sm font-semibold text-gray-800">
+                          {row.name}
+                        </p>
+                        <p className="text-xs text-leaf-600">
+                          {new Date(row.created_at).toLocaleDateString()}
+                        </p>
+                      </div>
+                      <p className="shrink-0 text-sm font-bold text-leaf-700">
                         {formatMXN(row.monthly_revenue)}
-                      </td>
-                    </tr>
+                      </p>
+                    </div>
                   ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
+              </div>
+            </div>
 
-        {/* Testing evidence */}
-        <div className="rounded-2xl border border-leaf-100 bg-leaf-50 p-6 shadow-sm">
-          <div className="flex flex-wrap items-center justify-between gap-3">
-            <h2 className="flex items-center gap-2 text-lg font-semibold text-leaf-700">
-              <span aria-hidden="true">🧪</span> Testing evidence
-            </h2>
-            <button
-              type="button"
-              onClick={runTests}
-              disabled={runningTests}
-              className="rounded-full bg-leaf-600 px-5 py-2 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-leaf-700 disabled:cursor-not-allowed disabled:opacity-60"
-            >
-              {runningTests ? "Running..." : "Run tests"}
-            </button>
-          </div>
-          <ul className="mt-5 space-y-3">
-            {testResults.map((test) => (
-              <li
-                key={test.id}
-                className="rounded-xl border border-leaf-100 bg-white p-4"
-              >
-                <div className="flex items-center justify-between gap-3">
-                  <span className="text-sm font-medium text-leaf-800">
-                    {test.label}
-                  </span>
-                  <span
-                    className={`rounded-full px-3 py-1 text-xs font-bold uppercase tracking-wide ${
-                      test.status === "pass"
-                        ? "bg-leaf-100 text-leaf-700"
-                        : test.status === "fail"
-                          ? "bg-red-100 text-red-700"
-                          : test.status === "manual"
-                            ? "bg-peach-100 text-peach-700"
-                            : "bg-gray-100 text-gray-500"
-                    }`}
-                  >
-                    {test.status === "idle"
-                      ? "Not run"
-                      : test.status === "running"
-                        ? "Running..."
-                        : test.status === "manual"
-                          ? "Manual check"
-                          : test.status}
-                  </span>
+            {/* Testing evidence */}
+            <div className="rounded-2xl border border-leaf-100 bg-white p-6 shadow-sm">
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                <div>
+                  <h2 className="flex items-center gap-2 text-lg font-semibold text-leaf-700">
+                    <ClipboardCheckIcon className="h-5 w-5 text-leaf-600" />
+                    Testing evidence
+                  </h2>
+                  <p className="mt-1 text-sm text-leaf-600">
+                    Results from automatic tests to make sure the pricing
+                    logic works properly.
+                  </p>
                 </div>
-                {test.detail && (
-                  <p className="mt-2 text-xs text-leaf-600">{test.detail}</p>
-                )}
-              </li>
-            ))}
-          </ul>
+                <button
+                  type="button"
+                  onClick={runTests}
+                  disabled={runningTests}
+                  className="rounded-full bg-leaf-600 px-5 py-2 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-leaf-700 disabled:cursor-not-allowed disabled:opacity-60"
+                >
+                  {runningTests ? "Running..." : "Run tests"}
+                </button>
+              </div>
+              <ul className="mt-5 space-y-3">
+                {testResults.map((test) => {
+                  const badge = TEST_BADGE[test.status];
+                  return (
+                    <li
+                      key={test.id}
+                      className="rounded-xl border border-leaf-100 bg-leaf-50 p-4"
+                    >
+                      <div className="flex items-center justify-between gap-3">
+                        <span className="flex items-center gap-2 text-sm font-medium text-leaf-800">
+                          <CheckIcon className="h-4 w-4 text-leaf-600" />
+                          {test.label}
+                        </span>
+                        <span
+                          className={`rounded-full px-3 py-1 text-xs font-bold uppercase tracking-wide ${badge.className}`}
+                        >
+                          {badge.label}
+                        </span>
+                      </div>
+                      {test.detail && (
+                        <p className="mt-2 text-xs text-leaf-600">
+                          {test.detail}
+                        </p>
+                      )}
+                    </li>
+                  );
+                })}
+              </ul>
+            </div>
+          </div>
         </div>
       </div>
     </section>

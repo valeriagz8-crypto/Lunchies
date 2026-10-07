@@ -1,3 +1,5 @@
+import { HeartIcon } from "@/components/icons";
+
 const columns = [
   {
     title: "Product",
@@ -32,8 +34,12 @@ export default function Footer() {
           <div>
             <span className="text-lg font-bold text-leaf-700">Lunchies</span>
             <p className="mt-2 text-sm text-leaf-800">
-              Healthy kids, happy parents.
+              Better lunches, brighter days.
             </p>
+            <span className="mt-4 inline-flex items-center gap-1.5 rounded-full bg-white px-3 py-1.5 text-xs font-semibold text-leaf-700 shadow-sm">
+              <HeartIcon className="h-3.5 w-3.5 text-peach-500" />
+              Made with care for families
+            </span>
           </div>
           {columns.map((column) => (
             <div key={column.title}>

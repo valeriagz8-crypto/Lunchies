@@ -68,7 +68,10 @@ export const FEATURES: Feature[] = [
   { name: "Nutrition information (macros)", plans: ["plus", "premium"] },
   { name: "Recipe customization", plans: ["plus", "premium"] },
   { name: "Save favorite meals", plans: ["plus", "premium"] },
-  { name: "Advanced filters", plans: ["premium"] },
+  {
+    name: "Advanced filters (allergens, cuisine, time)",
+    plans: ["premium"],
+  },
   { name: "Multi-child profiles", plans: ["premium"] },
   { name: "Priority support", plans: ["premium"] },
 ];
@@ -81,9 +84,9 @@ export type Segment = {
 
 export const SEGMENTS: Segment[] = [
   {
-    name: "Busy professionals",
+    name: "Busy parents (professionals)",
     description:
-      "Parents with demanding schedules who want convenient and healthy lunch options for their kids.",
+      "Parents with demanding schedules who want convenient and healthy lunch options.",
     needs: [
       "Save time",
       "Easy planning",
@@ -94,7 +97,7 @@ export const SEGMENTS: Segment[] = [
   {
     name: "Stay-at-home parents",
     description:
-      "Parents who are actively involved in their child's nutrition and want variety and personalized options.",
+      "Parents who are actively involved in their child's nutrition and want variety and personalization.",
     needs: [
       "Healthy and balanced meals",
       "Kid-approved recipes",

@@ -35,6 +35,40 @@ const TEST_DEFINITIONS: { id: string; label: string }[] = [
   { id: "responsive", label: "Responsive on mobile" },
 ];
 
+// Display mapping only — does not affect which checks run or their order
+// inside runTests(). Maps each test id to the title/subtitle requested in
+// the approved design, and controls the order tests are rendered in.
+const TEST_DISPLAY: Record<string, { title: string; subtitle: string }> = {
+  calc: {
+    title: "Pricing logic test 1",
+    subtitle: "Monthly revenue calculation",
+  },
+  scenario: {
+    title: "Pricing logic test 2",
+    subtitle: "Scenario multipliers",
+  },
+  persistence: {
+    title: "Software test 1",
+    subtitle: "Inputs save and load",
+  },
+  toggle: {
+    title: "Software test 2",
+    subtitle: "Annual and monthly toggle",
+  },
+  responsive: {
+    title: "Software test 3",
+    subtitle: "Responsive on mobile",
+  },
+};
+
+const TEST_DISPLAY_ORDER = [
+  "calc",
+  "scenario",
+  "persistence",
+  "toggle",
+  "responsive",
+];
+
 type SavedScenario = {
   id: string;
   created_at: string;
@@ -56,13 +90,15 @@ const DEFAULT_CUSTOMERS: CustomersByPlan = {
   premium: 50,
 };
 
+const SAVED_SCENARIOS_PREVIEW_COUNT = 3;
+
 function clampCustomers(value: number): number {
   if (Number.isNaN(value)) return 0;
   return Math.min(MAX_CUSTOMERS, Math.max(0, Math.round(value)));
 }
 
 const PLAN_EMOJI: Record<PlanKey, string> = {
-  basic: "🌿",
+  basic: "🌱",
   plus: "👨‍🍳",
   premium: "👑",
 };
@@ -78,7 +114,7 @@ const TEST_BADGE: Record<TestStatus, { label: string; className: string }> = {
   running: { label: "RUNNING...", className: "bg-gray-100 text-gray-500" },
   pass: { label: "PASS", className: "bg-[#EAF4EC] text-[#2F6B3F]" },
   fail: { label: "FAIL", className: "bg-[#FDECEC] text-[#D93A3A]" },
-  manual: { label: "MANUAL CHECK", className: "bg-[#FFF1E4] text-[#F08A3C]" },
+  manual: { label: "MANUAL CHECK", className: "bg-gray-100 text-gray-500" },
 };
 
 export default function PricingClient() {
@@ -97,10 +133,13 @@ export default function PricingClient() {
   const [nameError, setNameError] = useState(false);
   const [saving, setSaving] = useState(false);
   const [saveMessage, setSaveMessage] = useState<string | null>(null);
+  const [saveError, setSaveError] = useState(false);
 
   const [savedScenarios, setSavedScenarios] = useState<SavedScenario[]>([]);
   const [loadingSaved, setLoadingSaved] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
+  const [loadErrorDetail, setLoadErrorDetail] = useState<string | null>(null);
+  const [showAllSaved, setShowAllSaved] = useState(false);
 
   const [testResults, setTestResults] = useState<TestResult[]>(
     TEST_DEFINITIONS.map((test) => ({ ...test, status: "idle" })),
@@ -114,6 +153,7 @@ export default function PricingClient() {
   async function loadSavedScenarios() {
     setLoadingSaved(true);
     setLoadError(null);
+    setLoadErrorDetail(null);
 
     const { data, error } = await supabase
       .from("pricing_scenarios")
@@ -123,7 +163,9 @@ export default function PricingClient() {
       .limit(10);
 
     if (error) {
+      console.error("loadSavedScenarios error:", error);
       setLoadError("Could not load saved scenarios.");
+      setLoadErrorDetail(error.message);
     } else {
       setSavedScenarios((data ?? []) as SavedScenario[]);
     }
@@ -138,11 +180,13 @@ export default function PricingClient() {
     if (!scenarioName.trim()) {
       setNameError(true);
       setSaveMessage(null);
+      setSaveError(false);
       return;
     }
     setNameError(false);
     setSaving(true);
     setSaveMessage(null);
+    setSaveError(false);
 
     const { error } = await supabase.from("pricing_scenarios").insert({
       name: scenarioName.trim(),
@@ -157,8 +201,10 @@ export default function PricingClient() {
 
     if (error) {
       setSaveMessage("Could not save this scenario. Please try again.");
+      setSaveError(true);
     } else {
       setSaveMessage("Scenario saved!");
+      setSaveError(false);
       setScenarioName("");
       await loadSavedScenarios();
     }
@@ -289,10 +335,21 @@ export default function PricingClient() {
     setRunningTests(false);
   }
 
+  const resultsById = Object.fromEntries(
+    testResults.map((result) => [result.id, result]),
+  );
+  const orderedResults = TEST_DISPLAY_ORDER.map((id) => resultsById[id]).filter(
+    (result): result is TestResult => Boolean(result),
+  );
+
+  const visibleSavedScenarios = showAllSaved
+    ? savedScenarios
+    : savedScenarios.slice(0, SAVED_SCENARIOS_PREVIEW_COUNT);
+
   return (
     <div className="bg-[#FBF8F1]">
       <div className="mx-auto max-w-6xl space-y-8 px-6 py-8">
-        {/* Hero */}
+        {/* 1. Hero */}
         <div className="grid items-center gap-8 md:grid-cols-2">
           <div>
             <span className="text-sm font-semibold uppercase tracking-widest text-[#2F6B3F]">
@@ -318,7 +375,7 @@ export default function PricingClient() {
           </div>
         </div>
 
-        {/* Top row: billing period + scenario */}
+        {/* 2. Billing period + Scenario */}
         <div className="grid gap-5 md:grid-cols-2">
           <div className="rounded-2xl border border-[#E6EDE3] bg-white p-6 shadow-sm">
             <h2 className="font-semibold text-[#1F2A24]">Billing period</h2>
@@ -360,7 +417,7 @@ export default function PricingClient() {
           </div>
         </div>
 
-        {/* Number of customers per plan */}
+        {/* 3. Number of customers per plan */}
         <div className="rounded-2xl border border-[#E6EDE3] bg-white p-6 shadow-sm">
           <h2 className="text-2xl font-bold text-[#1F2A24]">
             Number of customers per plan
@@ -406,351 +463,373 @@ export default function PricingClient() {
           </div>
         </div>
 
-        {/* Main grid */}
-        <div className="grid gap-6 lg:grid-cols-[1.3fr_1fr]">
-          {/* LEFT column */}
-          <div className="space-y-6">
-            {/* Estimated revenue */}
-            <div className="rounded-2xl border border-[#E6EDE3] bg-white p-6 shadow-sm">
-              <h2 className="text-2xl font-bold text-[#1F2A24]">
-                Estimated revenue
-              </h2>
-              <p className="mt-1 text-sm text-gray-600">
-                Based on the selected number of customers and scenario.
+        {/* 4. Estimated revenue */}
+        <div className="rounded-2xl border border-[#E6EDE3] bg-white p-6 shadow-sm">
+          <h2 className="text-2xl font-bold text-[#1F2A24]">
+            Estimated revenue{" "}
+            <span className="text-sm font-normal text-gray-500">
+              ({SCENARIO_LABELS[scenario]} scenario)
+            </span>
+          </h2>
+          <p className="mt-1 text-sm text-gray-600">
+            Based on the selected number of customers and scenario.
+          </p>
+          <div className="mt-5 grid gap-4 sm:grid-cols-2">
+            <div
+              className={`rounded-2xl bg-[#EAF4EC] p-6 text-center ${
+                billingPeriod === "monthly" ? "ring-2 ring-[#2F6B3F]" : ""
+              }`}
+            >
+              <span className="text-3xl">💰</span>
+              <p className="mt-2 text-sm font-medium text-gray-600">
+                Monthly revenue
               </p>
-              <div className="mt-5 grid gap-4 sm:grid-cols-2">
-                <div
-                  className={`rounded-2xl bg-[#EAF4EC] p-6 text-center ${
-                    billingPeriod === "monthly" ? "ring-2 ring-[#2F6B3F]" : ""
-                  }`}
-                >
-                  <span className="text-3xl">🪙</span>
-                  <p className="mt-2 text-sm font-medium text-gray-600">
-                    Monthly revenue
-                  </p>
-                  <p className="mt-1 text-3xl font-extrabold text-[#2F6B3F]">
-                    {formatMXN(revenue.monthly)}
-                  </p>
-                </div>
-                <div
-                  className={`rounded-2xl bg-[#FDECEC] p-6 text-center ${
-                    billingPeriod === "annual" ? "ring-2 ring-[#2F6B3F]" : ""
-                  }`}
-                >
-                  <span className="text-3xl">📊</span>
-                  <p className="mt-2 text-sm font-medium text-gray-600">
-                    Annual revenue
-                  </p>
-                  <p className="mt-1 text-3xl font-extrabold text-[#D93A3A]">
-                    {formatMXN(revenue.annual)}
-                  </p>
-                </div>
-              </div>
+              <p className="mt-1 text-3xl font-extrabold text-[#2F6B3F]">
+                {formatMXN(revenue.monthly)}
+              </p>
             </div>
-
-            {/* Key assumptions */}
-            <div className="rounded-2xl border border-[#E6EDE3] bg-white p-6 shadow-sm">
-              <h2 className="text-2xl font-bold text-[#1F2A24]">
-                Key assumptions
-              </h2>
-              <p className="mt-1 text-sm text-gray-600">
-                These inputs are used to calculate the revenue.
+            <div
+              className={`rounded-2xl bg-[#FDECEC] p-6 text-center ${
+                billingPeriod === "annual" ? "ring-2 ring-[#2F6B3F]" : ""
+              }`}
+            >
+              <span className="text-3xl">📊</span>
+              <p className="mt-2 text-sm font-medium text-gray-600">
+                Annual revenue
               </p>
-              <div className="mt-5 overflow-x-auto">
-                <table className="w-full min-w-[480px] text-left text-sm">
-                  <thead>
-                    <tr>
-                      <th className="py-2 pr-4 font-medium text-gray-500">
-                        Assumption
-                      </th>
-                      {SCENARIOS.map((key) => (
-                        <th
-                          key={key}
-                          className={`rounded-t-lg px-3 py-2 text-center font-semibold text-[#1F2A24] ${SCENARIO_HEADER_BG[key]}`}
-                        >
-                          {SCENARIO_LABELS[key]}
-                        </th>
-                      ))}
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {PLANS.map((plan) => (
-                      <tr
-                        key={plan.id}
-                        className="border-b border-gray-100 text-[#1F2A24]"
+              <p className="mt-1 text-3xl font-extrabold text-[#D93A3A]">
+                {formatMXN(revenue.annual)}
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* 5. Key assumptions (60%) + Testing evidence (40%) */}
+        <div className="grid gap-6 lg:grid-cols-[3fr_2fr]">
+          <div className="rounded-2xl border border-[#E6EDE3] bg-white p-6 shadow-sm">
+            <h2 className="text-2xl font-bold text-[#1F2A24]">
+              Key assumptions
+            </h2>
+            <p className="mt-1 text-sm text-gray-600">
+              These inputs are used to calculate the revenue.
+            </p>
+            <div className="mt-5 overflow-x-auto">
+              <table className="w-full min-w-[420px] text-left text-sm">
+                <thead>
+                  <tr>
+                    <th className="py-2 pr-4 font-medium text-gray-500">
+                      Assumption
+                    </th>
+                    {SCENARIOS.map((key) => (
+                      <th
+                        key={key}
+                        className={`rounded-t-lg px-3 py-2 text-center font-semibold text-[#1F2A24] ${SCENARIO_HEADER_BG[key]}`}
                       >
-                        <td className="py-2.5 pr-4">
-                          Weekly price — {plan.name}
-                        </td>
-                        {SCENARIOS.map((key) => (
-                          <td key={key} className="py-2.5 pr-4 text-center">
-                            {formatWeekly(WEEKLY_PRICES[plan.id])}
-                          </td>
-                        ))}
-                      </tr>
+                        {SCENARIO_LABELS[key]}
+                      </th>
                     ))}
-                    <tr className="border-b border-gray-100 text-[#1F2A24]">
-                      <td className="py-2.5 pr-4">Weeks per month</td>
+                  </tr>
+                </thead>
+                <tbody>
+                  {PLANS.map((plan) => (
+                    <tr
+                      key={plan.id}
+                      className="border-b border-gray-100 text-[#1F2A24]"
+                    >
+                      <td className="py-2.5 pr-4">
+                        Weekly price — {plan.name}
+                      </td>
                       {SCENARIOS.map((key) => (
                         <td key={key} className="py-2.5 pr-4 text-center">
-                          {WEEKS_PER_MONTH}
+                          {formatWeekly(WEEKLY_PRICES[plan.id])}
                         </td>
                       ))}
                     </tr>
-                    <tr className="text-[#1F2A24]">
-                      <td className="py-2.5 pr-4">Scenario multiplier</td>
-                      {SCENARIOS.map((key) => (
-                        <td key={key} className="py-2.5 pr-4 text-center">
-                          {SCENARIO_MULTIPLIERS[key]}x
-                        </td>
-                      ))}
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-              <p className="mt-4 text-xs italic text-gray-500">
-                Prices, customer counts and multipliers are founder
-                assumptions, anchored to the benchmarks below.
-              </p>
+                  ))}
+                  <tr className="border-b border-gray-100 text-[#1F2A24]">
+                    <td className="py-2.5 pr-4">Weeks per month</td>
+                    {SCENARIOS.map((key) => (
+                      <td key={key} className="py-2.5 pr-4 text-center">
+                        {WEEKS_PER_MONTH}
+                      </td>
+                    ))}
+                  </tr>
+                  <tr className="text-[#1F2A24]">
+                    <td className="py-2.5 pr-4">Scenario multiplier</td>
+                    {SCENARIOS.map((key) => (
+                      <td key={key} className="py-2.5 pr-4 text-center">
+                        {SCENARIO_MULTIPLIERS[key]}x
+                      </td>
+                    ))}
+                  </tr>
+                </tbody>
+              </table>
             </div>
+            <p className="mt-4 text-xs italic text-gray-500">
+              Prices, customer counts and multipliers are founder
+              assumptions, anchored to the benchmarks below.
+            </p>
+          </div>
 
-            {/* Market benchmarks */}
-            <div className="rounded-2xl border border-[#E6EDE3] bg-white p-6 shadow-sm">
+          <div className="rounded-2xl border border-[#E6EDE3] bg-white p-6 shadow-sm">
+            <div className="flex flex-wrap items-center justify-between gap-3">
               <h2 className="text-2xl font-bold text-[#1F2A24]">
-                🇲🇽 Market benchmarks (Mexico)
+                ✅ Testing evidence
               </h2>
-              <ul className="mt-4 space-y-4 text-sm text-[#1F2A24]">
-                <li>
-                  <p className="font-semibold">Homemade healthy lunch</p>
-                  <p className="mt-1 text-gray-600">
-                    $18 to $37 per day, about $25 on average (about $125 per
-                    week).
-                  </p>
-                  <p className="mt-1 text-xs text-gray-500">
-                    Source:{" "}
-                    <a
-                      href="https://www.alcontacto.com.mx/2025/08/31/cuanto-cuesta-hoy-mandar-un-lunch-saludable-a-los-ninos-en-mexico/"
-                      target="_blank"
-                      rel="noreferrer noopener"
-                      className="text-[#F08A3C] underline"
-                    >
-                      Al Contacto, Aug 2025 (Profeco and SNIIM data)
-                    </a>
-                  </p>
-                </li>
-                <li>
-                  <p className="font-semibold">
-                    Average family spend on school food and lunch
-                  </p>
-                  <p className="mt-1 text-gray-600">
-                    About $1,500 per month per student (about $250 per
-                    week).
-                  </p>
-                  <p className="mt-1 text-xs text-gray-500">
-                    Source:{" "}
-                    <a
-                      href="https://www.record.com.mx/historia/cuanto-cuesta-el-regreso-a-clases-esto-es-lo-que-gastan-las-familias-mexicanas-en-transporte-y-comida-2026081902365258129"
-                      target="_blank"
-                      rel="noreferrer noopener"
-                      className="text-[#F08A3C] underline"
-                    >
-                      ANPEC via Récord, Aug 2026
-                    </a>
-                  </p>
-                </li>
-                <li>
-                  <p className="font-semibold">
-                    Full-day kids meal delivery in CDMX (Manyar Plan
-                    Infantil)
-                  </p>
-                  <p className="mt-1 text-gray-600">
-                    $380 per day, includes breakfast, lunch, dinner and 2
-                    snacks, minimum 20 days.
-                  </p>
-                  <p className="mt-1 text-xs text-gray-500">
-                    Source:{" "}
-                    <a
-                      href="https://www.manyar.com.mx/plan-infantil/"
-                      target="_blank"
-                      rel="noreferrer noopener"
-                      className="text-[#F08A3C] underline"
-                    >
-                      manyar.com.mx/plan-infantil
-                    </a>
-                  </p>
-                </li>
-                <li>
-                  <p className="font-semibold">
-                    Direct competitor LunchyBox (CDMX)
-                  </p>
-                  <p className="mt-1 text-gray-600">
-                    School lunch delivery to school or home, prices not
-                    published.
-                  </p>
-                  <p className="mt-1 text-xs text-gray-500">
-                    Source:{" "}
-                    <a
-                      href="https://lunchybox.app/"
-                      target="_blank"
-                      rel="noreferrer noopener"
-                      className="text-[#F08A3C] underline"
-                    >
-                      lunchybox.app
-                    </a>
-                  </p>
-                </li>
-              </ul>
-              <p className="mt-4 text-xs italic text-gray-500">
-                No public price was found for a lunch-only school delivery
-                service.
-              </p>
+              <button
+                type="button"
+                onClick={runTests}
+                disabled={runningTests}
+                className="rounded-lg bg-[#2F6B3F] px-4 py-1.5 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                {runningTests ? "Running..." : "Run tests"}
+              </button>
             </div>
+            <p className="mt-1 text-sm text-gray-600">
+              Results from automatic tests to make sure the pricing logic
+              works properly.
+            </p>
+            <ul className="mt-5 space-y-3">
+              {orderedResults.map((test) => {
+                const badge = TEST_BADGE[test.status];
+                const display = TEST_DISPLAY[test.id];
+                return (
+                  <li
+                    key={test.id}
+                    className="rounded-xl border border-[#E6EDE3] px-4 py-3"
+                  >
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="flex items-start gap-2">
+                        <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-[#2F6B3F] text-xs text-white">
+                          ✓
+                        </span>
+                        <div>
+                          <p className="text-sm font-bold text-[#1F2A24]">
+                            {display.title}
+                          </p>
+                          <p className="text-xs text-gray-500">
+                            {display.subtitle}
+                          </p>
+                        </div>
+                      </div>
+                      <span
+                        className={`shrink-0 rounded-full px-3 py-1 text-xs font-bold uppercase tracking-wide ${badge.className}`}
+                      >
+                        {badge.label}
+                      </span>
+                    </div>
+                    {test.detail && (
+                      <p className="mt-2 pl-7 text-xs text-gray-500">
+                        {test.detail}
+                      </p>
+                    )}
+                  </li>
+                );
+              })}
+            </ul>
+          </div>
+        </div>
 
-            {/* Save this scenario */}
-            <div className="rounded-2xl border border-[#E6EDE3] bg-white p-6 shadow-sm">
-              <h2 className="text-2xl font-bold text-[#1F2A24]">
-                🔖 Save this scenario
-              </h2>
-              <p className="mt-1 text-sm text-gray-600">
-                Keep a record of your inputs and results to compare
-                different scenarios.
+        {/* 6. Market benchmarks */}
+        <div className="rounded-2xl border border-[#E6EDE3] bg-white p-6 shadow-sm">
+          <h2 className="text-2xl font-bold text-[#1F2A24]">
+            🇲🇽 Market benchmarks (Mexico)
+          </h2>
+          <ul className="mt-4 space-y-4 text-sm text-[#1F2A24]">
+            <li>
+              <p className="font-semibold">Homemade healthy lunch</p>
+              <p className="mt-1 text-gray-600">
+                $18 to $37 per day, about $25 on average (about $125 per
+                week).
               </p>
-              <div className="mt-4 flex flex-wrap items-start gap-3">
-                <div>
-                  <input
-                    type="text"
-                    value={scenarioName}
-                    onChange={(event) => setScenarioName(event.target.value)}
-                    placeholder="Scenario name (e.g. Base case - CDMX)"
-                    className="w-64 rounded-lg border border-gray-200 px-3 py-2 text-sm text-[#1F2A24] focus:border-[#2F6B3F] focus:outline-none"
-                  />
-                  {nameError && (
-                    <p className="mt-1 text-xs font-medium text-[#D93A3A]">
-                      Please enter a name for this scenario.
-                    </p>
-                  )}
-                </div>
-                <button
-                  type="button"
-                  onClick={handleSave}
-                  disabled={saving}
-                  className="rounded-lg bg-[#2F6B3F] px-6 py-2.5 font-semibold text-white disabled:cursor-not-allowed disabled:opacity-60"
+              <p className="mt-1 text-xs text-gray-500">
+                Source:{" "}
+                <a
+                  href="https://www.alcontacto.com.mx/2025/08/31/cuanto-cuesta-hoy-mandar-un-lunch-saludable-a-los-ninos-en-mexico/"
+                  target="_blank"
+                  rel="noreferrer noopener"
+                  className="text-[#F08A3C] underline"
                 >
-                  {saving ? "Saving..." : "Save scenario"}
-                </button>
-                {saveMessage && (
-                  <span className="self-center text-sm font-medium text-[#2F6B3F]">
-                    {saveMessage}
-                  </span>
+                  Al Contacto, Aug 2025 (Profeco and SNIIM data)
+                </a>
+              </p>
+            </li>
+            <li>
+              <p className="font-semibold">
+                Average family spend on school food and lunch
+              </p>
+              <p className="mt-1 text-gray-600">
+                About $1,500 per month per student (about $250 per week).
+              </p>
+              <p className="mt-1 text-xs text-gray-500">
+                Source:{" "}
+                <a
+                  href="https://www.record.com.mx/historia/cuanto-cuesta-el-regreso-a-clases-esto-es-lo-que-gastan-las-familias-mexicanas-en-transporte-y-comida-2026081902365258129"
+                  target="_blank"
+                  rel="noreferrer noopener"
+                  className="text-[#F08A3C] underline"
+                >
+                  ANPEC via Récord, Aug 2026
+                </a>
+              </p>
+            </li>
+            <li>
+              <p className="font-semibold">
+                Full-day kids meal delivery in CDMX (Manyar Plan Infantil)
+              </p>
+              <p className="mt-1 text-gray-600">
+                $380 per day, includes breakfast, lunch, dinner and 2 snacks,
+                minimum 20 days.
+              </p>
+              <p className="mt-1 text-xs text-gray-500">
+                Source:{" "}
+                <a
+                  href="https://www.manyar.com.mx/plan-infantil/"
+                  target="_blank"
+                  rel="noreferrer noopener"
+                  className="text-[#F08A3C] underline"
+                >
+                  manyar.com.mx/plan-infantil
+                </a>
+              </p>
+            </li>
+            <li>
+              <p className="font-semibold">
+                Direct competitor LunchyBox (CDMX)
+              </p>
+              <p className="mt-1 text-gray-600">
+                School lunch delivery to school or home, prices not
+                published.
+              </p>
+              <p className="mt-1 text-xs text-gray-500">
+                Source:{" "}
+                <a
+                  href="https://lunchybox.app/"
+                  target="_blank"
+                  rel="noreferrer noopener"
+                  className="text-[#F08A3C] underline"
+                >
+                  lunchybox.app
+                </a>
+              </p>
+            </li>
+          </ul>
+          <p className="mt-4 text-xs italic text-gray-500">
+            No public price was found for a lunch-only school delivery
+            service.
+          </p>
+        </div>
+
+        {/* 7. Save this scenario + Saved scenarios */}
+        <div className="grid gap-6 lg:grid-cols-2">
+          <div className="rounded-2xl border border-[#E6EDE3] bg-white p-6 shadow-sm">
+            <h2 className="text-2xl font-bold text-[#1F2A24]">
+              🔖 Save this scenario
+            </h2>
+            <p className="mt-1 text-sm text-gray-600">
+              Keep a record of your inputs and results to compare different
+              scenarios.
+            </p>
+            <div className="mt-4 flex flex-wrap items-start gap-3">
+              <div>
+                <input
+                  type="text"
+                  value={scenarioName}
+                  onChange={(event) => setScenarioName(event.target.value)}
+                  placeholder="Scenario name (e.g. Base case - CDMX)"
+                  className="w-64 rounded-lg border border-gray-200 px-3 py-2 text-sm text-[#1F2A24] focus:border-[#2F6B3F] focus:outline-none"
+                />
+                {nameError && (
+                  <p className="mt-1 text-xs font-medium text-[#D93A3A]">
+                    Please enter a name for this scenario.
+                  </p>
                 )}
               </div>
+              <button
+                type="button"
+                onClick={handleSave}
+                disabled={saving}
+                className="rounded-lg bg-[#2F6B3F] px-6 py-2.5 font-semibold text-white disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                {saving ? "Saving..." : "Save scenario"}
+              </button>
+              {saveMessage && (
+                <span
+                  className={`self-center text-sm font-medium ${
+                    saveError ? "text-[#D93A3A]" : "text-[#2F6B3F]"
+                  }`}
+                >
+                  {saveMessage}
+                </span>
+              )}
             </div>
           </div>
 
-          {/* RIGHT column */}
-          <div className="space-y-6">
-            {/* Saved scenarios */}
-            <div className="rounded-2xl border border-[#E6EDE3] bg-white p-6 shadow-sm">
+          <div className="rounded-2xl border border-[#E6EDE3] bg-white p-6 shadow-sm">
+            <div className="flex flex-wrap items-center justify-between gap-3">
               <h2 className="text-2xl font-bold text-[#1F2A24]">
-                Saved scenarios
+                📋 Saved scenarios
               </h2>
-              <p className="mt-1 text-sm text-gray-600">
-                View and compare your previous scenario analyses.
-              </p>
-              <div className="mt-5 space-y-3">
-                {loadingSaved && (
-                  <p className="text-sm text-gray-500">
-                    Loading saved scenarios...
-                  </p>
+              {!loadingSaved &&
+                !loadError &&
+                savedScenarios.length > SAVED_SCENARIOS_PREVIEW_COUNT && (
+                  <button
+                    type="button"
+                    onClick={() => setShowAllSaved((prev) => !prev)}
+                    className="text-sm font-semibold text-[#2F6B3F] underline"
+                  >
+                    {showAllSaved ? "Show less" : "View all"}
+                  </button>
                 )}
-                {!loadingSaved && loadError && (
+            </div>
+            <p className="mt-1 text-sm text-gray-600">
+              View and compare your previous scenario analyses.
+            </p>
+            <div className="mt-5 space-y-3">
+              {loadingSaved && (
+                <p className="text-sm text-gray-500">
+                  Loading saved scenarios...
+                </p>
+              )}
+              {!loadingSaved && loadError && (
+                <div>
                   <p className="text-sm text-[#D93A3A]">{loadError}</p>
-                )}
-                {!loadingSaved &&
-                  !loadError &&
-                  savedScenarios.length === 0 && (
-                    <p className="text-sm text-gray-500">
-                      No saved scenarios yet — name one above and click Save
-                      scenario.
+                  {loadErrorDetail && (
+                    <p className="mt-1 text-xs text-gray-500">
+                      {loadErrorDetail}
                     </p>
                   )}
-                {!loadingSaved &&
-                  !loadError &&
-                  savedScenarios.map((row) => (
-                    <div
-                      key={row.id}
-                      className="flex items-center gap-3 rounded-xl border border-[#E6EDE3] p-3"
-                    >
-                      <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#EAF4EC] text-lg">
-                        📈
-                      </span>
-                      <div className="min-w-0 flex-1">
-                        <p className="truncate text-sm font-bold text-[#1F2A24]">
-                          {row.name}
-                        </p>
-                        <p className="text-xs text-gray-500">
-                          {new Date(row.created_at).toLocaleDateString()}
-                        </p>
-                      </div>
-                      <p className="shrink-0 text-sm font-bold text-[#2F6B3F]">
+                </div>
+              )}
+              {!loadingSaved && !loadError && savedScenarios.length === 0 && (
+                <p className="text-sm text-gray-500">
+                  No saved scenarios yet — name one above and click Save
+                  scenario.
+                </p>
+              )}
+              {!loadingSaved &&
+                !loadError &&
+                visibleSavedScenarios.map((row) => (
+                  <div
+                    key={row.id}
+                    className="flex items-center gap-3 rounded-xl border border-[#E6EDE3] p-3"
+                  >
+                    <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#EAF4EC] text-sm">
+                      📄
+                    </span>
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate text-sm font-bold text-[#1F2A24]">
+                        {row.name}
+                      </p>
+                      <p className="text-sm font-semibold text-[#2F6B3F]">
                         {formatMXN(row.monthly_revenue)}
                       </p>
                     </div>
-                  ))}
-              </div>
-            </div>
-
-            {/* Testing evidence */}
-            <div className="rounded-2xl border border-[#E6EDE3] bg-white p-6 shadow-sm">
-              <div className="flex flex-wrap items-center justify-between gap-3">
-                <div>
-                  <h2 className="text-2xl font-bold text-[#1F2A24]">
-                    🧪 Testing evidence
-                  </h2>
-                  <p className="mt-1 text-sm text-gray-600">
-                    Results from automatic tests to make sure the pricing
-                    logic works properly.
-                  </p>
-                </div>
-                <button
-                  type="button"
-                  onClick={runTests}
-                  disabled={runningTests}
-                  className="rounded-lg bg-[#2F6B3F] px-5 py-2 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-60"
-                >
-                  {runningTests ? "Running..." : "Run tests"}
-                </button>
-              </div>
-              <ul className="mt-5 space-y-3">
-                {testResults.map((test) => {
-                  const badge = TEST_BADGE[test.status];
-                  return (
-                    <li
-                      key={test.id}
-                      className="rounded-xl border border-[#E6EDE3] px-4 py-3"
-                    >
-                      <div className="flex items-center justify-between gap-3">
-                        <span className="flex items-center gap-2 text-sm font-medium text-[#1F2A24]">
-                          <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-[#2F6B3F] text-xs text-white">
-                            ✓
-                          </span>
-                          {test.label}
-                        </span>
-                        <span
-                          className={`rounded-full px-3 py-1 text-xs font-bold uppercase tracking-wide ${badge.className}`}
-                        >
-                          {badge.label}
-                        </span>
-                      </div>
-                      {test.detail && (
-                        <p className="mt-2 pl-7 text-xs text-gray-500">
-                          {test.detail}
-                        </p>
-                      )}
-                    </li>
-                  );
-                })}
-              </ul>
+                    <p className="shrink-0 text-xs text-gray-500">
+                      {new Date(row.created_at).toLocaleDateString()}
+                    </p>
+                  </div>
+                ))}
             </div>
           </div>
         </div>

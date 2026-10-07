@@ -24,7 +24,7 @@ const PLAN_STYLE: Record<
     cardBg: "bg-[#EAF4EC]",
     text: "text-[#2F6B3F]",
     button: "bg-[#2F6B3F]",
-    emoji: "🌿",
+    emoji: "🌱",
   },
   plus: {
     headerBg: "bg-[#FFF1E4]",
@@ -44,7 +44,7 @@ const PLAN_STYLE: Record<
   },
 };
 
-const SEGMENT_EMOJI = ["👥", "🏠"];
+const SEGMENT_EMOJI = ["👩", "🏠"];
 
 export default function ProductPage() {
   return (
@@ -61,8 +61,7 @@ export default function ProductPage() {
               <span className="text-[#F08A3C]">healthy lunches.</span>
             </h1>
             <p className="mt-4 text-gray-600">
-              Personalized, nutritious and convenient lunches for kids, built
-              for busy families.
+              See what Lunchies offers, our plans and who it&apos;s for.
             </p>
           </div>
           <div className="flex items-center justify-center gap-4">
@@ -80,10 +79,10 @@ export default function ProductPage() {
         {/* Feature map */}
         <div className="rounded-2xl border border-[#E6EDE3] bg-white p-6 shadow-sm">
           <h2 className="text-2xl font-bold text-[#1F2A24]">
-            Product feature map
+            ✨ Product feature map
           </h2>
           <p className="mt-1 text-sm text-gray-600">
-            See what&apos;s included in each plan.
+            Compare what&apos;s included in each plan.
           </p>
           <div className="mt-5 overflow-x-auto">
             <table className="w-full min-w-[560px] text-left text-sm">
@@ -141,13 +140,11 @@ export default function ProductPage() {
           </div>
         </div>
 
-        {/* Pricing plans */}
+        {/* Our plans */}
         <div className="rounded-2xl border border-[#E6EDE3] bg-white p-6 shadow-sm">
-          <h2 className="text-2xl font-bold text-[#1F2A24]">
-            Pricing plans
-          </h2>
+          <h2 className="text-2xl font-bold text-[#1F2A24]">🏷️ Our plans</h2>
           <p className="mt-1 text-sm text-gray-600">
-            Simple plans for every family.
+            Choose the plan that fits your family&apos;s needs.
           </p>
           <div className="mt-5 grid gap-5 md:grid-cols-3">
             {PLANS.map((plan) => {
@@ -197,7 +194,7 @@ export default function ProductPage() {
         {/* Customer segments */}
         <div className="rounded-2xl border border-[#E6EDE3] bg-white p-6 shadow-sm">
           <h2 className="text-2xl font-bold text-[#1F2A24]">
-            Our customer segments
+            👥 Our customer segments
           </h2>
           <p className="mt-1 text-sm text-gray-600">
             We focus on two main groups of families.
@@ -206,20 +203,22 @@ export default function ProductPage() {
             {SEGMENTS.map((segment, index) => (
               <div
                 key={segment.name}
-                className="rounded-2xl border border-[#E6EDE3] bg-white p-6"
+                className="rounded-2xl border border-[#E6EDE3] bg-white p-5"
               >
-                <span className="flex h-12 w-12 items-center justify-center rounded-full bg-[#EAF4EC] text-2xl">
+                <span className="flex h-11 w-11 items-center justify-center rounded-full bg-[#EAF4EC] text-xl">
                   {SEGMENT_EMOJI[index] ?? "👥"}
                 </span>
-                <h3 className="mt-4 text-lg font-bold text-[#1F2A24]">
+                <h3 className="mt-3 text-base font-bold text-[#1F2A24]">
                   {segment.name}
                 </h3>
-                <p className="mt-2 text-sm text-gray-600">
+                <p className="mt-1 text-sm text-gray-600">
                   {segment.description}
                 </p>
-                <div className="mt-4 rounded-xl bg-[#EAF4EC] p-4">
-                  <h4 className="font-bold text-[#1F2A24]">Key needs</h4>
-                  <div className="mt-2 grid grid-cols-2 gap-x-3 gap-y-2 text-sm text-[#1F2A24]">
+                <div className="mt-4 flex items-start justify-between gap-3 border-t border-[#E6EDE3] pt-4">
+                  <span className="shrink-0 text-sm font-semibold text-[#1F2A24]">
+                    Key needs
+                  </span>
+                  <div className="grid grid-cols-2 gap-x-3 gap-y-2 text-sm text-[#1F2A24]">
                     {segment.needs.map((need) => (
                       <div key={need} className="flex items-start gap-1.5">
                         <span className="font-bold text-[#2F6B3F]">✓</span>

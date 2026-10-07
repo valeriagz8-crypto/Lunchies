@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { caveat } from "@/lib/fonts";
 import { FEATURES, PLANS, SEGMENTS, type PlanId } from "@/lib/productData";
 import { formatWeekly } from "@/lib/pricing";
 
@@ -13,33 +12,37 @@ const PLAN_STYLE: Record<
     headerBg: string;
     headerText: string;
     cardBg: string;
+    cardBorder: string;
     text: string;
     button: string;
     emoji: string;
   }
 > = {
   basic: {
-    headerBg: "bg-[#EAF4EC]",
-    headerText: "text-[#2F6B3F]",
-    cardBg: "bg-[#EAF4EC]",
-    text: "text-[#2F6B3F]",
-    button: "bg-[#2F6B3F]",
+    headerBg: "bg-leaf-100",
+    headerText: "text-leaf-700",
+    cardBg: "bg-leaf-50",
+    cardBorder: "border-leaf-100",
+    text: "text-leaf-700",
+    button: "bg-leaf-600 hover:bg-leaf-700",
     emoji: "🌱",
   },
   plus: {
-    headerBg: "bg-[#FFF1E4]",
-    headerText: "text-[#F08A3C]",
-    cardBg: "bg-[#FFF1E4]",
-    text: "text-[#F08A3C]",
-    button: "bg-[#F08A3C]",
+    headerBg: "bg-peach-100",
+    headerText: "text-peach-700",
+    cardBg: "bg-peach-50",
+    cardBorder: "border-peach-100",
+    text: "text-peach-600",
+    button: "bg-peach-500 hover:bg-peach-600",
     emoji: "👨‍🍳",
   },
   premium: {
-    headerBg: "bg-[#E8F1FD]",
-    headerText: "text-[#2F7BE6]",
-    cardBg: "bg-[#E8F1FD]",
-    text: "text-[#2F7BE6]",
-    button: "bg-[#2F7BE6]",
+    headerBg: "bg-blue-100",
+    headerText: "text-blue-700",
+    cardBg: "bg-blue-50",
+    cardBorder: "border-blue-100",
+    text: "text-blue-600",
+    button: "bg-blue-600 hover:bg-blue-700",
     emoji: "👑",
   },
 };
@@ -48,47 +51,56 @@ const SEGMENT_EMOJI = ["👩", "🏠"];
 
 export default function ProductPage() {
   return (
-    <div className="bg-[#FBF8F1]">
-      <div className="mx-auto max-w-6xl space-y-8 px-6 py-8">
-        {/* Hero */}
-        <div className="grid items-center gap-8 md:grid-cols-2">
-          <div>
-            <span className="text-sm font-semibold uppercase tracking-widest text-[#2F6B3F]">
+    <section className="mx-auto max-w-5xl px-4 py-16 sm:px-6">
+      {/* Hero */}
+      <div className="grid items-center gap-8 md:grid-cols-2">
+        <div>
+          <div className="flex items-center gap-3">
+            <span
+              className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-peach-100 text-3xl"
+              aria-hidden="true"
+            >
+              🛍️
+            </span>
+            <span className="text-sm font-bold uppercase tracking-wide text-peach-500">
               Product
             </span>
-            <h1 className="mt-3 text-5xl font-extrabold text-[#1F2A24]">
-              A smarter way to plan{" "}
-              <span className="text-[#F08A3C]">healthy lunches.</span>
-            </h1>
-            <p className="mt-4 text-gray-600">
-              See what Lunchies offers, our plans and who it&apos;s for.
-            </p>
           </div>
-          <div className="flex items-center justify-center gap-4">
-            <div className="flex h-56 w-56 shrink-0 items-center justify-center rounded-3xl bg-[#EAF4EC] text-[120px] leading-none">
-              🍱
-            </div>
-            <p
-              className={`-rotate-6 text-2xl text-[#2F6B3F] ${caveat.className}`}
-            >
-              Good food, brighter futures ♡
-            </p>
-          </div>
+          <h1 className="mt-3 text-3xl font-extrabold tracking-tight text-gray-800 sm:text-4xl">
+            A smarter way to plan{" "}
+            <span className="text-peach-500">healthy lunches.</span>
+          </h1>
+          <p className="mt-4 max-w-md text-lg text-gray-600">
+            See what Lunchies offers, our plans and who it&apos;s for.
+          </p>
         </div>
+        <div className="flex justify-center md:justify-end">
+          <span className="text-6xl leading-none" aria-hidden="true">
+            🍱
+          </span>
+        </div>
+      </div>
 
-        {/* Feature map */}
-        <div className="rounded-2xl border border-[#E6EDE3] bg-white p-6 shadow-sm">
-          <h2 className="text-2xl font-bold text-[#1F2A24]">
-            ✨ Product feature map
-          </h2>
-          <p className="mt-1 text-sm text-gray-600">
+      <div className="mt-12 space-y-8">
+        {/* Section 1: Feature map */}
+        <div className="rounded-2xl border border-leaf-100 bg-leaf-50 p-6 shadow-sm">
+          <div className="flex items-center gap-3">
+            <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-leaf-600 text-sm font-bold text-white">
+              1
+            </span>
+            <h2 className="flex items-center gap-2 text-lg font-semibold text-leaf-700">
+              <span aria-hidden="true">✨</span> Product feature map
+            </h2>
+          </div>
+          <p className="mt-2 text-sm text-leaf-600">
             Compare what&apos;s included in each plan.
           </p>
+
           <div className="mt-5 overflow-x-auto">
             <table className="w-full min-w-[560px] text-left text-sm">
               <thead>
                 <tr>
-                  <th className="py-2 pr-4 font-medium text-gray-500">
+                  <th className="py-2 pr-4 font-medium text-leaf-600">
                     Feature
                   </th>
                   {PLANS.map((plan) => {
@@ -111,14 +123,14 @@ export default function ProductPage() {
                 {FEATURES.map((feature) => (
                   <tr
                     key={feature.name}
-                    className="border-b border-gray-100 text-[#1F2A24]"
+                    className="border-b border-leaf-50 text-leaf-800"
                   >
                     <td className="py-2.5 pr-4">{feature.name}</td>
                     {PLANS.map((plan) => (
                       <td key={plan.id} className="py-2.5 pr-4 text-center">
                         {includesPlan(feature.plans, plan.id) ? (
                           <span
-                            className="mx-auto flex h-5 w-5 items-center justify-center rounded-full bg-[#2F6B3F] text-xs text-white"
+                            className="mx-auto flex h-5 w-5 items-center justify-center rounded-full bg-leaf-600 text-xs text-white"
                             aria-label="Included"
                           >
                             ✓
@@ -140,28 +152,36 @@ export default function ProductPage() {
           </div>
         </div>
 
-        {/* Our plans */}
-        <div className="rounded-2xl border border-[#E6EDE3] bg-white p-6 shadow-sm">
-          <h2 className="text-2xl font-bold text-[#1F2A24]">🏷️ Our plans</h2>
-          <p className="mt-1 text-sm text-gray-600">
+        {/* Section 2: Our plans */}
+        <div className="rounded-2xl border border-leaf-100 bg-white p-6 shadow-sm">
+          <div className="flex items-center gap-3">
+            <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-leaf-600 text-sm font-bold text-white">
+              2
+            </span>
+            <h2 className="flex items-center gap-2 text-lg font-semibold text-leaf-700">
+              <span aria-hidden="true">🏷️</span> Our plans
+            </h2>
+          </div>
+          <p className="mt-2 text-sm text-leaf-600">
             Choose the plan that fits your family&apos;s needs.
           </p>
+
           <div className="mt-5 grid gap-5 md:grid-cols-3">
             {PLANS.map((plan) => {
               const style = PLAN_STYLE[plan.id];
               return (
                 <div
                   key={plan.id}
-                  className={`flex flex-col rounded-2xl border border-[#E6EDE3] p-5 ${style.cardBg}`}
+                  className={`flex flex-col rounded-2xl border p-5 ${style.cardBg} ${style.cardBorder}`}
                 >
                   <span className="flex h-12 w-12 items-center justify-center rounded-full bg-white text-2xl shadow-sm">
                     {style.emoji}
                   </span>
-                  <h3 className="mt-4 text-lg font-bold text-[#1F2A24]">
+                  <h3 className="mt-4 text-lg font-bold text-gray-800">
                     {plan.name}
                   </h3>
                   <p className="mt-1 flex items-baseline gap-1">
-                    <span className="text-3xl font-extrabold text-[#1F2A24]">
+                    <span className="text-3xl font-extrabold text-gray-800">
                       ${plan.weeklyPrice}
                     </span>
                     <span className="text-sm font-medium text-gray-500">
@@ -171,7 +191,7 @@ export default function ProductPage() {
                   <p className={`mt-2 text-sm font-medium ${style.text}`}>
                     {plan.tagline}
                   </p>
-                  <ul className="mt-4 flex-1 space-y-2 text-sm text-[#1F2A24]">
+                  <ul className="mt-4 flex-1 space-y-2 text-sm text-leaf-800">
                     {plan.bullets.map((bullet) => (
                       <li key={bullet} className="flex items-start gap-2">
                         <span className={`${style.text} font-bold`}>✓</span>
@@ -181,7 +201,7 @@ export default function ProductPage() {
                   </ul>
                   <Link
                     href="/core"
-                    className={`mt-6 rounded-lg py-2.5 text-center text-sm font-bold text-white ${style.button}`}
+                    className={`mt-6 rounded-full py-2.5 text-center text-sm font-bold text-white shadow-sm transition-colors ${style.button}`}
                   >
                     Get {plan.name}
                   </Link>
@@ -191,37 +211,43 @@ export default function ProductPage() {
           </div>
         </div>
 
-        {/* Customer segments */}
-        <div className="rounded-2xl border border-[#E6EDE3] bg-white p-6 shadow-sm">
-          <h2 className="text-2xl font-bold text-[#1F2A24]">
-            👥 Our customer segments
-          </h2>
-          <p className="mt-1 text-sm text-gray-600">
+        {/* Section 3: Customer segments */}
+        <div className="rounded-2xl border border-leaf-100 bg-leaf-50 p-6 shadow-sm">
+          <div className="flex items-center gap-3">
+            <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-leaf-600 text-sm font-bold text-white">
+              3
+            </span>
+            <h2 className="flex items-center gap-2 text-lg font-semibold text-leaf-700">
+              <span aria-hidden="true">👥</span> Our customer segments
+            </h2>
+          </div>
+          <p className="mt-2 text-sm text-leaf-600">
             We focus on two main groups of families.
           </p>
+
           <div className="mt-5 grid gap-5 sm:grid-cols-2">
             {SEGMENTS.map((segment, index) => (
               <div
                 key={segment.name}
-                className="rounded-2xl border border-[#E6EDE3] bg-white p-5"
+                className="rounded-xl border border-leaf-100 bg-white p-5"
               >
-                <span className="flex h-11 w-11 items-center justify-center rounded-full bg-[#EAF4EC] text-xl">
+                <span className="flex h-11 w-11 items-center justify-center rounded-full bg-leaf-100 text-xl">
                   {SEGMENT_EMOJI[index] ?? "👥"}
                 </span>
-                <h3 className="mt-3 text-base font-bold text-[#1F2A24]">
+                <h3 className="mt-3 font-semibold text-leaf-800">
                   {segment.name}
                 </h3>
-                <p className="mt-1 text-sm text-gray-600">
+                <p className="mt-1 text-sm text-leaf-700">
                   {segment.description}
                 </p>
-                <div className="mt-4 flex items-start justify-between gap-3 border-t border-[#E6EDE3] pt-4">
-                  <span className="shrink-0 text-sm font-semibold text-[#1F2A24]">
+                <div className="mt-4 flex items-start justify-between gap-3 border-t border-leaf-100 pt-4">
+                  <span className="shrink-0 text-sm font-medium text-leaf-800">
                     Key needs
                   </span>
-                  <div className="grid grid-cols-2 gap-x-3 gap-y-2 text-sm text-[#1F2A24]">
+                  <div className="grid grid-cols-2 gap-x-3 gap-y-2 text-sm text-leaf-800">
                     {segment.needs.map((need) => (
                       <div key={need} className="flex items-start gap-1.5">
-                        <span className="font-bold text-[#2F6B3F]">✓</span>
+                        <span className="font-bold text-leaf-600">✓</span>
                         <span>{need}</span>
                       </div>
                     ))}
@@ -232,6 +258,6 @@ export default function ProductPage() {
           </div>
         </div>
       </div>
-    </div>
+    </section>
   );
 }

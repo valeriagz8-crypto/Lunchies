@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { Fragment, useEffect, useMemo, useState } from "react";
+import Link from "next/link";
 import { supabase } from "@/lib/supabase";
 import { PLANS } from "@/lib/productData";
 import { calculateRevenue, formatMXN, formatWeekly } from "@/lib/pricing";
@@ -116,6 +117,19 @@ const TEST_BADGE: Record<TestStatus, { label: string; className: string }> = {
   manual: { label: "MANUAL CHECK", className: "bg-gray-100 text-gray-500" },
 };
 
+const STEPS = [
+  "Choose period and scenario",
+  "Set customers",
+  "Read the revenue",
+  "Save it",
+];
+
+const SCENARIO_DESCRIPTIONS: Record<ScenarioKey, string> = {
+  conservative: `Fewer customers than expected (${SCENARIO_MULTIPLIERS.conservative}x)`,
+  base: `The expected case (${SCENARIO_MULTIPLIERS.base}x)`,
+  optimistic: `Faster growth than expected (${SCENARIO_MULTIPLIERS.optimistic}x)`,
+};
+
 export default function PricingClient() {
   const [billingPeriod, setBillingPeriod] = useState<BillingPeriod>("monthly");
   const [scenario, setScenario] = useState<ScenarioKey>("base");
@@ -147,6 +161,12 @@ export default function PricingClient() {
 
   function updateCustomers(plan: PlanKey, value: number) {
     setCustomers((prev) => ({ ...prev, [plan]: clampCustomers(value) }));
+  }
+
+  function resetToDefaults() {
+    setCustomers(DEFAULT_CUSTOMERS);
+    setScenario("base");
+    setBillingPeriod("monthly");
   }
 
   async function loadSavedScenarios() {
@@ -345,6 +365,48 @@ export default function PricingClient() {
     ? savedScenarios
     : savedScenarios.slice(0, SAVED_SCENARIOS_PREVIEW_COUNT);
 
+  const totalCustomers =
+    customers.basic + customers.plus + customers.premium;
+
+  const planRevenues = PLANS.map((plan) => ({
+    plan,
+    monthly: calculateRevenue(
+      { basic: 0, plus: 0, premium: 0, [plan.id]: customers[plan.id] },
+      scenario,
+    ).monthly,
+  }));
+  const topPlanRevenue = planRevenues.reduce((top, current) =>
+    current.monthly > top.monthly ? current : top,
+  );
+  const topPlanShare =
+    revenue.monthly > 0
+      ? Math.round((topPlanRevenue.monthly / revenue.monthly) * 100)
+      : 0;
+
+  const summaryTiles = [
+    {
+      icon: "👨‍👩‍👧",
+      value: `${totalCustomers}`,
+      label: "total customers",
+    },
+    {
+      icon: "💵",
+      value:
+        totalCustomers > 0
+          ? formatMXN(revenue.monthly / totalCustomers)
+          : "—",
+      label: "avg. revenue / customer / month",
+    },
+    {
+      icon: "🏆",
+      value:
+        totalCustomers > 0
+          ? `${topPlanRevenue.plan.name} (${topPlanShare}%)`
+          : "—",
+      label: "top plan by revenue",
+    },
+  ];
+
   return (
     <section className="mx-auto max-w-5xl px-4 py-16 sm:px-6">
       {/* Hero */}
@@ -368,12 +430,37 @@ export default function PricingClient() {
             Play with different scenarios and see the potential revenue for
             Lunchies.
           </p>
+          <Link
+            href="/product"
+            className="mt-2 inline-block text-sm font-semibold text-peach-600 transition-colors hover:text-peach-700"
+          >
+            See what each plan includes →
+          </Link>
         </div>
         <div className="flex justify-center md:justify-end">
           <span className="text-6xl leading-none" aria-hidden="true">
             🥗
           </span>
         </div>
+      </div>
+
+      {/* Step bar */}
+      <div className="mt-8 flex flex-wrap items-center justify-center gap-x-2 gap-y-3 rounded-full border border-leaf-100 bg-leaf-50 px-4 py-3 text-center text-xs font-medium text-leaf-700 sm:text-sm">
+        {STEPS.map((step, index) => (
+          <Fragment key={step}>
+            {index > 0 && (
+              <span aria-hidden="true" className="text-leaf-400">
+                →
+              </span>
+            )}
+            <span className="flex items-center gap-1.5">
+              <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-leaf-600 text-[10px] font-bold text-white">
+                {index + 1}
+              </span>
+              {step}
+            </span>
+          </Fragment>
+        ))}
       </div>
 
       <div className="mt-12 space-y-8">
@@ -414,7 +501,7 @@ export default function PricingClient() {
                 Scenario
                 <span
                   className="text-sm text-leaf-400"
-                  title="Scales total revenue up or down to model growth."
+                  title={SCENARIO_DESCRIPTIONS[scenario]}
                 >
                   ⓘ
                 </span>
@@ -436,19 +523,31 @@ export default function PricingClient() {
                 </button>
               ))}
             </div>
+            <p className="mt-2 text-xs text-leaf-600">
+              {SCENARIO_DESCRIPTIONS[scenario]}
+            </p>
           </div>
         </div>
 
         {/* Section 3: Number of customers per plan */}
         <div className="rounded-2xl border border-leaf-100 bg-leaf-50 p-6 shadow-sm">
-          <div className="flex items-center gap-3">
-            <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-leaf-600 text-sm font-bold text-white">
-              3
-            </span>
-            <h2 className="flex items-center gap-2 text-lg font-semibold text-leaf-700">
-              <span aria-hidden="true">👨‍👩‍👧</span> Number of customers per
-              plan
-            </h2>
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div className="flex items-center gap-3">
+              <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-leaf-600 text-sm font-bold text-white">
+                3
+              </span>
+              <h2 className="flex items-center gap-2 text-lg font-semibold text-leaf-700">
+                <span aria-hidden="true">👨‍👩‍👧</span> Number of customers per
+                plan
+              </h2>
+            </div>
+            <button
+              type="button"
+              onClick={resetToDefaults}
+              className="rounded-full border border-leaf-200 px-4 py-1.5 text-xs font-semibold text-leaf-700 transition-colors hover:bg-white"
+            >
+              Reset to defaults
+            </button>
           </div>
           <p className="mt-2 text-sm text-leaf-600">
             Adjust the number of active customers in each plan.
@@ -538,6 +637,22 @@ export default function PricingClient() {
                 {formatMXN(revenue.annual)}
               </p>
             </div>
+          </div>
+          <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-3">
+            {summaryTiles.map((tile) => (
+              <div
+                key={tile.label}
+                className="rounded-xl border border-leaf-100 bg-leaf-50 p-3 text-center"
+              >
+                <span className="text-xl" aria-hidden="true">
+                  {tile.icon}
+                </span>
+                <p className="mt-1 text-sm font-extrabold text-leaf-800">
+                  {tile.value}
+                </p>
+                <p className="text-xs text-leaf-600">{tile.label}</p>
+              </div>
+            ))}
           </div>
         </div>
 
@@ -867,8 +982,8 @@ export default function PricingClient() {
               )}
               {!loadingSaved && !loadError && savedScenarios.length === 0 && (
                 <p className="text-sm text-leaf-600">
-                  No saved scenarios yet — name one above and click Save
-                  scenario.
+                  No saved scenarios yet. Name this one and press Save to
+                  keep it.
                 </p>
               )}
               {!loadingSaved &&

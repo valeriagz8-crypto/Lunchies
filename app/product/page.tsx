@@ -1,3 +1,4 @@
+import { Fragment } from "react";
 import Link from "next/link";
 import { FEATURES, PLANS, SEGMENTS, type PlanId } from "@/lib/productData";
 import { formatWeekly } from "@/lib/pricing";
@@ -49,7 +50,34 @@ const PLAN_STYLE: Record<
 
 const SEGMENT_EMOJI = ["👩", "🏠"];
 
+const BEST_FOR: Record<PlanId, string> = {
+  basic: "Families who want simple, healthy planning",
+  plus: "Families who want more control over meals",
+  premium: "Families who want the full experience",
+};
+
+const STEPS = [
+  "Compare features",
+  "Pick a plan",
+  "See who it's for",
+  "Estimate revenue",
+];
+
 export default function ProductPage() {
+  const minWeeklyPrice = Math.min(...PLANS.map((plan) => plan.weeklyPrice));
+  const maxWeeklyPrice = Math.max(...PLANS.map((plan) => plan.weeklyPrice));
+
+  const STAT_TILES = [
+    { icon: "🏷️", value: `${PLANS.length}`, label: "plans" },
+    { icon: "✨", value: `${FEATURES.length}`, label: "features" },
+    { icon: "👥", value: `${SEGMENTS.length}`, label: "customer segments" },
+    {
+      icon: "💲",
+      value: `$${minWeeklyPrice} to $${maxWeeklyPrice}`,
+      label: "per week",
+    },
+  ];
+
   return (
     <section className="mx-auto max-w-5xl px-4 py-16 sm:px-6">
       {/* Hero */}
@@ -79,6 +107,43 @@ export default function ProductPage() {
             🍱
           </span>
         </div>
+      </div>
+
+      {/* Stat tiles */}
+      <div className="mt-8 grid grid-cols-2 gap-3 sm:grid-cols-4">
+        {STAT_TILES.map((tile) => (
+          <div
+            key={tile.label}
+            className="rounded-2xl border border-leaf-100 bg-leaf-50 p-4 text-center shadow-sm"
+          >
+            <span className="text-2xl" aria-hidden="true">
+              {tile.icon}
+            </span>
+            <p className="mt-1 text-xl font-extrabold text-leaf-800">
+              {tile.value}
+            </p>
+            <p className="text-xs text-leaf-600">{tile.label}</p>
+          </div>
+        ))}
+      </div>
+
+      {/* Step bar */}
+      <div className="mt-8 flex flex-wrap items-center justify-center gap-x-2 gap-y-3 rounded-full border border-leaf-100 bg-leaf-50 px-4 py-3 text-center text-xs font-medium text-leaf-700 sm:text-sm">
+        {STEPS.map((step, index) => (
+          <Fragment key={step}>
+            {index > 0 && (
+              <span aria-hidden="true" className="text-leaf-400">
+                →
+              </span>
+            )}
+            <span className="flex items-center gap-1.5">
+              <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-leaf-600 text-[10px] font-bold text-white">
+                {index + 1}
+              </span>
+              {step}
+            </span>
+          </Fragment>
+        ))}
       </div>
 
       <div className="mt-12 space-y-8">
@@ -188,8 +253,15 @@ export default function ProductPage() {
                       / week
                     </span>
                   </p>
+                  <p className="text-xs text-gray-500">
+                    about ${Math.round(plan.weeklyPrice / 5)} per day
+                  </p>
                   <p className={`mt-2 text-sm font-medium ${style.text}`}>
                     {plan.tagline}
+                  </p>
+                  <p className="mt-2 text-xs text-leaf-600">
+                    <span className="font-semibold">Best for:</span>{" "}
+                    {BEST_FOR[plan.id]}
                   </p>
                   <ul className="mt-4 flex-1 space-y-2 text-sm text-leaf-800">
                     {plan.bullets.map((bullet) => (
@@ -256,6 +328,19 @@ export default function ProductPage() {
               </div>
             ))}
           </div>
+        </div>
+
+        {/* CTA */}
+        <div className="flex flex-col items-center gap-3 rounded-2xl border border-peach-100 bg-peach-50 p-6 text-center shadow-sm sm:flex-row sm:justify-between sm:text-left">
+          <p className="text-sm font-semibold text-peach-700">
+            Want to see what these plans could earn?
+          </p>
+          <Link
+            href="/pricing"
+            className="shrink-0 rounded-full bg-peach-500 px-6 py-2.5 text-sm font-bold text-white shadow-sm transition-colors hover:bg-peach-600"
+          >
+            Go to Pricing
+          </Link>
         </div>
       </div>
     </section>

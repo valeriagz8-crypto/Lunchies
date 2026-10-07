@@ -366,7 +366,6 @@ export default function PricingClient() {
                     type="button"
                     aria-expanded={scenarioInfoOpen}
                     aria-label="What do the scenarios mean?"
-                    title={SCENARIO_DESCRIPTIONS[scenario]}
                     onClick={() => setScenarioInfoOpen((open) => !open)}
                     onMouseEnter={() => setScenarioInfoOpen(true)}
                     onFocus={() => setScenarioInfoOpen(true)}
@@ -378,7 +377,7 @@ export default function PricingClient() {
                     <div
                       role="dialog"
                       aria-label="What do the scenarios mean?"
-                      className="absolute left-1/2 top-full z-10 mt-2 w-64 -translate-x-1/2 rounded-xl border border-leaf-100 bg-white p-4 text-left text-xs font-normal text-leaf-700 shadow-sm"
+                      className="absolute left-0 top-full z-10 mt-2 w-[min(16rem,calc(100vw-2rem))] rounded-xl border border-leaf-100 bg-white p-4 text-left text-xs font-normal text-leaf-700 shadow-sm"
                     >
                       <p>
                         <strong>Conservative:</strong> fewer customers than

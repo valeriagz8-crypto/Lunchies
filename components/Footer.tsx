@@ -61,7 +61,7 @@ export default function Footer() {
           ))}
         </div>
         <div className="mt-10 border-t border-leaf-100 pt-6 text-center text-sm text-leaf-800">
-          © 2026 Lunchies · Hecho por Valeria Gómez Zamudio
+          © 2026 Lunchies · Made by Valeria Gómez Zamudio
         </div>
       </div>
     </footer>

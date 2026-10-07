@@ -1,32 +1,28 @@
 const phases = [
   {
-    title: "Fase 1: Pre-lanzamiento",
-    period: "Meses 1-2",
+    title: "Phase 1: Pre-launch",
+    period: "Months 1-2",
     items: [
-      "Desarrollo de página web",
-      "Permisos sanitarios",
-      "Contratación de personal clave",
-      "Pruebas piloto",
+      "Website development",
+      "Health permits",
+      "Hiring key staff",
+      "Pilot tests",
     ],
   },
   {
-    title: "Fase 2: Lanzamiento",
-    period: "Meses 3-6",
+    title: "Phase 2: Launch",
+    period: "Months 3-6",
     items: [
-      "Inicio de operaciones",
-      "Campañas digitales",
-      "Alianzas con escuelas",
-      "Programa de referidos",
+      "Start of operations",
+      "Digital campaigns",
+      "School partnerships",
+      "Referral program",
     ],
   },
   {
-    title: "Fase 3: Crecimiento",
-    period: "Meses 7-12",
-    items: [
-      "Expansión a más escuelas",
-      "App móvil",
-      "Nuevas líneas de producto",
-    ],
+    title: "Phase 3: Growth",
+    period: "Months 7-12",
+    items: ["Expansion to more schools", "Mobile app", "New product lines"],
   },
 ];
 

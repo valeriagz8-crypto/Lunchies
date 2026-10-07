@@ -160,6 +160,10 @@ export default function ProductPage() {
           <p className="mt-2 text-sm text-leaf-600">
             Compare what&apos;s included in each plan.
           </p>
+          <p className="mt-1 text-xs text-gray-500">
+            This is the planned product. Today, the live feature is the
+            personalized 5-day lunch plan on Core.
+          </p>
 
           <div className="mt-5 overflow-x-auto">
             <table className="w-full min-w-[560px] text-left text-sm">

@@ -82,6 +82,13 @@ export default function PricingClient() {
   const [customers, setCustomers] = useState<CustomersByPlan>(
     DEFAULT_CUSTOMERS,
   );
+  const [customerInputs, setCustomerInputs] = useState<
+    Record<PlanKey, string>
+  >({
+    basic: String(DEFAULT_CUSTOMERS.basic),
+    plus: String(DEFAULT_CUSTOMERS.plus),
+    premium: String(DEFAULT_CUSTOMERS.premium),
+  });
 
   const revenue = useMemo(
     () => calculateRevenue(customers, scenario),
@@ -129,11 +136,28 @@ export default function PricingClient() {
   }, [scenarioInfoOpen]);
 
   function updateCustomers(plan: PlanKey, value: number) {
-    setCustomers((prev) => ({ ...prev, [plan]: clampCustomers(value) }));
+    const clamped = clampCustomers(value);
+    setCustomers((prev) => ({ ...prev, [plan]: clamped }));
+    setCustomerInputs((prev) => ({ ...prev, [plan]: String(clamped) }));
+  }
+
+  function handleCustomerTextChange(plan: PlanKey, raw: string) {
+    if (raw === "") {
+      setCustomerInputs((prev) => ({ ...prev, [plan]: "" }));
+      setCustomers((prev) => ({ ...prev, [plan]: 0 }));
+      return;
+    }
+    const stripped = raw.replace(/^0+(?=\d)/, "");
+    updateCustomers(plan, Number(stripped));
   }
 
   function resetToDefaults() {
     setCustomers(DEFAULT_CUSTOMERS);
+    setCustomerInputs({
+      basic: String(DEFAULT_CUSTOMERS.basic),
+      plus: String(DEFAULT_CUSTOMERS.plus),
+      premium: String(DEFAULT_CUSTOMERS.premium),
+    });
     setScenario("base");
     setBillingPeriod("monthly");
   }
@@ -446,9 +470,9 @@ export default function PricingClient() {
                   type="number"
                   min={0}
                   max={MAX_CUSTOMERS}
-                  value={customers[plan.id]}
+                  value={customerInputs[plan.id]}
                   onChange={(event) =>
-                    updateCustomers(plan.id, Number(event.target.value))
+                    handleCustomerTextChange(plan.id, event.target.value)
                   }
                   className="w-20 rounded-lg border border-leaf-200 bg-white px-3 py-2 text-right text-sm text-leaf-900 focus:border-leaf-500 focus:outline-none"
                 />
@@ -709,14 +733,14 @@ export default function PricingClient() {
               Keep a record of your inputs and results to compare different
               scenarios.
             </p>
-            <div className="mt-4 flex flex-wrap items-center gap-3">
+            <div className="mt-4 space-y-3">
               <div>
                 <input
                   type="text"
                   value={scenarioName}
                   onChange={(event) => setScenarioName(event.target.value)}
                   placeholder="Scenario name (e.g. Base case - CDMX)"
-                  className="w-64 rounded-lg border border-leaf-200 bg-white px-3 py-2 text-sm text-leaf-900 focus:border-leaf-500 focus:outline-none"
+                  className="w-full rounded-lg border border-leaf-200 bg-white px-3 py-2 text-sm text-leaf-900 focus:border-leaf-500 focus:outline-none"
                 />
                 {nameError && (
                   <p className="mt-1 text-xs font-medium text-red-600">
@@ -724,23 +748,25 @@ export default function PricingClient() {
                   </p>
                 )}
               </div>
-              <button
-                type="button"
-                onClick={handleSave}
-                disabled={saving}
-                className="rounded-full bg-peach-500 px-6 py-2.5 font-semibold text-white shadow-sm transition-colors hover:bg-peach-600 disabled:cursor-not-allowed disabled:opacity-60"
-              >
-                {saving ? "Saving..." : "Save scenario"}
-              </button>
-              {saveMessage && (
-                <span
-                  className={`text-sm font-medium ${
-                    saveError ? "text-red-600" : "text-leaf-700"
-                  }`}
+              <div className="flex flex-wrap items-center gap-3">
+                <button
+                  type="button"
+                  onClick={handleSave}
+                  disabled={saving}
+                  className="rounded-full bg-peach-500 px-6 py-2.5 font-semibold text-white shadow-sm transition-colors hover:bg-peach-600 disabled:cursor-not-allowed disabled:opacity-60"
                 >
-                  {saveMessage}
-                </span>
-              )}
+                  {saving ? "Saving..." : "Save scenario"}
+                </button>
+                {saveMessage && (
+                  <span
+                    className={`text-sm font-medium ${
+                      saveError ? "text-red-600" : "text-leaf-700"
+                    }`}
+                  >
+                    {saveMessage}
+                  </span>
+                )}
+              </div>
             </div>
           </div>
 

@@ -36,3 +36,7 @@ export function formatMXN(amount: number): string {
 export function formatWeekly(price: number): string {
   return `$${price.toLocaleString("en-US")}/week`;
 }
+
+export function validateScenarioName(name: string): boolean {
+  return name.trim().length > 0;
+}

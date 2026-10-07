@@ -4,7 +4,12 @@ import { Fragment, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
 import { PLANS } from "@/lib/productData";
-import { calculateRevenue, formatMXN, formatWeekly } from "@/lib/pricing";
+import {
+  calculateRevenue,
+  formatMXN,
+  formatWeekly,
+  validateScenarioName,
+} from "@/lib/pricing";
 import {
   SCENARIOS,
   SCENARIO_LABELS,
@@ -160,7 +165,7 @@ export default function PricingClient() {
   }, []);
 
   async function handleSave() {
-    if (!scenarioName.trim()) {
+    if (!validateScenarioName(scenarioName)) {
       setNameError(true);
       setSaveMessage(null);
       setSaveError(false);

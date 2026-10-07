@@ -22,8 +22,9 @@ export function calculateRevenue(
     customers.plus * WEEKLY_PRICES.plus +
     customers.premium * WEEKLY_PRICES.premium;
 
-  const monthly =
-    weeklyRevenue * WEEKS_PER_MONTH * SCENARIO_MULTIPLIERS[scenario];
+  const monthly = Math.round(
+    weeklyRevenue * WEEKS_PER_MONTH * SCENARIO_MULTIPLIERS[scenario],
+  );
   const annual = monthly * 12;
 
   return { monthly, annual };

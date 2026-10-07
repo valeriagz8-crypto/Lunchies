@@ -83,4 +83,13 @@ describe("software", () => {
     expect(zero.monthly).toBe(0);
     expect(zero.annual).toBe(0);
   });
+
+  it("Software 4: revenue values are whole pesos with no decimals (optimistic with 272/269/277 gives 2065560 monthly and 24786720 annual)", () => {
+    const customers: CustomersByPlan = { basic: 272, plus: 269, premium: 277 };
+    const result = calculateRevenue(customers, "optimistic");
+    expect(result.monthly).toBe(2065560);
+    expect(result.annual).toBe(24786720);
+    expect(Number.isInteger(result.monthly)).toBe(true);
+    expect(Number.isInteger(result.annual)).toBe(true);
+  });
 });

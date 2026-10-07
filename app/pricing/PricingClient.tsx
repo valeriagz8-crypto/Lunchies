@@ -447,37 +447,44 @@ export default function PricingClient() {
           </p>
           <div className="mt-5 space-y-5">
             {PLANS.map((plan) => (
-              <div key={plan.id} className="flex items-center gap-4">
-                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-leaf-100 text-xl">
-                  {PLAN_EMOJI[plan.id]}
-                </span>
-                <span className="w-40 shrink-0 text-sm font-medium text-leaf-800">
-                  {plan.name} (${WEEKLY_PRICES[plan.id]} / week)
-                </span>
-                <input
-                  aria-label={`${plan.name} customers`}
-                  type="range"
-                  min={0}
-                  max={MAX_CUSTOMERS}
-                  value={customers[plan.id]}
-                  onChange={(event) =>
-                    updateCustomers(plan.id, Number(event.target.value))
-                  }
-                  className="flex-1 accent-leaf-600"
-                />
-                <input
-                  type="number"
-                  min={0}
-                  max={MAX_CUSTOMERS}
-                  value={customerInputs[plan.id]}
-                  onChange={(event) =>
-                    handleCustomerTextChange(plan.id, event.target.value)
-                  }
-                  className="w-20 rounded-lg border border-leaf-200 bg-white px-3 py-2 text-right text-sm text-leaf-900 focus:border-leaf-500 focus:outline-none"
-                />
-                <span className="shrink-0 text-xs text-leaf-600">
-                  customers
-                </span>
+              <div
+                key={plan.id}
+                className="flex flex-wrap items-center gap-3 sm:flex-nowrap sm:gap-4"
+              >
+                <div className="flex w-full items-center gap-3 sm:contents">
+                  <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-leaf-100 text-xl">
+                    {PLAN_EMOJI[plan.id]}
+                  </span>
+                  <span className="text-sm font-medium text-leaf-800 sm:w-40 sm:shrink-0">
+                    {plan.name} (${WEEKLY_PRICES[plan.id]} / week)
+                  </span>
+                </div>
+                <div className="flex w-full items-center gap-3 sm:contents">
+                  <input
+                    aria-label={`${plan.name} customers`}
+                    type="range"
+                    min={0}
+                    max={MAX_CUSTOMERS}
+                    value={customers[plan.id]}
+                    onChange={(event) =>
+                      updateCustomers(plan.id, Number(event.target.value))
+                    }
+                    className="min-w-0 flex-1 accent-leaf-600"
+                  />
+                  <input
+                    type="number"
+                    min={0}
+                    max={MAX_CUSTOMERS}
+                    value={customerInputs[plan.id]}
+                    onChange={(event) =>
+                      handleCustomerTextChange(plan.id, event.target.value)
+                    }
+                    className="w-20 shrink-0 rounded-lg border border-leaf-200 bg-white px-3 py-2 text-right text-sm text-leaf-900 focus:border-leaf-500 focus:outline-none"
+                  />
+                  <span className="shrink-0 text-xs text-leaf-600">
+                    customers
+                  </span>
+                </div>
               </div>
             ))}
           </div>

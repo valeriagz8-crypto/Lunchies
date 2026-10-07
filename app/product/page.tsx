@@ -166,10 +166,10 @@ export default function ProductPage() {
           </p>
 
           <div className="mt-5 overflow-x-auto">
-            <table className="w-full min-w-[560px] text-left text-sm">
+            <table className="w-full table-fixed text-left text-xs sm:table-auto sm:min-w-[560px] sm:text-sm">
               <thead>
                 <tr>
-                  <th className="py-2 pr-4 font-medium text-leaf-600">
+                  <th className="w-2/5 py-2 pr-2 font-medium text-leaf-600 sm:w-auto sm:pr-4">
                     Feature
                   </th>
                   {PLANS.map((plan) => {
@@ -177,10 +177,10 @@ export default function ProductPage() {
                     return (
                       <th
                         key={plan.id}
-                        className={`rounded-t-lg px-4 py-3 text-center ${style.headerBg} ${style.headerText}`}
+                        className={`w-1/5 rounded-t-lg px-1.5 py-2 text-center sm:w-auto sm:px-4 sm:py-3 ${style.headerBg} ${style.headerText}`}
                       >
                         <div className="font-bold">{plan.name}</div>
-                        <div className="text-xs font-normal">
+                        <div className="text-[10px] font-normal sm:text-xs">
                           {formatWeekly(plan.weeklyPrice)}
                         </div>
                       </th>
@@ -194,9 +194,12 @@ export default function ProductPage() {
                     key={feature.name}
                     className="border-b border-leaf-50 text-leaf-800"
                   >
-                    <td className="py-2.5 pr-4">{feature.name}</td>
+                    <td className="py-2.5 pr-2 sm:pr-4">{feature.name}</td>
                     {PLANS.map((plan) => (
-                      <td key={plan.id} className="py-2.5 pr-4 text-center">
+                      <td
+                        key={plan.id}
+                        className="py-2.5 pr-1 text-center sm:pr-4"
+                      >
                         {includesPlan(feature.plans, plan.id) ? (
                           <span
                             className="mx-auto flex h-5 w-5 items-center justify-center rounded-full bg-leaf-600 text-xs text-white"

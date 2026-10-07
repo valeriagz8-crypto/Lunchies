@@ -1,6 +1,6 @@
 "use client";
 
-import { Fragment, useEffect, useMemo, useState } from "react";
+import { Fragment, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
 import { PLANS } from "@/lib/productData";
@@ -17,57 +17,6 @@ import {
 
 type CustomersByPlan = Record<PlanKey, number>;
 type BillingPeriod = "monthly" | "annual";
-
-type TestStatus = "idle" | "running" | "pass" | "fail" | "manual";
-
-type TestResult = {
-  id: string;
-  label: string;
-  status: TestStatus;
-  detail?: string;
-};
-
-const TEST_DEFINITIONS: { id: string; label: string }[] = [
-  { id: "calc", label: "Calculator updates revenue correctly" },
-  { id: "toggle", label: "Monthly/annual toggle works" },
-  { id: "scenario", label: "Scenario logic applies correctly" },
-  { id: "persistence", label: "Inputs save and load" },
-  { id: "responsive", label: "Responsive on mobile" },
-];
-
-// Display mapping only — does not affect which checks run or their order
-// inside runTests(). Maps each test id to the title/subtitle requested in
-// the approved design, and controls the order tests are rendered in.
-const TEST_DISPLAY: Record<string, { title: string; subtitle: string }> = {
-  calc: {
-    title: "Pricing logic test 1",
-    subtitle: "Monthly revenue calculation",
-  },
-  scenario: {
-    title: "Pricing logic test 2",
-    subtitle: "Scenario multipliers",
-  },
-  persistence: {
-    title: "Software test 1",
-    subtitle: "Inputs save and load",
-  },
-  toggle: {
-    title: "Software test 2",
-    subtitle: "Annual and monthly toggle",
-  },
-  responsive: {
-    title: "Software test 3",
-    subtitle: "Responsive on mobile",
-  },
-};
-
-const TEST_DISPLAY_ORDER = [
-  "calc",
-  "scenario",
-  "persistence",
-  "toggle",
-  "responsive",
-];
 
 type SavedScenario = {
   id: string;
@@ -109,14 +58,6 @@ const SCENARIO_HEADER_BG: Record<ScenarioKey, string> = {
   optimistic: "bg-blue-100",
 };
 
-const TEST_BADGE: Record<TestStatus, { label: string; className: string }> = {
-  idle: { label: "NOT RUN", className: "bg-gray-100 text-gray-500" },
-  running: { label: "RUNNING...", className: "bg-gray-100 text-gray-500" },
-  pass: { label: "PASS", className: "bg-leaf-100 text-leaf-700" },
-  fail: { label: "FAIL", className: "bg-red-100 text-red-700" },
-  manual: { label: "MANUAL CHECK", className: "bg-gray-100 text-gray-500" },
-};
-
 const STEPS = [
   "Choose period and scenario",
   "Set customers",
@@ -154,10 +95,33 @@ export default function PricingClient() {
   const [loadErrorDetail, setLoadErrorDetail] = useState<string | null>(null);
   const [showAllSaved, setShowAllSaved] = useState(false);
 
-  const [testResults, setTestResults] = useState<TestResult[]>(
-    TEST_DEFINITIONS.map((test) => ({ ...test, status: "idle" })),
-  );
-  const [runningTests, setRunningTests] = useState(false);
+  const [scenarioInfoOpen, setScenarioInfoOpen] = useState(false);
+  const scenarioInfoRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!scenarioInfoOpen) return;
+
+    function handleOutsideClick(event: MouseEvent) {
+      if (
+        scenarioInfoRef.current &&
+        !scenarioInfoRef.current.contains(event.target as Node)
+      ) {
+        setScenarioInfoOpen(false);
+      }
+    }
+    function handleKeyDown(event: KeyboardEvent) {
+      if (event.key === "Escape") {
+        setScenarioInfoOpen(false);
+      }
+    }
+
+    document.addEventListener("mousedown", handleOutsideClick);
+    document.addEventListener("keydown", handleKeyDown);
+    return () => {
+      document.removeEventListener("mousedown", handleOutsideClick);
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [scenarioInfoOpen]);
 
   function updateCustomers(plan: PlanKey, value: number) {
     setCustomers((prev) => ({ ...prev, [plan]: clampCustomers(value) }));
@@ -229,137 +193,6 @@ export default function PricingClient() {
     }
     setSaving(false);
   }
-
-  async function runTests() {
-    setRunningTests(true);
-    setTestResults(
-      TEST_DEFINITIONS.map((test) => ({ ...test, status: "running" })),
-    );
-
-    const results: TestResult[] = [];
-    const showProgress = () =>
-      setTestResults([
-        ...results,
-        ...TEST_DEFINITIONS.slice(results.length).map((test) => ({
-          ...test,
-          status: "running" as TestStatus,
-        })),
-      ]);
-
-    // 1. Calculator updates revenue correctly
-    const baseCustomers: CustomersByPlan = {
-      basic: 150,
-      plus: 100,
-      premium: 50,
-    };
-    const baseResult = calculateRevenue(baseCustomers, "base");
-    const calcPass = baseResult.monthly === 480000;
-    results.push({
-      ...TEST_DEFINITIONS[0],
-      status: calcPass ? "pass" : "fail",
-      detail: `Expected ${formatMXN(480000)}, got ${formatMXN(baseResult.monthly)}.`,
-    });
-    showProgress();
-
-    // 2. Monthly/annual toggle works
-    const togglePass = baseResult.annual === baseResult.monthly * 12;
-    results.push({
-      ...TEST_DEFINITIONS[1],
-      status: togglePass ? "pass" : "fail",
-      detail: `${formatMXN(baseResult.monthly)} × 12 = ${formatMXN(
-        baseResult.monthly * 12,
-      )}, got ${formatMXN(baseResult.annual)}.`,
-    });
-    showProgress();
-
-    // 3. Scenario logic applies correctly
-    const conservativeResult = calculateRevenue(baseCustomers, "conservative");
-    const optimisticResult = calculateRevenue(baseCustomers, "optimistic");
-    const scenarioPass =
-      conservativeResult.monthly === 288000 &&
-      optimisticResult.monthly === 672000;
-    results.push({
-      ...TEST_DEFINITIONS[2],
-      status: scenarioPass ? "pass" : "fail",
-      detail: `Conservative: ${formatMXN(
-        conservativeResult.monthly,
-      )}, Optimistic: ${formatMXN(optimisticResult.monthly)}.`,
-    });
-    showProgress();
-
-    // 4. Inputs save and load
-    let persistencePass = false;
-    let persistenceDetail = "";
-    try {
-      const { error: insertError } = await supabase
-        .from("pricing_scenarios")
-        .insert({
-          name: "__test__",
-          scenario: "base",
-          billing_period: "monthly",
-          customers_basic: 1,
-          customers_plus: 2,
-          customers_premium: 3,
-          monthly_revenue: 123,
-          annual_revenue: 1476,
-        });
-      if (insertError) {
-        throw new Error(`insert failed: ${insertError.message}`);
-      }
-
-      const { data, error: selectError } = await supabase
-        .from("pricing_scenarios")
-        .select("*")
-        .eq("name", "__test__")
-        .order("created_at", { ascending: false })
-        .limit(1);
-      if (selectError) {
-        throw new Error(`select failed: ${selectError.message}`);
-      }
-
-      const row = data?.[0] as SavedScenario | undefined;
-      if (
-        !row ||
-        row.customers_basic !== 1 ||
-        row.customers_plus !== 2 ||
-        row.customers_premium !== 3
-      ) {
-        throw new Error("read-back row did not match what was inserted");
-      }
-      persistencePass = true;
-      persistenceDetail = "Inserted a row, read it back, and it matched.";
-    } catch (err) {
-      persistenceDetail =
-        err instanceof Error ? err.message : "Unexpected error.";
-    } finally {
-      await supabase.from("pricing_scenarios").delete().eq("name", "__test__");
-    }
-    results.push({
-      ...TEST_DEFINITIONS[3],
-      status: persistencePass ? "pass" : "fail",
-      detail: persistenceDetail,
-    });
-    showProgress();
-
-    // 5. Responsive on mobile — manual check only
-    results.push({
-      ...TEST_DEFINITIONS[4],
-      status: "manual",
-      detail:
-        "Resize your browser or open this page on a phone — sections should stack into a single column.",
-    });
-    setTestResults(results);
-
-    await loadSavedScenarios();
-    setRunningTests(false);
-  }
-
-  const resultsById = Object.fromEntries(
-    testResults.map((result) => [result.id, result]),
-  );
-  const orderedResults = TEST_DISPLAY_ORDER.map((id) => resultsById[id]).filter(
-    (result): result is TestResult => Boolean(result),
-  );
 
   const visibleSavedScenarios = showAllSaved
     ? savedScenarios
@@ -499,11 +332,43 @@ export default function PricingClient() {
               </span>
               <h2 className="flex items-center gap-1.5 text-lg font-semibold text-leaf-700">
                 Scenario
-                <span
-                  className="text-sm text-leaf-400"
-                  title={SCENARIO_DESCRIPTIONS[scenario]}
-                >
-                  ⓘ
+                <span ref={scenarioInfoRef} className="relative inline-flex">
+                  <button
+                    type="button"
+                    aria-expanded={scenarioInfoOpen}
+                    aria-label="What do the scenarios mean?"
+                    title={SCENARIO_DESCRIPTIONS[scenario]}
+                    onClick={() => setScenarioInfoOpen((open) => !open)}
+                    onMouseEnter={() => setScenarioInfoOpen(true)}
+                    onFocus={() => setScenarioInfoOpen(true)}
+                    className="flex h-5 w-5 items-center justify-center rounded-full text-sm text-leaf-400 transition-colors hover:text-leaf-600"
+                  >
+                    ⓘ
+                  </button>
+                  {scenarioInfoOpen && (
+                    <div
+                      role="dialog"
+                      aria-label="What do the scenarios mean?"
+                      className="absolute left-1/2 top-full z-10 mt-2 w-64 -translate-x-1/2 rounded-xl border border-leaf-100 bg-white p-4 text-left text-xs font-normal text-leaf-700 shadow-sm"
+                    >
+                      <p>
+                        <strong>Conservative:</strong> fewer customers than
+                        expected ({SCENARIO_MULTIPLIERS.conservative}x).
+                      </p>
+                      <p className="mt-1">
+                        <strong>Base:</strong> the expected case (
+                        {SCENARIO_MULTIPLIERS.base}x).
+                      </p>
+                      <p className="mt-1">
+                        <strong>Optimistic:</strong> faster growth than
+                        expected ({SCENARIO_MULTIPLIERS.optimistic}x).
+                      </p>
+                      <p className="mt-2 text-leaf-500">
+                        Revenue = customers × weekly price × {WEEKS_PER_MONTH}{" "}
+                        weeks × scenario multiplier.
+                      </p>
+                    </div>
+                  )}
                 </span>
               </h2>
             </div>
@@ -656,147 +521,82 @@ export default function PricingClient() {
           </div>
         </div>
 
-        {/* Section 5 + 6: Key assumptions + Testing evidence */}
-        <div className="grid gap-6 lg:grid-cols-[3fr_2fr]">
-          <div className="rounded-2xl border border-leaf-100 bg-leaf-50 p-6 shadow-sm">
-            <div className="flex items-center gap-3">
-              <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-leaf-600 text-sm font-bold text-white">
-                5
-              </span>
-              <h2 className="flex items-center gap-2 text-lg font-semibold text-leaf-700">
-                <span aria-hidden="true">📐</span> Key assumptions
-              </h2>
-            </div>
-            <p className="mt-2 text-sm text-leaf-600">
-              These inputs are used to calculate the revenue.
-            </p>
-            <div className="mt-5 overflow-x-auto">
-              <table className="w-full min-w-[420px] text-left text-sm">
-                <thead>
-                  <tr>
-                    <th className="py-2 pr-4 font-medium text-leaf-600">
-                      Assumption
-                    </th>
-                    {SCENARIOS.map((key) => (
-                      <th
-                        key={key}
-                        className={`rounded-t-lg px-3 py-2 text-center font-semibold text-gray-800 ${SCENARIO_HEADER_BG[key]}`}
-                      >
-                        {SCENARIO_LABELS[key]}
-                      </th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody>
-                  {PLANS.map((plan) => (
-                    <tr
-                      key={plan.id}
-                      className="border-b border-leaf-50 text-leaf-800"
+        {/* Section 5: Key assumptions */}
+        <div className="rounded-2xl border border-leaf-100 bg-leaf-50 p-6 shadow-sm">
+          <div className="flex items-center gap-3">
+            <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-leaf-600 text-sm font-bold text-white">
+              5
+            </span>
+            <h2 className="flex items-center gap-2 text-lg font-semibold text-leaf-700">
+              <span aria-hidden="true">📐</span> Key assumptions
+            </h2>
+          </div>
+          <p className="mt-2 text-sm text-leaf-600">
+            These inputs are used to calculate the revenue.
+          </p>
+          <div className="mt-5 overflow-x-auto">
+            <table className="w-full min-w-[420px] text-left text-sm">
+              <thead>
+                <tr>
+                  <th className="py-2 pr-4 font-medium text-leaf-600">
+                    Assumption
+                  </th>
+                  {SCENARIOS.map((key) => (
+                    <th
+                      key={key}
+                      className={`rounded-t-lg px-3 py-2 text-center font-semibold text-gray-800 ${SCENARIO_HEADER_BG[key]}`}
                     >
-                      <td className="py-2.5 pr-4">
-                        Weekly price — {plan.name}
-                      </td>
-                      {SCENARIOS.map((key) => (
-                        <td key={key} className="py-2.5 pr-4 text-center">
-                          {formatWeekly(WEEKLY_PRICES[plan.id])}
-                        </td>
-                      ))}
-                    </tr>
+                      {SCENARIO_LABELS[key]}
+                    </th>
                   ))}
-                  <tr className="border-b border-leaf-50 text-leaf-800">
-                    <td className="py-2.5 pr-4">Weeks per month</td>
-                    {SCENARIOS.map((key) => (
-                      <td key={key} className="py-2.5 pr-4 text-center">
-                        {WEEKS_PER_MONTH}
-                      </td>
-                    ))}
-                  </tr>
-                  <tr className="text-leaf-800">
-                    <td className="py-2.5 pr-4">Scenario multiplier</td>
-                    {SCENARIOS.map((key) => (
-                      <td key={key} className="py-2.5 pr-4 text-center">
-                        {SCENARIO_MULTIPLIERS[key]}x
-                      </td>
-                    ))}
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-            <p className="mt-4 text-xs italic text-leaf-600">
-              Prices, customer counts and multipliers are founder
-              assumptions, anchored to the benchmarks below.
-            </p>
-          </div>
-
-          <div className="rounded-2xl border border-leaf-100 bg-white p-6 shadow-sm">
-            <div className="flex flex-wrap items-center justify-between gap-3">
-              <div className="flex items-center gap-3">
-                <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-leaf-600 text-sm font-bold text-white">
-                  6
-                </span>
-                <h2 className="flex items-center gap-2 text-lg font-semibold text-leaf-700">
-                  <span aria-hidden="true">✅</span> Testing evidence
-                </h2>
-              </div>
-              <button
-                type="button"
-                onClick={runTests}
-                disabled={runningTests}
-                className="rounded-full bg-leaf-600 px-5 py-2 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-leaf-700 disabled:cursor-not-allowed disabled:opacity-60"
-              >
-                {runningTests ? "Running..." : "Run tests"}
-              </button>
-            </div>
-            <p className="mt-2 text-sm text-leaf-600">
-              Results from automatic tests to make sure the pricing logic
-              works properly.
-            </p>
-            <ul className="mt-5 space-y-3">
-              {orderedResults.map((test) => {
-                const badge = TEST_BADGE[test.status];
-                const display = TEST_DISPLAY[test.id];
-                return (
-                  <li
-                    key={test.id}
-                    className="rounded-xl border border-leaf-100 bg-leaf-50 px-4 py-3"
+                </tr>
+              </thead>
+              <tbody>
+                {PLANS.map((plan) => (
+                  <tr
+                    key={plan.id}
+                    className="border-b border-leaf-50 text-leaf-800"
                   >
-                    <div className="flex items-start justify-between gap-3">
-                      <div className="flex items-start gap-2">
-                        <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-leaf-600 text-xs text-white">
-                          ✓
-                        </span>
-                        <div>
-                          <p className="text-sm font-semibold text-leaf-800">
-                            {display.title}
-                          </p>
-                          <p className="text-xs text-leaf-600">
-                            {display.subtitle}
-                          </p>
-                        </div>
-                      </div>
-                      <span
-                        className={`shrink-0 rounded-full px-3 py-1 text-xs font-bold uppercase tracking-wide ${badge.className}`}
-                      >
-                        {badge.label}
-                      </span>
-                    </div>
-                    {test.detail && (
-                      <p className="mt-2 pl-7 text-xs text-leaf-600">
-                        {test.detail}
-                      </p>
-                    )}
-                  </li>
-                );
-              })}
-            </ul>
+                    <td className="py-2.5 pr-4">
+                      Weekly price — {plan.name}
+                    </td>
+                    {SCENARIOS.map((key) => (
+                      <td key={key} className="py-2.5 pr-4 text-center">
+                        {formatWeekly(WEEKLY_PRICES[plan.id])}
+                      </td>
+                    ))}
+                  </tr>
+                ))}
+                <tr className="border-b border-leaf-50 text-leaf-800">
+                  <td className="py-2.5 pr-4">Weeks per month</td>
+                  {SCENARIOS.map((key) => (
+                    <td key={key} className="py-2.5 pr-4 text-center">
+                      {WEEKS_PER_MONTH}
+                    </td>
+                  ))}
+                </tr>
+                <tr className="text-leaf-800">
+                  <td className="py-2.5 pr-4">Scenario multiplier</td>
+                  {SCENARIOS.map((key) => (
+                    <td key={key} className="py-2.5 pr-4 text-center">
+                      {SCENARIO_MULTIPLIERS[key]}x
+                    </td>
+                  ))}
+                </tr>
+              </tbody>
+            </table>
           </div>
+          <p className="mt-4 text-xs italic text-leaf-600">
+            Prices, customer counts and multipliers are founder assumptions,
+            anchored to the benchmarks below.
+          </p>
         </div>
 
-        {/* Section 7: Market benchmarks */}
+        {/* Section 6: Market benchmarks */}
         <div className="rounded-2xl border border-peach-100 bg-peach-50 p-6 shadow-sm">
           <div className="flex items-center gap-3">
             <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-peach-500 text-sm font-bold text-white">
-              7
+              6
             </span>
             <h2 className="flex items-center gap-2 text-lg font-semibold text-peach-700">
               <span aria-hidden="true">🇲🇽</span> Market benchmarks (Mexico)
@@ -889,12 +689,12 @@ export default function PricingClient() {
           </p>
         </div>
 
-        {/* Section 8 + 9: Save this scenario + Saved scenarios */}
+        {/* Section 7 + 8: Save this scenario + Saved scenarios */}
         <div className="grid gap-6 lg:grid-cols-2">
           <div className="rounded-2xl border border-leaf-100 bg-white p-6 shadow-sm">
             <div className="flex items-center gap-3">
               <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-leaf-600 text-sm font-bold text-white">
-                8
+                7
               </span>
               <h2 className="flex items-center gap-2 text-lg font-semibold text-leaf-700">
                 <span aria-hidden="true">🔖</span> Save this scenario
@@ -943,7 +743,7 @@ export default function PricingClient() {
             <div className="flex flex-wrap items-center justify-between gap-3">
               <div className="flex items-center gap-3">
                 <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-leaf-600 text-sm font-bold text-white">
-                  9
+                  8
                 </span>
                 <h2 className="flex items-center gap-2 text-lg font-semibold text-leaf-700">
                   <span aria-hidden="true">📋</span> Saved scenarios

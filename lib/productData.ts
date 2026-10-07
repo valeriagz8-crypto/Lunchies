@@ -21,6 +21,7 @@ export const PLANS: Plan[] = [
       "Allergy-friendly options",
       "Weekly menu planner",
       "Shopping list",
+      "No artificial preservatives",
     ],
   },
   {
@@ -33,6 +34,7 @@ export const PLANS: Plan[] = [
       "Nutrition information",
       "Recipe customization",
       "Save favorite meals",
+      "Fresh, local ingredients",
     ],
   },
   {
@@ -45,6 +47,7 @@ export const PLANS: Plan[] = [
       "Advanced filters",
       "Multi-child profiles",
       "Priority support",
+      "Organic ingredients where available",
     ],
   },
 ];
@@ -65,6 +68,18 @@ export const FEATURES: Feature[] = [
   },
   { name: "Weekly menu planner", plans: ["basic", "plus", "premium"] },
   { name: "Shopping list generation", plans: ["basic", "plus", "premium"] },
+  {
+    name: "No artificial preservatives or colors",
+    plans: ["basic", "plus", "premium"],
+  },
+  {
+    name: "Fresh, locally sourced ingredients",
+    plans: ["plus", "premium"],
+  },
+  {
+    name: "Organic ingredients where available",
+    plans: ["premium"],
+  },
   { name: "Nutrition information (macros)", plans: ["plus", "premium"] },
   { name: "Recipe customization", plans: ["plus", "premium"] },
   { name: "Save favorite meals", plans: ["plus", "premium"] },

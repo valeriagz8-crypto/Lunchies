@@ -625,111 +625,59 @@ export default function PricingClient() {
             Prices, customer counts and multipliers are founder assumptions,
             anchored to the benchmarks below.
           </p>
-        </div>
-
-        {/* Section 6: Market benchmarks */}
-        <div className="rounded-2xl border border-peach-100 bg-peach-50 p-6 shadow-sm">
-          <div className="flex items-center gap-3">
-            <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-peach-500 text-sm font-bold text-white">
-              6
-            </span>
-            <h2 className="flex items-center gap-2 text-lg font-semibold text-peach-700">
-              <span aria-hidden="true">🇲🇽</span> Market benchmarks (Mexico)
-            </h2>
-          </div>
-          <ul className="mt-4 space-y-4 text-sm text-peach-800">
-            <li>
-              <p className="font-semibold text-peach-700">
-                Homemade healthy lunch
-              </p>
-              <p className="mt-1">
-                $18 to $37 per day, about $25 on average (about $125 per
-                week).
-              </p>
-              <p className="mt-1 text-xs text-peach-600">
-                Source:{" "}
+          <div className="mt-3">
+            <p className="text-xs font-semibold text-leaf-700">Sources</p>
+            <ul className="mt-1 space-y-1 text-xs text-leaf-600">
+              <li>
                 <a
                   href="https://www.alcontacto.com.mx/2025/08/31/cuanto-cuesta-hoy-mandar-un-lunch-saludable-a-los-ninos-en-mexico/"
                   target="_blank"
                   rel="noreferrer noopener"
-                  className="underline hover:text-peach-700"
+                  className="underline hover:text-leaf-700"
                 >
                   Al Contacto, Aug 2025 (Profeco and SNIIM data)
                 </a>
-              </p>
-            </li>
-            <li>
-              <p className="font-semibold text-peach-700">
-                Average family spend on school food and lunch
-              </p>
-              <p className="mt-1">
-                About $1,500 per month per student (about $250 per week).
-              </p>
-              <p className="mt-1 text-xs text-peach-600">
-                Source:{" "}
+              </li>
+              <li>
                 <a
                   href="https://www.record.com.mx/historia/cuanto-cuesta-el-regreso-a-clases-esto-es-lo-que-gastan-las-familias-mexicanas-en-transporte-y-comida-2026081902365258129"
                   target="_blank"
                   rel="noreferrer noopener"
-                  className="underline hover:text-peach-700"
+                  className="underline hover:text-leaf-700"
                 >
                   ANPEC via Récord, Aug 2026
                 </a>
-              </p>
-            </li>
-            <li>
-              <p className="font-semibold text-peach-700">
-                Full-day kids meal delivery in CDMX (Manyar Plan Infantil)
-              </p>
-              <p className="mt-1">
-                $380 per day, includes breakfast, lunch, dinner and 2 snacks,
-                minimum 20 days.
-              </p>
-              <p className="mt-1 text-xs text-peach-600">
-                Source:{" "}
+              </li>
+              <li>
                 <a
                   href="https://www.manyar.com.mx/plan-infantil/"
                   target="_blank"
                   rel="noreferrer noopener"
-                  className="underline hover:text-peach-700"
+                  className="underline hover:text-leaf-700"
                 >
                   manyar.com.mx/plan-infantil
                 </a>
-              </p>
-            </li>
-            <li>
-              <p className="font-semibold text-peach-700">
-                Direct competitor LunchyBox (CDMX)
-              </p>
-              <p className="mt-1">
-                School lunch delivery to school or home, prices not
-                published.
-              </p>
-              <p className="mt-1 text-xs text-peach-600">
-                Source:{" "}
+              </li>
+              <li>
                 <a
                   href="https://lunchybox.app/"
                   target="_blank"
                   rel="noreferrer noopener"
-                  className="underline hover:text-peach-700"
+                  className="underline hover:text-leaf-700"
                 >
                   lunchybox.app
                 </a>
-              </p>
-            </li>
-          </ul>
-          <p className="mt-4 text-xs text-peach-600">
-            No public price was found for a lunch-only school delivery
-            service.
-          </p>
+              </li>
+            </ul>
+          </div>
         </div>
 
-        {/* Section 7 + 8: Save this scenario + Saved scenarios */}
+        {/* Section 6 + 7: Save this scenario + Saved scenarios */}
         <div className="grid gap-6 lg:grid-cols-2">
           <div className="rounded-2xl border border-leaf-100 bg-white p-6 shadow-sm">
             <div className="flex items-center gap-3">
               <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-leaf-600 text-sm font-bold text-white">
-                7
+                6
               </span>
               <h2 className="flex items-center gap-2 text-lg font-semibold text-leaf-700">
                 <span aria-hidden="true">🔖</span> Save this scenario
@@ -780,7 +728,7 @@ export default function PricingClient() {
             <div className="flex flex-wrap items-center justify-between gap-3">
               <div className="flex items-center gap-3">
                 <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-leaf-600 text-sm font-bold text-white">
-                  8
+                  7
                 </span>
                 <h2 className="flex items-center gap-2 text-lg font-semibold text-leaf-700">
                   <span aria-hidden="true">📋</span> Saved scenarios

@@ -227,6 +227,12 @@ export default function PricingClient() {
     ? savedScenarios
     : savedScenarios.slice(0, SAVED_SCENARIOS_PREVIEW_COUNT);
 
+  const periodRevenue =
+    billingPeriod === "monthly" ? revenue.monthly : revenue.annual;
+  const otherPeriodRevenue =
+    billingPeriod === "monthly" ? revenue.annual : revenue.monthly;
+  const otherPeriodLabel = billingPeriod === "monthly" ? "year" : "month";
+
   const totalCustomers =
     customers.basic + customers.plus + customers.premium;
 
@@ -400,21 +406,38 @@ export default function PricingClient() {
                 </span>
               </h2>
             </div>
-            <div className="mt-4 flex flex-wrap gap-2">
-              {SCENARIOS.map((key) => (
-                <button
-                  key={key}
-                  type="button"
-                  onClick={() => setScenario(key)}
-                  className={`rounded-full border px-4 py-1.5 text-sm font-medium transition-colors ${
-                    scenario === key
-                      ? "border-leaf-600 bg-leaf-600 text-white"
-                      : "border-leaf-200 bg-white text-leaf-700 hover:bg-leaf-50"
-                  }`}
-                >
-                  {SCENARIO_LABELS[key]}
-                </button>
-              ))}
+            <div className="mt-4 grid grid-cols-1 gap-2 sm:grid-cols-3">
+              {SCENARIOS.map((key) => {
+                const scenarioResult = calculateRevenue(customers, key);
+                const scenarioPeriodValue =
+                  billingPeriod === "monthly"
+                    ? scenarioResult.monthly
+                    : scenarioResult.annual;
+                const isActive = scenario === key;
+                return (
+                  <button
+                    key={key}
+                    type="button"
+                    onClick={() => setScenario(key)}
+                    className={`rounded-xl border px-3 py-2 text-left transition-colors ${
+                      isActive
+                        ? "border-leaf-600 bg-leaf-600 text-white"
+                        : "border-leaf-200 bg-white text-leaf-700 hover:bg-leaf-50"
+                    }`}
+                  >
+                    <span className="block text-sm font-medium">
+                      {SCENARIO_LABELS[key]}
+                    </span>
+                    <span
+                      className={`block text-xs ${
+                        isActive ? "text-white/90" : "text-leaf-500"
+                      }`}
+                    >
+                      {formatMXN(scenarioPeriodValue)}
+                    </span>
+                  </button>
+                );
+              })}
             </div>
             <p className="mt-2 text-xs text-leaf-600">
               {SCENARIO_DESCRIPTIONS[scenario]}
@@ -506,37 +529,33 @@ export default function PricingClient() {
           <p className="mt-2 text-sm text-leaf-600">
             Based on the selected number of customers and scenario.
           </p>
-          <div className="mt-5 grid gap-4 sm:grid-cols-2">
-            <div
-              className={`rounded-xl border border-leaf-100 bg-leaf-50 p-6 text-center ${
-                billingPeriod === "monthly" ? "ring-2 ring-leaf-500" : ""
+          <div
+            className={`mt-5 rounded-xl border p-6 text-center ${
+              billingPeriod === "monthly"
+                ? "border-leaf-100 bg-leaf-50"
+                : "border-red-100 bg-red-50"
+            }`}
+          >
+            <span className="text-3xl" aria-hidden="true">
+              {billingPeriod === "monthly" ? "💰" : "📊"}
+            </span>
+            <p
+              className={`mt-2 text-sm font-medium ${
+                billingPeriod === "monthly" ? "text-leaf-600" : "text-red-700"
               }`}
             >
-              <span className="text-3xl" aria-hidden="true">
-                💰
-              </span>
-              <p className="mt-2 text-sm font-medium text-leaf-600">
-                Monthly revenue
-              </p>
-              <p className="mt-1 text-3xl font-extrabold text-leaf-700">
-                {formatMXN(revenue.monthly)}
-              </p>
-            </div>
-            <div
-              className={`rounded-xl border border-red-100 bg-red-50 p-6 text-center ${
-                billingPeriod === "annual" ? "ring-2 ring-leaf-500" : ""
+              {billingPeriod === "monthly" ? "Monthly revenue" : "Annual revenue"}
+            </p>
+            <p
+              className={`mt-1 text-3xl font-extrabold ${
+                billingPeriod === "monthly" ? "text-leaf-700" : "text-red-600"
               }`}
             >
-              <span className="text-3xl" aria-hidden="true">
-                📊
-              </span>
-              <p className="mt-2 text-sm font-medium text-red-700">
-                Annual revenue
-              </p>
-              <p className="mt-1 text-3xl font-extrabold text-red-600">
-                {formatMXN(revenue.annual)}
-              </p>
-            </div>
+              {formatMXN(periodRevenue)}
+            </p>
+            <p className="mt-2 text-xs text-leaf-500">
+              Equivalent: {formatMXN(otherPeriodRevenue)} per {otherPeriodLabel}
+            </p>
           </div>
           <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-3">
             {summaryTiles.map((tile) => (
@@ -773,27 +792,40 @@ export default function PricingClient() {
               )}
               {!loadingSaved &&
                 !loadError &&
-                visibleSavedScenarios.map((row) => (
-                  <div
-                    key={row.id}
-                    className="flex items-center gap-3 rounded-xl border border-leaf-100 bg-white p-3"
-                  >
-                    <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-leaf-100 text-sm">
-                      📄
-                    </span>
-                    <div className="min-w-0 flex-1">
-                      <p className="truncate text-sm font-semibold text-leaf-800">
-                        {row.name}
-                      </p>
-                      <p className="text-sm font-semibold text-leaf-700">
-                        {formatMXN(row.monthly_revenue)}
+                visibleSavedScenarios.map((row) => {
+                  const rowValue =
+                    row.billing_period === "monthly"
+                      ? row.monthly_revenue
+                      : row.annual_revenue;
+                  return (
+                    <div
+                      key={row.id}
+                      className="flex items-center gap-3 rounded-xl border border-leaf-100 bg-white p-3"
+                    >
+                      <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-leaf-100 text-sm">
+                        📄
+                      </span>
+                      <div className="min-w-0 flex-1">
+                        <p className="truncate text-sm font-semibold text-leaf-800">
+                          {row.name}
+                        </p>
+                        <p className="text-sm font-semibold text-leaf-700">
+                          {formatMXN(rowValue)}{" "}
+                          <span className="text-xs font-normal text-leaf-500">
+                            (
+                            {row.billing_period === "monthly"
+                              ? "Monthly"
+                              : "Annual"}
+                            )
+                          </span>
+                        </p>
+                      </div>
+                      <p className="shrink-0 text-xs text-leaf-600">
+                        {new Date(row.created_at).toLocaleDateString()}
                       </p>
                     </div>
-                    <p className="shrink-0 text-xs text-leaf-600">
-                      {new Date(row.created_at).toLocaleDateString()}
-                    </p>
-                  </div>
-                ))}
+                  );
+                })}
             </div>
           </div>
         </div>

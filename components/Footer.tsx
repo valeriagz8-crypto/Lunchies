@@ -1,59 +1,34 @@
-const columns = [
-  {
-    title: "Product",
-    links: [
-      { label: "How it works", href: "/how-it-works" },
-      { label: "Plans", href: "/plans" },
-      { label: "Docs", href: "/docs" },
-    ],
-  },
-  {
-    title: "Company",
-    links: [
-      { label: "About us", href: "/about" },
-      { label: "Our mission", href: "#" },
-      { label: "Contact", href: "#" },
-    ],
-  },
-  {
-    title: "Legal",
-    links: [
-      { label: "Privacy Policy", href: "#" },
-      { label: "Terms of Service", href: "#" },
-    ],
-  },
-];
+import Link from "next/link";
+import { FOOTER } from "@/lib/homepageData";
 
 export default function Footer() {
   return (
     <footer className="border-t border-leaf-100 bg-leaf-50">
       <div className="mx-auto max-w-5xl px-4 py-12 sm:px-6">
-        <div className="grid gap-10 sm:grid-cols-2 md:grid-cols-4">
+        <div className="grid gap-10 sm:grid-cols-2 md:grid-cols-3">
           <div>
-            <span className="text-lg font-bold text-leaf-700">
-              Lunchies 🍎
+            <span className="font-poppins text-lg font-bold text-leaf-700">
+              {FOOTER.brand}
             </span>
-            <p className="mt-2 text-sm text-leaf-800">
-              Better lunches, brighter days.
-            </p>
+            <p className="mt-2 text-sm text-leaf-800">{FOOTER.tagline}</p>
             <span className="mt-4 inline-flex items-center gap-1.5 rounded-full bg-white px-3 py-1.5 text-xs font-semibold text-leaf-700 shadow-sm">
-              Made with care for families ♥
+              {FOOTER.badge}
             </span>
           </div>
-          {columns.map((column) => (
+          {FOOTER.columns.map((column) => (
             <div key={column.title}>
-              <h3 className="text-sm font-semibold text-leaf-700">
+              <h3 className="font-poppins text-sm font-semibold text-leaf-700">
                 {column.title}
               </h3>
               <ul className="mt-3 space-y-2 text-sm text-leaf-800">
                 {column.links.map((link) => (
                   <li key={link.label}>
-                    <a
+                    <Link
                       href={link.href}
                       className="transition-colors hover:text-peach-500"
                     >
                       {link.label}
-                    </a>
+                    </Link>
                   </li>
                 ))}
               </ul>
@@ -61,7 +36,7 @@ export default function Footer() {
           ))}
         </div>
         <div className="mt-10 border-t border-leaf-100 pt-6 text-center text-sm text-leaf-800">
-          © 2026 Lunchies · Made by Valeria Gómez Zamudio
+          {FOOTER.copyright}
         </div>
       </div>
     </footer>

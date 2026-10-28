@@ -26,7 +26,7 @@ export default function Navbar() {
         <Link href="/" className="text-lg font-bold text-leaf-700">
           Lunchies 🍎
         </Link>
-        <ul className="hidden items-center gap-6 text-sm font-medium text-leaf-800 md:flex">
+        <ul className="hidden items-center gap-6 text-sm font-medium text-leaf-800 lg:flex">
           {links.map((link) => {
             const isActive = pathname === link.href;
             return (
@@ -46,20 +46,20 @@ export default function Navbar() {
             );
           })}
         </ul>
-        <div className="hidden md:block">
-          <a
-            href="#"
+        <div className="hidden lg:block">
+          <Link
+            href="/core"
             className="rounded-full bg-leaf-600 px-5 py-2 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-leaf-700"
           >
             Get started
-          </a>
+          </Link>
         </div>
         <button
           type="button"
           onClick={() => setIsOpen((open) => !open)}
           aria-expanded={isOpen}
           aria-label="Toggle menu"
-          className="flex items-center justify-center rounded-md p-2 text-leaf-700 md:hidden"
+          className="flex items-center justify-center rounded-md p-2 text-leaf-700 lg:hidden"
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -80,7 +80,7 @@ export default function Navbar() {
         </button>
       </nav>
       {isOpen && (
-        <ul className="flex flex-col gap-1 border-t border-leaf-100 px-4 py-4 text-sm font-medium text-leaf-800 md:hidden">
+        <ul className="flex flex-col gap-1 border-t border-leaf-100 px-4 py-4 text-sm font-medium text-leaf-800 lg:hidden">
           {links.map((link) => {
             const isActive = pathname === link.href;
             return (
@@ -101,12 +101,13 @@ export default function Navbar() {
             );
           })}
           <li className="mt-2">
-            <a
-              href="#"
+            <Link
+              href="/core"
+              onClick={() => setIsOpen(false)}
               className="block rounded-full bg-leaf-600 px-5 py-2 text-center text-sm font-semibold text-white shadow-sm transition-colors hover:bg-leaf-700"
             >
               Get started
-            </a>
+            </Link>
           </li>
         </ul>
       )}

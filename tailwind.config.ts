@@ -34,6 +34,15 @@ const config: Config = {
         },
       },
       fontFamily: {
+        // Brand fonts, opted into per page via font-inter / font-poppins so the
+        // default sans stack below stays untouched.
+        inter: ["var(--font-inter)", "ui-sans-serif", "system-ui", "sans-serif"],
+        poppins: [
+          "var(--font-poppins)",
+          "ui-sans-serif",
+          "system-ui",
+          "sans-serif",
+        ],
         sans: [
           "ui-sans-serif",
           "system-ui",

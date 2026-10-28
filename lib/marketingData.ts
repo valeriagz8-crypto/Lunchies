@@ -566,3 +566,153 @@ export const MARKETING_DATA: MarketingData = {
   videoScripts: VIDEO_SCRIPTS,
   campaignCalendar: CAMPAIGN_CALENDAR,
 };
+
+/* -------------------------------------------------------------------------- */
+/* Marketing page chrome                                                      */
+/* -------------------------------------------------------------------------- */
+
+export type MarketingTabId =
+  | "overview"
+  | "brand"
+  | "persona"
+  | "landing"
+  | "posts"
+  | "scripts"
+  | "calendar"
+  | "ab-testing"
+  | "saved";
+
+export type MarketingTab = {
+  id: MarketingTabId;
+  label: string;
+  icon: string;
+  /** Shown on the Overview summary card for this section. */
+  summary: string;
+  /** "ready" renders the section, "coming-soon" renders the placeholder. */
+  status: "ready" | "coming-soon";
+};
+
+export const MARKETING_TABS: MarketingTab[] = [
+  {
+    id: "overview",
+    label: "Overview",
+    icon: "🧭",
+    summary: "Everything the marketing engine holds, at a glance.",
+    status: "ready",
+  },
+  {
+    id: "brand",
+    label: "Brand System",
+    icon: "🎨",
+    summary:
+      "The palette, the two fonts, the tagline and the four words that set our tone.",
+    status: "ready",
+  },
+  {
+    id: "persona",
+    label: "Target Persona",
+    icon: "👩‍👧",
+    summary:
+      "Who we are talking to: busy parents in Mexico City, and what matters to them.",
+    status: "ready",
+  },
+  {
+    id: "landing",
+    label: "Landing Copy",
+    icon: "✍️",
+    summary:
+      "Hero headline options, the subheadline and the call to action we lead with.",
+    status: "ready",
+  },
+  {
+    id: "posts",
+    label: "Social Posts",
+    icon: "📣",
+    summary:
+      "Ready-to-publish captions and hashtags for Instagram and TikTok.",
+    status: "ready",
+  },
+  {
+    id: "scripts",
+    label: "Video Scripts",
+    icon: "🎬",
+    summary:
+      "Short scripts built as hook, problem, solution and call to action.",
+    status: "ready",
+  },
+  {
+    id: "calendar",
+    label: "Campaign Calendar",
+    icon: "📅",
+    summary:
+      "Two weeks of posting, with every slot pointing at a real asset.",
+    status: "ready",
+  },
+  {
+    id: "ab-testing",
+    label: "A/B Testing",
+    icon: "🧪",
+    summary:
+      "Running the headline and button tests, and reading which variant wins.",
+    status: "coming-soon",
+  },
+  {
+    id: "saved",
+    label: "Saved Assets",
+    icon: "💾",
+    summary: "Keeping the posts and scripts you want to reuse later.",
+    status: "coming-soon",
+  },
+];
+
+export type MarketingPageCopy = {
+  eyebrow: string;
+  heroTitleLead: string;
+  heroTitleAccent: string;
+  heroDescription: string;
+  primaryCta: string;
+  overviewHeading: string;
+  overviewHelp: string;
+  comingSoonBadge: string;
+};
+
+export const MARKETING_PAGE_COPY: MarketingPageCopy = {
+  eyebrow: "Marketing",
+  heroTitleLead: "Build a stronger",
+  heroTitleAccent: "Lunchies.",
+  heroDescription:
+    "One place for the brand, the parents we are talking to and the content that reaches them. Everything here is written and ready to publish.",
+  primaryCta: "Create content",
+  overviewHeading: "What's inside",
+  overviewHelp: "Pick a section to see its full content.",
+  comingSoonBadge: "Coming in the next step",
+};
+
+export type ComingSoonCopy = {
+  title: string;
+  description: string;
+  nextSteps: string[];
+};
+
+export const COMING_SOON: Record<"ab-testing" | "saved", ComingSoonCopy> = {
+  "ab-testing": {
+    title: "A/B testing is coming in the next step",
+    description:
+      "The two experiments are already written and live in the Landing Copy tab. What is still missing is the part that runs them: splitting visitors between variant A and B, counting what each one does, and showing which copy actually performs better.",
+    nextSteps: [
+      "Serve variant A or B to each visitor and remember the choice",
+      "Count views and clicks per variant",
+      "Show the result side by side, with no winner declared before there is data",
+    ],
+  },
+  saved: {
+    title: "Saved assets is coming in the next step",
+    description:
+      "Right now every post, script and calendar slot lives in the content library. The next step is being able to keep a shortlist: save the ones you want to reuse, give them a note, and find them again later.",
+    nextSteps: [
+      "Save any post or script to your own list",
+      "Add a short note about where you used it",
+      "Reopen your list and pick up where you left off",
+    ],
+  },
+};

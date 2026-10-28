@@ -1,10 +1,9 @@
+import MarketingClient from "./MarketingClient";
+
+// The tabs hold client state, so there is no meaningful static output to
+// prerender at build time.
+export const dynamic = "force-dynamic";
+
 export default function MarketingPage() {
-  return (
-    <section className="mx-auto max-w-3xl px-4 py-24 text-center sm:px-6">
-      <h1 className="text-3xl font-bold text-leaf-700 sm:text-4xl">
-        Marketing
-      </h1>
-      <p className="mt-4 text-lg text-leaf-800">Coming soon.</p>
-    </section>
-  );
+  return <MarketingClient />;
 }

@@ -3,6 +3,8 @@
 import { useEffect, useRef, useState } from "react";
 import AbTester from "./AbTester";
 import CardActions from "./CardActions";
+import HeroArt from "./HeroArt";
+import OverviewCards from "./OverviewCards";
 import SavedAssets from "./SavedAssets";
 import {
   AB_TEST_NAMES,
@@ -10,6 +12,7 @@ import {
   CAMPAIGN_CALENDAR,
   LANDING_COPY,
   MARKETING_PAGE_COPY,
+  MARKETING_CLOSING_CTA,
   MARKETING_TABS,
   PERSONA,
   SOCIAL_POSTS,
@@ -567,102 +570,6 @@ function CalendarPanel() {
 /* Overview                                                                   */
 /* -------------------------------------------------------------------------- */
 
-function summaryChips(tabId: MarketingTabId): string[] {
-  switch (tabId) {
-    case "brand":
-      return [
-        `${Object.keys(BRAND.colors).length} colors`,
-        `${Object.keys(BRAND.fonts).length} fonts`,
-        `${BRAND.voice.length} voice words`,
-      ];
-    case "persona":
-      return [
-        PERSONA.ageRange,
-        PERSONA.location,
-        `${PERSONA.insights.length} insights`,
-      ];
-    case "landing":
-      return [
-        `${LANDING_COPY.headlineTest.variants.length} headline options`,
-        `${LANDING_COPY.buttonTest.variants.length} button options`,
-      ];
-    case "posts":
-      return [
-        `${SOCIAL_POSTS.length} posts`,
-        ...Object.keys(CHANNEL_STYLE).map(
-          (channel) =>
-            `${
-              SOCIAL_POSTS.filter((post) => post.channel === channel).length
-            } ${channel}`,
-        ),
-      ];
-    case "scripts":
-      return [
-        `${VIDEO_SCRIPTS.length} scripts`,
-        VIDEO_SCRIPTS.map((script) => script.duration).join(" · "),
-      ];
-    case "calendar":
-      return [
-        `${CAMPAIGN_CALENDAR.length} days`,
-        `${new Set(CAMPAIGN_CALENDAR.map((day) => day.contentType)).size} content types`,
-      ];
-    case "ab-testing":
-      return [
-        `${Object.keys(AB_TEST_NAMES).length} live tests`,
-        `${LANDING_COPY.headlineTest.variants.length} variants each`,
-      ];
-    case "saved":
-      return [`${ASSET_TYPES.length} asset types`];
-    default:
-      return [];
-  }
-}
-
-function OverviewPanel({
-  onSelect,
-}: {
-  onSelect: (tabId: MarketingTabId) => void;
-}) {
-  const sections = MARKETING_TABS.filter((tab) => tab.id !== "overview");
-
-  return (
-    <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-      {sections.map((tab) => {
-        const chips = summaryChips(tab.id);
-        return (
-          <button
-            key={tab.id}
-            type="button"
-            onClick={() => onSelect(tab.id)}
-            className="flex h-full flex-col rounded-2xl border border-leaf-100 bg-leaf-50 p-5 text-left shadow-sm transition-colors hover:bg-leaf-100"
-          >
-            <div className="flex items-center justify-between gap-2">
-              <span
-                className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-white text-xl shadow-sm"
-                aria-hidden="true"
-              >
-                {tab.icon}
-              </span>
-              <span aria-hidden="true" className="text-leaf-400">
-                →
-              </span>
-            </div>
-            <h3 className="font-poppins mt-3 font-semibold text-leaf-800">
-              {tab.label}
-            </h3>
-            <p className="mt-1 flex-1 text-sm text-leaf-700">{tab.summary}</p>
-            <div className="mt-3 flex flex-wrap gap-1.5">
-              {chips.map((chip) => (
-                <Chip key={chip}>{chip}</Chip>
-              ))}
-            </div>
-          </button>
-        );
-      })}
-    </div>
-  );
-}
-
 /* -------------------------------------------------------------------------- */
 /* Page                                                                       */
 /* -------------------------------------------------------------------------- */
@@ -726,138 +633,180 @@ export default function MarketingClient() {
   }
 
   return (
-    <section className="font-inter mx-auto max-w-5xl px-4 py-16 sm:px-6">
+    <div className="font-inter bg-[#FDFBF6]">
       {/* Hero */}
-      <div className="grid items-center gap-8 md:grid-cols-2">
-        <div>
-          <div className="flex items-center gap-3">
-            <span
-              className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-peach-100 text-3xl"
-              aria-hidden="true"
-            >
-              📣
-            </span>
-            <span className="text-sm font-bold uppercase tracking-wide text-peach-500">
+      <section className="bg-gradient-to-br from-peach-50 via-white to-leaf-50">
+        <div className="mx-auto grid max-w-6xl items-center gap-10 px-4 py-12 sm:px-6 lg:grid-cols-2 lg:py-16">
+          <div>
+            <span className="text-xs font-bold uppercase tracking-[0.18em] text-leaf-600">
               {MARKETING_PAGE_COPY.eyebrow}
             </span>
-          </div>
-          <h1 className="font-poppins mt-3 text-3xl font-extrabold tracking-tight text-gray-800 sm:text-4xl">
-            {MARKETING_PAGE_COPY.heroTitleLead}{" "}
-            <span className="text-peach-500">
-              {MARKETING_PAGE_COPY.heroTitleAccent}
-            </span>
-          </h1>
-          <p className="mt-4 max-w-md text-lg text-gray-600">
-            {MARKETING_PAGE_COPY.heroDescription}
-          </p>
-          <div className="mt-6 flex flex-wrap items-center gap-3">
-            <button
-              type="button"
-              onClick={() => goToTab("posts")}
-              className="rounded-full bg-peach-500 px-6 py-2.5 text-sm font-bold text-white shadow-sm transition-colors hover:bg-peach-600"
-            >
-              {MARKETING_PAGE_COPY.primaryCta}
-            </button>
-            <button
-              type="button"
-              onClick={handleExport}
-              className={`inline-flex items-center gap-2 rounded-full border px-6 py-2.5 text-sm font-bold transition-colors ${
-                exportState === "done"
-                  ? "border-leaf-600 bg-leaf-600 text-white"
-                  : "border-leaf-300 text-leaf-700 hover:bg-leaf-50"
-              }`}
-            >
-              <span aria-hidden="true">
-                {exportState === "done" ? "✓" : "⬇️"}
+
+            <h1 className="font-poppins mt-4 text-4xl font-extrabold leading-[1.05] tracking-tight text-leaf-900 sm:text-5xl lg:text-6xl">
+              {MARKETING_PAGE_COPY.heroTitleLead}
+              <br />
+              <span className="text-peach-500">
+                {MARKETING_PAGE_COPY.heroTitleAccent}
               </span>
-              {exportState === "done"
-                ? MARKETING_PAGE_COPY.exportDone
-                : MARKETING_PAGE_COPY.exportAll}
-            </button>
-          </div>
-          {exportState === "failed" && (
-            <p role="alert" className="mt-2 text-xs text-peach-700">
-              <span aria-hidden="true">⚠️</span>{" "}
-              {MARKETING_PAGE_COPY.exportFailed}
+            </h1>
+
+            <p className="mt-5 max-w-lg text-base leading-relaxed text-gray-600 sm:text-lg">
+              {MARKETING_PAGE_COPY.heroDescription}
             </p>
-          )}
+
+            <div className="mt-7 flex flex-wrap items-center gap-3">
+              <button
+                type="button"
+                onClick={() => goToTab("posts")}
+                className="inline-flex items-center gap-2 rounded-full bg-leaf-700 px-7 py-3.5 text-sm font-bold text-white shadow-sm transition-colors hover:bg-leaf-800"
+              >
+                {MARKETING_PAGE_COPY.primaryCta}
+                <span aria-hidden="true">→</span>
+              </button>
+              <button
+                type="button"
+                onClick={handleExport}
+                className={`inline-flex items-center gap-2 rounded-full border px-6 py-3.5 text-sm font-bold transition-colors ${
+                  exportState === "done"
+                    ? "border-leaf-700 bg-leaf-700 text-white"
+                    : "border-leaf-200 bg-white text-leaf-700 hover:bg-leaf-50"
+                }`}
+              >
+                <span aria-hidden="true">
+                  {exportState === "done" ? "✓" : "⬇"}
+                </span>
+                {exportState === "done"
+                  ? MARKETING_PAGE_COPY.exportDone
+                  : MARKETING_PAGE_COPY.exportAll}
+              </button>
+            </div>
+
+            {exportState === "failed" && (
+              <p role="alert" className="mt-3 text-xs text-peach-700">
+                <span aria-hidden="true">⚠️</span>{" "}
+                {MARKETING_PAGE_COPY.exportFailed}
+              </p>
+            )}
+          </div>
+
+          <div className="flex justify-center lg:justify-end">
+            <HeroArt />
+          </div>
         </div>
-        <div className="flex justify-center md:justify-end">
-          <span className="text-6xl leading-none" aria-hidden="true">
-            🎨
-          </span>
-        </div>
-      </div>
+      </section>
 
       {/* Tab bar */}
-      <div
-        ref={tabsRef}
-        role="tablist"
-        aria-label={MARKETING_PAGE_COPY.eyebrow}
-        onKeyDown={handleTabKeys}
-        className="mt-10 flex flex-wrap gap-2 rounded-2xl border border-leaf-100 bg-leaf-50 p-2"
-      >
-        {MARKETING_TABS.map((tab) => {
-          const isActive = tab.id === activeTab;
-          return (
-            <button
-              key={tab.id}
-              type="button"
-              role="tab"
-              id={`tab-${tab.id}`}
-              aria-selected={isActive}
-              aria-controls={`panel-${tab.id}`}
-              tabIndex={isActive ? 0 : -1}
-              onClick={() => setActiveTab(tab.id)}
-              className={`flex items-center gap-1.5 rounded-full px-3 py-2 text-xs font-semibold transition-colors sm:text-sm ${
-                isActive
-                  ? "bg-leaf-600 text-white shadow-sm"
-                  : "text-leaf-700 hover:bg-leaf-100"
-              }`}
-            >
-              <span aria-hidden="true">{tab.icon}</span>
-              {tab.label}
-            </button>
-          );
-        })}
+      <div ref={tabsRef} className="border-y border-leaf-100 bg-white">
+        <div className="mx-auto max-w-6xl px-4 sm:px-6">
+          <div
+            role="tablist"
+            aria-label={MARKETING_PAGE_COPY.eyebrow}
+            onKeyDown={handleTabKeys}
+            className="flex gap-6 overflow-x-auto whitespace-nowrap"
+          >
+            {MARKETING_TABS.map((tab) => {
+              const isActive = tab.id === activeTab;
+              return (
+                <button
+                  key={tab.id}
+                  type="button"
+                  role="tab"
+                  id={`tab-${tab.id}`}
+                  aria-selected={isActive}
+                  aria-controls={`panel-${tab.id}`}
+                  tabIndex={isActive ? 0 : -1}
+                  onClick={() => setActiveTab(tab.id)}
+                  className={`relative shrink-0 py-4 text-sm font-semibold transition-colors ${
+                    isActive
+                      ? "text-leaf-700"
+                      : "text-gray-500 hover:text-leaf-700"
+                  }`}
+                >
+                  {tab.label}
+                  {isActive && (
+                    <span
+                      aria-hidden="true"
+                      className="absolute inset-x-0 bottom-0 h-0.5 rounded-full bg-leaf-700"
+                    />
+                  )}
+                </button>
+              );
+            })}
+          </div>
+        </div>
       </div>
 
       {/* Panels */}
-      <div
-        role="tabpanel"
-        id={`panel-${activeTab}`}
-        aria-labelledby={`tab-${activeTab}`}
-        className="mt-8"
-      >
-        <div className="flex flex-wrap items-start justify-between gap-3">
-          <SectionHeader
-            icon={active.icon}
-            title={
-              activeTab === "overview"
-                ? MARKETING_PAGE_COPY.overviewHeading
-                : active.label
-            }
-            help={
-              activeTab === "overview"
-                ? MARKETING_PAGE_COPY.overviewHelp
-                : active.summary
-            }
-          />
-          {panelAsset && <CardActions asset={panelAsset} />}
+      <div className="mx-auto max-w-6xl px-4 py-10 sm:px-6">
+        <div
+          role="tabpanel"
+          id={`panel-${activeTab}`}
+          aria-labelledby={`tab-${activeTab}`}
+        >
+          <div className="flex flex-wrap items-start justify-between gap-3">
+            <div>
+              <h2 className="font-poppins text-2xl font-extrabold text-leaf-900 sm:text-3xl">
+                {activeTab === "overview"
+                  ? MARKETING_PAGE_COPY.overviewHeading
+                  : active.cardTitle}
+                <span aria-hidden="true" className="ml-2 text-peach-400">
+                  ✦
+                </span>
+              </h2>
+              <p className="mt-1.5 text-sm text-leaf-600 sm:text-base">
+                {activeTab === "overview"
+                  ? MARKETING_PAGE_COPY.overviewHelp
+                  : active.summary}
+              </p>
+            </div>
+            {panelAsset && <CardActions asset={panelAsset} />}
+          </div>
+
+          <div className="mt-6">
+            {activeTab === "overview" && <OverviewCards onSelect={goToTab} />}
+            {activeTab === "brand" && <BrandPanel />}
+            {activeTab === "persona" && <PersonaPanel />}
+            {activeTab === "landing" && <LandingPanel />}
+            {activeTab === "posts" && <PostsPanel />}
+            {activeTab === "scripts" && <ScriptsPanel />}
+            {activeTab === "calendar" && <CalendarPanel />}
+            {activeTab === "ab-testing" && <AbTester />}
+            {activeTab === "saved" && <SavedAssets />}
+          </div>
         </div>
 
-        <div className="mt-6">
-          {activeTab === "overview" && <OverviewPanel onSelect={goToTab} />}
-          {activeTab === "brand" && <BrandPanel />}
-          {activeTab === "persona" && <PersonaPanel />}
-          {activeTab === "landing" && <LandingPanel />}
-          {activeTab === "posts" && <PostsPanel />}
-          {activeTab === "scripts" && <ScriptsPanel />}
-          {activeTab === "calendar" && <CalendarPanel />}
-          {activeTab === "ab-testing" && <AbTester />}
-          {activeTab === "saved" && <SavedAssets />}
+        {/* Closing call to action */}
+        <div className="mt-12 flex flex-col items-center gap-5 rounded-3xl bg-gradient-to-r from-peach-100 to-rose-100 px-6 py-8 text-center sm:px-10 md:flex-row md:justify-between md:text-left">
+          <div className="flex items-center gap-5">
+            <span
+              aria-hidden="true"
+              className="hidden text-5xl leading-none text-leaf-600 sm:block"
+            >
+              ♡
+            </span>
+            <div>
+              <h2 className="font-poppins text-xl font-extrabold text-leaf-900 sm:text-2xl">
+                {MARKETING_CLOSING_CTA.headingLead}{" "}
+                <span className="text-peach-500">
+                  {MARKETING_CLOSING_CTA.headingAccent}
+                </span>
+                {MARKETING_CLOSING_CTA.headingTail}
+              </h2>
+              <p className="mt-1.5 text-sm text-leaf-700 sm:text-base">
+                {MARKETING_CLOSING_CTA.description}
+              </p>
+            </div>
+          </div>
+          <button
+            type="button"
+            onClick={() => goToTab("posts")}
+            className="inline-flex shrink-0 items-center gap-2 rounded-full bg-leaf-700 px-7 py-3.5 text-sm font-bold text-white shadow-sm transition-colors hover:bg-leaf-800"
+          >
+            {MARKETING_CLOSING_CTA.cta}
+            <span aria-hidden="true">→</span>
+          </button>
         </div>
       </div>
-    </section>
+    </div>
   );
 }

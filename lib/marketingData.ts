@@ -585,8 +585,10 @@ export type MarketingTabId =
 export type MarketingTab = {
   id: MarketingTabId;
   label: string;
+  /** Title used on the Overview card, which can be longer than the tab label. */
+  cardTitle: string;
   icon: string;
-  /** Shown on the Overview summary card for this section. */
+  /** Shown on the Overview card and under the section heading. */
   summary: string;
 };
 
@@ -594,64 +596,65 @@ export const MARKETING_TABS: MarketingTab[] = [
   {
     id: "overview",
     label: "Overview",
+    cardTitle: "Overview",
     icon: "🧭",
     summary: "Everything the marketing engine holds, at a glance.",
   },
   {
     id: "brand",
     label: "Brand System",
+    cardTitle: "Brand System",
     icon: "🎨",
-    summary:
-      "The palette, the two fonts, the tagline and the four words that set our tone.",
+    summary: "Visual identity, messaging and brand elements.",
   },
   {
     id: "persona",
     label: "Target Persona",
-    icon: "👩‍👧",
-    summary:
-      "Who we are talking to: busy parents in Mexico City, and what matters to them.",
+    cardTitle: "Target Persona",
+    icon: "👥",
+    summary: "Understand your ideal customer.",
   },
   {
     id: "landing",
     label: "Landing Copy",
-    icon: "✍️",
-    summary:
-      "Hero headline options, the subheadline and the call to action we lead with.",
+    cardTitle: "Landing Page Copy",
+    icon: "📄",
+    summary: "Headlines, sections and CTAs for your website.",
   },
   {
     id: "posts",
     label: "Social Posts",
-    icon: "📣",
-    summary:
-      "Ready-to-publish captions and hashtags for Instagram and TikTok.",
+    cardTitle: "Social Posts",
+    icon: "📸",
+    summary: `${SOCIAL_POSTS.length} ready-to-use posts for Instagram and TikTok.`,
   },
   {
     id: "scripts",
     label: "Video Scripts",
+    cardTitle: "Video Scripts",
     icon: "🎬",
-    summary:
-      "Short scripts built as hook, problem, solution and call to action.",
+    summary: `${VIDEO_SCRIPTS.length} short scripts for Reels and TikTok.`,
   },
   {
     id: "calendar",
     label: "Campaign Calendar",
+    cardTitle: "Campaign Calendar",
     icon: "📅",
-    summary:
-      "Two weeks of posting, with every slot pointing at a real asset.",
+    summary: `${CAMPAIGN_CALENDAR.length}-day content plan with topics and channels.`,
   },
   {
     id: "ab-testing",
     label: "A/B Testing",
-    icon: "🧪",
-    summary:
-      "Vote on the two live tests and read how each variant is performing.",
+    cardTitle: "A/B Testing",
+    icon: "📊",
+    summary: "Test different headlines to see what works best.",
   },
   {
     id: "saved",
     label: "Saved Assets",
-    icon: "💾",
-    summary:
-      "Your own library: save any card here, then copy it back when you need it.",
+    cardTitle: "Saved Marketing Assets",
+    icon: "📁",
+    summary: "All your content, visuals and ideas in one place.",
   },
 ];
 
@@ -669,14 +672,14 @@ export type MarketingPageCopy = {
 };
 
 export const MARKETING_PAGE_COPY: MarketingPageCopy = {
-  eyebrow: "Marketing",
+  eyebrow: "Marketing engine",
   heroTitleLead: "Build a stronger",
   heroTitleAccent: "Lunchies.",
   heroDescription:
-    "One place for the brand, the parents we are talking to and the content that reaches them. Everything here is written and ready to publish.",
+    "All your marketing tools, content and strategy in one place. Create, customize and save everything you need to share Lunchies with families.",
   primaryCta: "Create content",
-  overviewHeading: "What's inside",
-  overviewHelp: "Pick a section to see its full content.",
+  overviewHeading: "Marketing Overview",
+  overviewHelp: "Everything you need to market Lunchies effectively.",
   exportAll: "Export all",
   exportDone: "Downloaded",
   exportFailed: "We could not build the file. Try again in a moment.",
@@ -816,4 +819,90 @@ export const SAVED_ASSETS_COPY: SavedAssetsCopy = {
   cancel: "Cancel",
   view: "View",
   hide: "Hide",
+};
+
+/* -------------------------------------------------------------------------- */
+/* Hero artwork and overview previews                                         */
+/* -------------------------------------------------------------------------- */
+
+export type HeroNote = {
+  label: string;
+  icon: string;
+};
+
+/** The sticky notes floating beside the phone in the hero. */
+export const HERO_NOTES: HeroNote[] = [
+  { label: "Ideas", icon: "💡" },
+  { label: "Content", icon: "📱" },
+  { label: "Strategy", icon: "📈" },
+  { label: "Results", icon: "✨" },
+];
+
+export const HERO_PHONE = {
+  handle: "Lunchies",
+  caption: "Healthy lunches. Happier kids.",
+  note: "Good food, brighter futures",
+  /** The lunchbox inside the phone, drawn with emoji instead of a photo. */
+  lunchbox: ["🍓", "🥪", "🥒", "🫐", "🧀", "🥕", "🍅", "⭐", "🍇"],
+};
+
+export type OverviewPreviewCopy = {
+  logo: string;
+  colors: string;
+  typography: string;
+  brandVoice: string;
+  primaryPersona: string;
+  mainHeadline: string;
+  subheadline: string;
+  cta: string;
+  viewFullCalendar: string;
+  conversion: string;
+  noVotesYet: string;
+};
+
+export const OVERVIEW_PREVIEW_COPY: OverviewPreviewCopy = {
+  logo: "Logo",
+  colors: "Colors",
+  typography: "Typography",
+  brandVoice: "Brand voice",
+  primaryPersona: "Primary persona",
+  mainHeadline: "Main headline",
+  subheadline: "Subheadline",
+  cta: "CTA",
+  viewFullCalendar: "View full calendar",
+  conversion: "Conversion so far",
+  noVotesYet: "No votes yet",
+};
+
+export type AssetTile = {
+  icon: string;
+  label: string;
+};
+
+/** The categories shown on the Saved Assets overview card. */
+export const SAVED_ASSET_TILES: AssetTile[] = [
+  { icon: "🍎", label: "Brand logos" },
+  { icon: "🖼️", label: "Social posts" },
+  { icon: "🎬", label: "Video scripts" },
+  { icon: "📅", label: "Campaign calendar" },
+  { icon: "📝", label: "Copy and captions" },
+];
+
+export const ADD_NEW_ASSET_LABEL = "Add new asset";
+
+export type MarketingClosingCta = {
+  headingLead: string;
+  headingAccent: string;
+  headingTail: string;
+  description: string;
+  cta: string;
+};
+
+export const MARKETING_CLOSING_CTA: MarketingClosingCta = {
+  headingLead: "Ready to bring Lunchies",
+  headingAccent: "to more families",
+  headingTail: "?",
+  description:
+    "Use these tools to create amazing content and grow your impact.",
+  cta: "Create content",
 };

@@ -1,11 +1,13 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import AbTester from "./AbTester";
+import CardActions from "./CardActions";
+import SavedAssets from "./SavedAssets";
 import {
+  AB_TEST_NAMES,
   BRAND,
   CAMPAIGN_CALENDAR,
-  COMING_SOON,
   LANDING_COPY,
   MARKETING_PAGE_COPY,
   MARKETING_TABS,
@@ -21,6 +23,18 @@ import {
   type SocialPost,
   type VideoScript,
 } from "@/lib/marketingData";
+import {
+  ASSET_TYPES,
+  EXPORT_FILENAME,
+  brandCardAsset,
+  buildExportText,
+  calendarDayCardAsset,
+  landingCardAsset,
+  personaCardAsset,
+  postCardAsset,
+  scriptCardAsset,
+  type CardAsset,
+} from "@/lib/marketingExport";
 
 /* -------------------------------------------------------------------------- */
 /* Shared styles                                                              */
@@ -422,6 +436,7 @@ function PostCard({ post }: { post: SocialPost }) {
           </span>
         ))}
       </div>
+      <CardActions asset={postCardAsset(post)} className="mt-3" />
     </article>
   );
 }
@@ -466,6 +481,8 @@ function ScriptCard({ script }: { script: VideoScript }) {
           </p>
         </div>
       )}
+
+      <CardActions asset={scriptCardAsset(script)} className="mt-4" />
     </article>
   );
 }
@@ -514,6 +531,7 @@ function CalendarCard({ day }: { day: CampaignDay }) {
           {REFERENCE_TITLES[day.reference]}
         </span>
       </p>
+      <CardActions asset={calendarDayCardAsset(day)} className="mt-3" />
     </div>
   );
 }
@@ -541,39 +559,6 @@ function CalendarPanel() {
           </div>
         </div>
       ))}
-    </div>
-  );
-}
-
-function ComingSoonPanel({ tabId }: { tabId: "saved" }) {
-  const copy = COMING_SOON[tabId];
-  return (
-    <div className="rounded-2xl border border-dashed border-leaf-200 bg-leaf-50 p-8 text-center shadow-sm">
-      <span className="text-4xl" aria-hidden="true">
-        🚧
-      </span>
-      <p className="mt-3 inline-block rounded-full bg-peach-100 px-3 py-1 text-xs font-bold uppercase tracking-wide text-peach-700">
-        {MARKETING_PAGE_COPY.comingSoonBadge}
-      </p>
-      <h3 className="font-poppins mt-3 text-lg font-bold text-leaf-800">
-        {copy.title}
-      </h3>
-      <p className="mx-auto mt-2 max-w-xl text-sm leading-relaxed text-leaf-700">
-        {copy.description}
-      </p>
-      <ul className="mx-auto mt-5 max-w-md space-y-2 text-left text-sm text-leaf-800">
-        {copy.nextSteps.map((step) => (
-          <li
-            key={step}
-            className="flex items-start gap-2 rounded-xl border border-leaf-100 bg-white p-3"
-          >
-            <span className="font-bold text-leaf-600" aria-hidden="true">
-              →
-            </span>
-            <span>{step}</span>
-          </li>
-        ))}
-      </ul>
     </div>
   );
 }
@@ -621,6 +606,13 @@ function summaryChips(tabId: MarketingTabId): string[] {
         `${CAMPAIGN_CALENDAR.length} days`,
         `${new Set(CAMPAIGN_CALENDAR.map((day) => day.contentType)).size} content types`,
       ];
+    case "ab-testing":
+      return [
+        `${Object.keys(AB_TEST_NAMES).length} live tests`,
+        `${LANDING_COPY.headlineTest.variants.length} variants each`,
+      ];
+    case "saved":
+      return [`${ASSET_TYPES.length} asset types`];
     default:
       return [];
   }
@@ -637,17 +629,12 @@ function OverviewPanel({
     <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
       {sections.map((tab) => {
         const chips = summaryChips(tab.id);
-        const isComingSoon = tab.status === "coming-soon";
         return (
           <button
             key={tab.id}
             type="button"
             onClick={() => onSelect(tab.id)}
-            className={`flex h-full flex-col rounded-2xl border p-5 text-left shadow-sm transition-colors ${
-              isComingSoon
-                ? "border-dashed border-leaf-200 bg-white hover:bg-leaf-50"
-                : "border-leaf-100 bg-leaf-50 hover:bg-leaf-100"
-            }`}
+            className="flex h-full flex-col rounded-2xl border border-leaf-100 bg-leaf-50 p-5 text-left shadow-sm transition-colors hover:bg-leaf-100"
           >
             <div className="flex items-center justify-between gap-2">
               <span
@@ -665,11 +652,9 @@ function OverviewPanel({
             </h3>
             <p className="mt-1 flex-1 text-sm text-leaf-700">{tab.summary}</p>
             <div className="mt-3 flex flex-wrap gap-1.5">
-              {isComingSoon ? (
-                <Chip tone="peach">{MARKETING_PAGE_COPY.comingSoonBadge}</Chip>
-              ) : (
-                chips.map((chip) => <Chip key={chip}>{chip}</Chip>)
-              )}
+              {chips.map((chip) => (
+                <Chip key={chip}>{chip}</Chip>
+              ))}
             </div>
           </button>
         );
@@ -682,12 +667,49 @@ function OverviewPanel({
 /* Page                                                                       */
 /* -------------------------------------------------------------------------- */
 
+/** Sections that are one card as a whole, so their actions sit in the header. */
+const PANEL_ASSETS: Partial<Record<MarketingTabId, () => CardAsset>> = {
+  brand: brandCardAsset,
+  persona: personaCardAsset,
+  landing: landingCardAsset,
+};
+
 export default function MarketingClient() {
   const [activeTab, setActiveTab] = useState<MarketingTabId>("overview");
+  const [exportState, setExportState] = useState<"idle" | "done" | "failed">(
+    "idle",
+  );
   const tabsRef = useRef<HTMLDivElement>(null);
+  const exportTimer = useRef<ReturnType<typeof setTimeout>>();
+
+  useEffect(() => () => clearTimeout(exportTimer.current), []);
+
+  /** Builds the kit in the browser and hands it to the download. */
+  function handleExport() {
+    try {
+      const blob = new Blob([buildExportText()], {
+        type: "text/markdown;charset=utf-8",
+      });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = EXPORT_FILENAME;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+
+      setExportState("done");
+      exportTimer.current = setTimeout(() => setExportState("idle"), 2000);
+    } catch (error) {
+      console.error("marketing kit export failed:", error);
+      setExportState("failed");
+    }
+  }
 
   const activeIndex = MARKETING_TABS.findIndex((tab) => tab.id === activeTab);
   const active = MARKETING_TABS[activeIndex];
+  const panelAsset = PANEL_ASSETS[activeTab]?.();
 
   function goToTab(tabId: MarketingTabId) {
     setActiveTab(tabId);
@@ -728,13 +750,37 @@ export default function MarketingClient() {
           <p className="mt-4 max-w-md text-lg text-gray-600">
             {MARKETING_PAGE_COPY.heroDescription}
           </p>
-          <button
-            type="button"
-            onClick={() => goToTab("posts")}
-            className="mt-6 rounded-full bg-peach-500 px-6 py-2.5 text-sm font-bold text-white shadow-sm transition-colors hover:bg-peach-600"
-          >
-            {MARKETING_PAGE_COPY.primaryCta}
-          </button>
+          <div className="mt-6 flex flex-wrap items-center gap-3">
+            <button
+              type="button"
+              onClick={() => goToTab("posts")}
+              className="rounded-full bg-peach-500 px-6 py-2.5 text-sm font-bold text-white shadow-sm transition-colors hover:bg-peach-600"
+            >
+              {MARKETING_PAGE_COPY.primaryCta}
+            </button>
+            <button
+              type="button"
+              onClick={handleExport}
+              className={`inline-flex items-center gap-2 rounded-full border px-6 py-2.5 text-sm font-bold transition-colors ${
+                exportState === "done"
+                  ? "border-leaf-600 bg-leaf-600 text-white"
+                  : "border-leaf-300 text-leaf-700 hover:bg-leaf-50"
+              }`}
+            >
+              <span aria-hidden="true">
+                {exportState === "done" ? "✓" : "⬇️"}
+              </span>
+              {exportState === "done"
+                ? MARKETING_PAGE_COPY.exportDone
+                : MARKETING_PAGE_COPY.exportAll}
+            </button>
+          </div>
+          {exportState === "failed" && (
+            <p role="alert" className="mt-2 text-xs text-peach-700">
+              <span aria-hidden="true">⚠️</span>{" "}
+              {MARKETING_PAGE_COPY.exportFailed}
+            </p>
+          )}
         </div>
         <div className="flex justify-center md:justify-end">
           <span className="text-6xl leading-none" aria-hidden="true">
@@ -783,19 +829,22 @@ export default function MarketingClient() {
         aria-labelledby={`tab-${activeTab}`}
         className="mt-8"
       >
-        <SectionHeader
-          icon={active.icon}
-          title={
-            activeTab === "overview"
-              ? MARKETING_PAGE_COPY.overviewHeading
-              : active.label
-          }
-          help={
-            activeTab === "overview"
-              ? MARKETING_PAGE_COPY.overviewHelp
-              : active.summary
-          }
-        />
+        <div className="flex flex-wrap items-start justify-between gap-3">
+          <SectionHeader
+            icon={active.icon}
+            title={
+              activeTab === "overview"
+                ? MARKETING_PAGE_COPY.overviewHeading
+                : active.label
+            }
+            help={
+              activeTab === "overview"
+                ? MARKETING_PAGE_COPY.overviewHelp
+                : active.summary
+            }
+          />
+          {panelAsset && <CardActions asset={panelAsset} />}
+        </div>
 
         <div className="mt-6">
           {activeTab === "overview" && <OverviewPanel onSelect={goToTab} />}
@@ -806,7 +855,7 @@ export default function MarketingClient() {
           {activeTab === "scripts" && <ScriptsPanel />}
           {activeTab === "calendar" && <CalendarPanel />}
           {activeTab === "ab-testing" && <AbTester />}
-          {activeTab === "saved" && <ComingSoonPanel tabId={activeTab} />}
+          {activeTab === "saved" && <SavedAssets />}
         </div>
       </div>
     </section>

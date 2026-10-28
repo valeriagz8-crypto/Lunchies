@@ -588,8 +588,6 @@ export type MarketingTab = {
   icon: string;
   /** Shown on the Overview summary card for this section. */
   summary: string;
-  /** "ready" renders the section, "coming-soon" renders the placeholder. */
-  status: "ready" | "coming-soon";
 };
 
 export const MARKETING_TABS: MarketingTab[] = [
@@ -598,7 +596,6 @@ export const MARKETING_TABS: MarketingTab[] = [
     label: "Overview",
     icon: "🧭",
     summary: "Everything the marketing engine holds, at a glance.",
-    status: "ready",
   },
   {
     id: "brand",
@@ -606,7 +603,6 @@ export const MARKETING_TABS: MarketingTab[] = [
     icon: "🎨",
     summary:
       "The palette, the two fonts, the tagline and the four words that set our tone.",
-    status: "ready",
   },
   {
     id: "persona",
@@ -614,7 +610,6 @@ export const MARKETING_TABS: MarketingTab[] = [
     icon: "👩‍👧",
     summary:
       "Who we are talking to: busy parents in Mexico City, and what matters to them.",
-    status: "ready",
   },
   {
     id: "landing",
@@ -622,7 +617,6 @@ export const MARKETING_TABS: MarketingTab[] = [
     icon: "✍️",
     summary:
       "Hero headline options, the subheadline and the call to action we lead with.",
-    status: "ready",
   },
   {
     id: "posts",
@@ -630,7 +624,6 @@ export const MARKETING_TABS: MarketingTab[] = [
     icon: "📣",
     summary:
       "Ready-to-publish captions and hashtags for Instagram and TikTok.",
-    status: "ready",
   },
   {
     id: "scripts",
@@ -638,7 +631,6 @@ export const MARKETING_TABS: MarketingTab[] = [
     icon: "🎬",
     summary:
       "Short scripts built as hook, problem, solution and call to action.",
-    status: "ready",
   },
   {
     id: "calendar",
@@ -646,7 +638,6 @@ export const MARKETING_TABS: MarketingTab[] = [
     icon: "📅",
     summary:
       "Two weeks of posting, with every slot pointing at a real asset.",
-    status: "ready",
   },
   {
     id: "ab-testing",
@@ -654,14 +645,13 @@ export const MARKETING_TABS: MarketingTab[] = [
     icon: "🧪",
     summary:
       "Vote on the two live tests and read how each variant is performing.",
-    status: "ready",
   },
   {
     id: "saved",
     label: "Saved Assets",
     icon: "💾",
-    summary: "Keeping the posts and scripts you want to reuse later.",
-    status: "coming-soon",
+    summary:
+      "Your own library: save any card here, then copy it back when you need it.",
   },
 ];
 
@@ -671,9 +661,11 @@ export type MarketingPageCopy = {
   heroTitleAccent: string;
   heroDescription: string;
   primaryCta: string;
+  exportAll: string;
+  exportDone: string;
+  exportFailed: string;
   overviewHeading: string;
   overviewHelp: string;
-  comingSoonBadge: string;
 };
 
 export const MARKETING_PAGE_COPY: MarketingPageCopy = {
@@ -685,26 +677,9 @@ export const MARKETING_PAGE_COPY: MarketingPageCopy = {
   primaryCta: "Create content",
   overviewHeading: "What's inside",
   overviewHelp: "Pick a section to see its full content.",
-  comingSoonBadge: "Coming in the next step",
-};
-
-export type ComingSoonCopy = {
-  title: string;
-  description: string;
-  nextSteps: string[];
-};
-
-export const COMING_SOON: Record<"saved", ComingSoonCopy> = {
-  saved: {
-    title: "Saved assets is coming in the next step",
-    description:
-      "Right now every post, script and calendar slot lives in the content library. The next step is being able to keep a shortlist: save the ones you want to reuse, give them a note, and find them again later.",
-    nextSteps: [
-      "Save any post or script to your own list",
-      "Add a short note about where you used it",
-      "Reopen your list and pick up where you left off",
-    ],
-  },
+  exportAll: "Export all",
+  exportDone: "Downloaded",
+  exportFailed: "We could not build the file. Try again in a moment.",
 };
 
 /* -------------------------------------------------------------------------- */
@@ -763,4 +738,82 @@ export const AB_TESTER_COPY: AbTesterCopy = {
     "Your vote was sent but we did not get a confirmation in time, so we cannot tell yet whether it was counted. Refresh the results to check.",
   privacyNote:
     "We only store the variant and whether it was seen or clicked. One vote per browser, per test.",
+};
+
+/* -------------------------------------------------------------------------- */
+/* Copy, export and save actions                                              */
+/* -------------------------------------------------------------------------- */
+
+export type AssetActionCopy = {
+  copy: string;
+  copied: string;
+  copyFailed: string;
+  save: string;
+  saving: string;
+  saved: string;
+  saveFailed: string;
+  saveTimeout: string;
+};
+
+export const ASSET_ACTION_COPY: AssetActionCopy = {
+  copy: "Copy",
+  copied: "Copied!",
+  copyFailed: "Could not copy. Select the text and copy it by hand.",
+  save: "Save asset",
+  saving: "Saving...",
+  saved: "Saved!",
+  saveFailed: "We could not save this right now. Nothing was lost, try again in a moment.",
+  saveTimeout: "Saving is taking longer than usual, so we cannot confirm it. Refresh Saved Assets to check.",
+};
+
+export type SavedAssetsCopy = {
+  intro: string;
+  loading: string;
+  empty: string;
+  emptyHint: string;
+  error: string;
+  timeout: string;
+  refresh: string;
+  refreshing: string;
+  newAsset: string;
+  formHeading: string;
+  titleLabel: string;
+  titlePlaceholder: string;
+  typeLabel: string;
+  contentLabel: string;
+  contentPlaceholder: string;
+  save: string;
+  saving: string;
+  saved: string;
+  cancel: string;
+  view: string;
+  hide: string;
+};
+
+export const SAVED_ASSETS_COPY: SavedAssetsCopy = {
+  intro:
+    "Everything you have saved from this page, newest first. Save a card from any tab, or write a new asset here.",
+  loading: "Loading your saved assets...",
+  empty: "Nothing saved yet",
+  emptyHint:
+    "Use Save asset on any card, or add one here with the button above.",
+  error:
+    "We could not load your saved assets right now. The page is fine, try refreshing in a moment.",
+  timeout:
+    "Your saved assets are taking longer than usual to arrive. Try refreshing in a moment.",
+  refresh: "Refresh",
+  refreshing: "Refreshing...",
+  newAsset: "Save new asset",
+  formHeading: "New asset",
+  titleLabel: "Title",
+  titlePlaceholder: "Social post: Healthy habits",
+  typeLabel: "Type",
+  contentLabel: "Content",
+  contentPlaceholder: "Paste or write the asset text here.",
+  save: "Save asset",
+  saving: "Saving...",
+  saved: "Saved!",
+  cancel: "Cancel",
+  view: "View",
+  hide: "Hide",
 };

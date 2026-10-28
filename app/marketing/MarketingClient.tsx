@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef, useState } from "react";
+import AbTester from "./AbTester";
 import {
   BRAND,
   CAMPAIGN_CALENDAR,
@@ -544,7 +545,7 @@ function CalendarPanel() {
   );
 }
 
-function ComingSoonPanel({ tabId }: { tabId: "ab-testing" | "saved" }) {
+function ComingSoonPanel({ tabId }: { tabId: "saved" }) {
   const copy = COMING_SOON[tabId];
   return (
     <div className="rounded-2xl border border-dashed border-leaf-200 bg-leaf-50 p-8 text-center shadow-sm">
@@ -804,9 +805,8 @@ export default function MarketingClient() {
           {activeTab === "posts" && <PostsPanel />}
           {activeTab === "scripts" && <ScriptsPanel />}
           {activeTab === "calendar" && <CalendarPanel />}
-          {(activeTab === "ab-testing" || activeTab === "saved") && (
-            <ComingSoonPanel tabId={activeTab} />
-          )}
+          {activeTab === "ab-testing" && <AbTester />}
+          {activeTab === "saved" && <ComingSoonPanel tabId={activeTab} />}
         </div>
       </div>
     </section>

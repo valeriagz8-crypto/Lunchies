@@ -653,8 +653,8 @@ export const MARKETING_TABS: MarketingTab[] = [
     label: "A/B Testing",
     icon: "🧪",
     summary:
-      "Running the headline and button tests, and reading which variant wins.",
-    status: "coming-soon",
+      "Vote on the two live tests and read how each variant is performing.",
+    status: "ready",
   },
   {
     id: "saved",
@@ -694,17 +694,7 @@ export type ComingSoonCopy = {
   nextSteps: string[];
 };
 
-export const COMING_SOON: Record<"ab-testing" | "saved", ComingSoonCopy> = {
-  "ab-testing": {
-    title: "A/B testing is coming in the next step",
-    description:
-      "The two experiments are already written and live in the Landing Copy tab. What is still missing is the part that runs them: splitting visitors between variant A and B, counting what each one does, and showing which copy actually performs better.",
-    nextSteps: [
-      "Serve variant A or B to each visitor and remember the choice",
-      "Count views and clicks per variant",
-      "Show the result side by side, with no winner declared before there is data",
-    ],
-  },
+export const COMING_SOON: Record<"saved", ComingSoonCopy> = {
   saved: {
     title: "Saved assets is coming in the next step",
     description:
@@ -715,4 +705,56 @@ export const COMING_SOON: Record<"ab-testing" | "saved", ComingSoonCopy> = {
       "Reopen your list and pick up where you left off",
     ],
   },
+};
+
+/* -------------------------------------------------------------------------- */
+/* A/B tester                                                                 */
+/* -------------------------------------------------------------------------- */
+
+/** The ab_events.test_name value each landing copy test is recorded under. */
+export const AB_TEST_NAMES = {
+  headline: "headline",
+  button: "button",
+} as const;
+
+export type AbTestName = (typeof AB_TEST_NAMES)[keyof typeof AB_TEST_NAMES];
+
+export type AbTesterCopy = {
+  intro: string;
+  question: string;
+  thanks: string;
+  alreadyVoted: string;
+  pick: string;
+  yourPick: string;
+  refresh: string;
+  refreshing: string;
+  loading: string;
+  noData: string;
+  leading: string;
+  tooEarly: string;
+  error: string;
+  voteError: string;
+  privacyNote: string;
+};
+
+export const AB_TESTER_COPY: AbTesterCopy = {
+  intro:
+    "Both tests are running live. Pick the option you prefer and the vote is counted right away, next to everyone else who has voted.",
+  question: "Which one would make you want to try Lunchies?",
+  thanks: "Thanks for voting",
+  alreadyVoted: "You already voted on this test from this browser.",
+  pick: "Pick",
+  yourPick: "Your pick",
+  refresh: "Refresh results",
+  refreshing: "Refreshing...",
+  loading: "Loading results...",
+  noData: "No votes yet",
+  leading: "is leading right now",
+  tooEarly: "Too early to call. Waiting for the first clicks.",
+  error:
+    "We could not reach the results right now. The page is fine, nothing is broken. Try refreshing in a moment.",
+  voteError:
+    "We could not record your vote right now, so nothing was counted. Your pick is still open, try again in a moment.",
+  privacyNote:
+    "We only store the variant and whether it was seen or clicked. One vote per browser, per test.",
 };

@@ -28,6 +28,30 @@ import {
  */
 const viewedTests = new Set<AbTestName>();
 
+/**
+ * A blocked request (ad blocker, blocked domain) stalls instead of failing,
+ * so every Supabase call gets a hard cap rather than spinning forever.
+ */
+const REQUEST_TIMEOUT_MS = 8000;
+
+const TIMED_OUT = Symbol("timed-out");
+
+async function withTimeout<T>(
+  work: PromiseLike<T>,
+  budgetMs: number = REQUEST_TIMEOUT_MS,
+): Promise<T | typeof TIMED_OUT> {
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  const expiry = new Promise<typeof TIMED_OUT>((resolve) => {
+    timer = setTimeout(() => resolve(TIMED_OUT), Math.max(budgetMs, 1000));
+  });
+
+  try {
+    return await Promise.race([work, expiry]);
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
 const VARIANT_STYLE: Record<
   Variant,
   { card: string; badge: string; bar: string; button: string }
@@ -128,17 +152,31 @@ function AbTestPanel({
   const [totals, setTotals] = useState<TestTotals>(emptyTotals());
   const [voted, setVoted] = useState<Variant | null>(null);
   const [justVoted, setJustVoted] = useState(false);
+  // A timed-out vote may or may not have landed, so it is never "confirmed".
+  const [voteConfirmed, setVoteConfirmed] = useState(true);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [errorDetail, setErrorDetail] = useState<string | null>(null);
   const startedRef = useRef(false);
 
-  const loadResults = useCallback(async () => {
-    const { data, error: loadError } = await supabase
-      .from("ab_events")
-      .select("test_name, variant, event_type")
-      .eq("test_name", testName);
+  const loadResults = useCallback(async (budgetMs?: number) => {
+    const response = await withTimeout(
+      supabase
+        .from("ab_events")
+        .select("test_name, variant, event_type")
+        .eq("test_name", testName),
+      budgetMs,
+    );
+
+    if (response === TIMED_OUT) {
+      console.error(`ab_events load timed out (${testName})`);
+      setError(AB_TESTER_COPY.timeout);
+      setErrorDetail(null);
+      return;
+    }
+
+    const { data, error: loadError } = response;
 
     if (loadError) {
       console.error(`ab_events load error (${testName}):`, loadError);
@@ -156,9 +194,13 @@ function AbTestPanel({
     if (startedRef.current) return;
     startedRef.current = true;
 
-    setVoted(readStoredVote(testName));
+    const stored = readStoredVote(testName);
+    setVoted(stored);
+    setVoteConfirmed(true);
 
     async function start() {
+      const startedAt = Date.now();
+
       if (!viewedTests.has(testName)) {
         viewedTests.add(testName);
 
@@ -168,18 +210,26 @@ function AbTestPanel({
           event_type: "view" as const,
         }));
 
-        const { error: viewError } = await supabase
-          .from("ab_events")
-          .insert(views);
+        const response = await withTimeout(
+          supabase.from("ab_events").insert(views),
+        );
 
-        if (viewError) {
-          // A failed view insert should not stop the results from loading.
-          console.error(`ab_events view insert error (${testName}):`, viewError);
+        // A failed or slow view insert should not stop the results loading.
+        if (response === TIMED_OUT) {
+          console.error(`ab_events view insert timed out (${testName})`);
+          viewedTests.delete(testName);
+        } else if (response.error) {
+          console.error(
+            `ab_events view insert error (${testName}):`,
+            response.error,
+          );
           viewedTests.delete(testName);
         }
       }
 
-      await loadResults();
+      // The insert and the load share one budget, so a stalled connection
+      // surfaces in about REQUEST_TIMEOUT_MS instead of twice that.
+      await loadResults(REQUEST_TIMEOUT_MS - (Date.now() - startedAt));
       setLoading(false);
     }
 
@@ -192,11 +242,26 @@ function AbTestPanel({
     // Optimistic lock so a double click cannot send two votes.
     setVoted(variant);
 
-    const { error: voteError } = await supabase.from("ab_events").insert({
-      test_name: testName,
-      variant,
-      event_type: "click",
-    });
+    const response = await withTimeout(
+      supabase.from("ab_events").insert({
+        test_name: testName,
+        variant,
+        event_type: "click",
+      }),
+    );
+
+    if (response === TIMED_OUT) {
+      // The insert may still land, so the buttons stay locked and the vote is
+      // not remembered. Saying "thanks" here would be claiming more than we
+      // know.
+      console.error(`ab_events click insert timed out (${testName})`);
+      setVoteConfirmed(false);
+      setError(AB_TESTER_COPY.voteTimeout);
+      setErrorDetail(null);
+      return;
+    }
+
+    const { error: voteError } = response;
 
     if (voteError) {
       console.error(`ab_events click insert error (${testName}):`, voteError);
@@ -207,6 +272,7 @@ function AbTestPanel({
     }
 
     storeVote(testName, variant);
+    setVoteConfirmed(true);
     setJustVoted(true);
     await loadResults();
   }
@@ -239,7 +305,7 @@ function AbTestPanel({
       <div className="mt-4 grid gap-4 sm:grid-cols-2">
         {test.variants.map((variant) => {
           const style = VARIANT_STYLE[variant.id];
-          const isChosen = voted === variant.id;
+          const isChosen = voted === variant.id && voteConfirmed;
           return (
             <div
               key={variant.id}
@@ -298,7 +364,7 @@ function AbTestPanel({
         })}
       </div>
 
-      {voted && (
+      {voted && voteConfirmed && (
         <p className="mt-4 rounded-xl border border-leaf-100 bg-leaf-50 px-4 py-3 text-center text-sm font-medium text-leaf-700">
           <span aria-hidden="true">✅</span> {AB_TESTER_COPY.thanks}.{" "}
           <span className="font-normal text-leaf-600">

@@ -733,7 +733,9 @@ export type AbTesterCopy = {
   leading: string;
   tooEarly: string;
   error: string;
+  timeout: string;
   voteError: string;
+  voteTimeout: string;
   privacyNote: string;
 };
 
@@ -753,8 +755,12 @@ export const AB_TESTER_COPY: AbTesterCopy = {
   tooEarly: "Too early to call. Waiting for the first clicks.",
   error:
     "We could not reach the results right now. The page is fine, nothing is broken. Try refreshing in a moment.",
+  timeout:
+    "The results are taking longer than usual to arrive. Nothing is broken. Try the refresh button in a moment.",
   voteError:
     "We could not record your vote right now, so nothing was counted. Your pick is still open, try again in a moment.",
+  voteTimeout:
+    "Your vote was sent but we did not get a confirmation in time, so we cannot tell yet whether it was counted. Refresh the results to check.",
   privacyNote:
     "We only store the variant and whether it was seen or clicked. One vote per browser, per test.",
 };

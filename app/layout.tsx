@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Inter, Poppins } from "next/font/google";
+import { Caveat, Inter, Poppins } from "next/font/google";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import "./globals.css";
@@ -19,6 +19,13 @@ const poppins = Poppins({
   variable: "--font-poppins",
 });
 
+const caveat = Caveat({
+  subsets: ["latin"],
+  weight: ["500", "600"],
+  display: "swap",
+  variable: "--font-caveat",
+});
+
 export const metadata: Metadata = {
   title: "Lunchies",
   description:
@@ -31,7 +38,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="es" className={`${inter.variable} ${poppins.variable}`}>
+    <html lang="es" className={`${inter.variable} ${poppins.variable} ${caveat.variable}`}>
       <body className="flex min-h-screen flex-col bg-white text-leaf-900">
         <Navbar />
         <main className="flex-1">{children}</main>

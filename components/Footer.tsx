@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Leaf } from "lucide-react";
 import { FOOTER } from "@/lib/homepageData";
 
 export default function Footer() {
@@ -12,7 +13,9 @@ export default function Footer() {
             </span>
             <p className="mt-2 text-sm text-leaf-800">{FOOTER.tagline}</p>
             <span className="mt-4 inline-flex items-center gap-1.5 rounded-full bg-white px-3 py-1.5 text-xs font-semibold text-leaf-700 shadow-sm">
+              <Leaf className="h-3.5 w-3.5" aria-hidden="true" />
               {FOOTER.badge}
+              <span aria-hidden="true">💚</span>
             </span>
           </div>
           {FOOTER.columns.map((column) => (

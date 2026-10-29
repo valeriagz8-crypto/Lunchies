@@ -11,62 +11,76 @@ export type LinkTarget = {
   href: string;
 };
 
-export type HeroBenefit = {
-  icon: string;
-  label: string;
-};
+/** Key into the icon map in components/home/icons.tsx. */
+export type IconName =
+  | "leaf"
+  | "clock"
+  | "heart"
+  | "bus"
+  | "users"
+  | "sparkles"
+  | "check";
 
-/** One compartment of the CSS and emoji lunchbox illustration. */
-export type LunchboxItem = {
-  emoji: string;
+export type HeroBenefit = {
+  icon: IconName;
   label: string;
 };
 
 export type Hero = {
   badge: string;
-  headlineLead: string;
+  headlineLine1: string;
+  headlineLine2Lead: string;
   headlineAccent: string;
   subheadline: string;
   primaryCta: LinkTarget;
   secondaryCta: LinkTarget;
   benefits: HeroBenefit[];
-  lunchbox: {
-    caption: string;
-    items: LunchboxItem[];
+  /** The handwritten note sitting over the lunchbox. */
+  note: {
+    handwritten: string;
+    checks: string[];
+  };
+  /** The phone card beside the lunchbox. */
+  phone: {
+    title: string;
+    items: { emoji: string; label: string }[];
   };
 };
 
 export const HERO: Hero = {
   badge: "Healthy habits, happier days",
-  headlineLead: "Healthy lunches for",
+  headlineLine1: "Healthy lunches",
+  headlineLine2Lead: "for",
   headlineAccent: "happier kids.",
   subheadline:
     "Personalized, nutritious and convenient lunches based on your child's preferences, allergies and busy schedule.",
   primaryCta: { label: "Create my plan", href: "/core" },
   secondaryCta: { label: "See how it works", href: "#how-it-works" },
   benefits: [
-    { icon: "🥗", label: "Nutritious and balanced" },
-    { icon: "⏱️", label: "Saves you time" },
-    { icon: "😋", label: "Kids love it" },
-    { icon: "🎒", label: "Delivered at school" },
+    { icon: "leaf", label: "Nutritious and balanced" },
+    { icon: "clock", label: "Saves you time" },
+    { icon: "heart", label: "Kids love it" },
+    { icon: "bus", label: "Delivered at school" },
   ],
-  lunchbox: {
-    caption:
-      "A Lunchies lunchbox: a sandwich, fruit, vegetables, cheese, grapes and a drink.",
+  note: {
+    handwritten: "Good food, brighter futures",
+    checks: ["Real ingredients", "Kid-approved", "Made for busy families"],
+  },
+  phone: {
+    title: "Today's lunch",
     items: [
-      { emoji: "🥪", label: "Sandwich" },
-      { emoji: "🍎", label: "Apple" },
-      { emoji: "🥕", label: "Carrots" },
-      { emoji: "🧀", label: "Cheese" },
-      { emoji: "🍇", label: "Grapes" },
-      { emoji: "🧃", label: "Drink" },
+      { emoji: "🍞", label: "Sandwich" },
+      { emoji: "🍎", label: "Fruits" },
+      { emoji: "🥒", label: "Vegetables" },
+      { emoji: "🥨", label: "Snack" },
     ],
   },
 };
 
 export type Step = {
   number: number;
-  icon: string;
+  art: "phone" | "bowl" | "school";
+  tint: string;
   title: string;
   description: string;
 };
@@ -74,108 +88,118 @@ export type Step = {
 export const HOW_IT_WORKS = {
   id: "how-it-works",
   heading: "How it works",
-  intro: "Three steps, and the week is planned.",
+  intro: "Healthy school lunches in 3 simple steps.",
+  link: { label: "Learn more", href: "/product" } as LinkTarget,
   steps: [
     {
       number: 1,
-      icon: "📝",
+      art: "phone",
+      tint: "bg-rose-50",
       title: "Tell us about your child",
-      description: "Preferences, allergies and goals, filled in once.",
+      description: "Add preferences, allergies and goals.",
     },
     {
       number: 2,
-      icon: "🍱",
+      art: "bowl",
+      tint: "bg-leaf-50",
       title: "We create personalized options",
-      description: "Balanced lunches tailored to your child.",
+      description: "Balanced, delicious lunches tailored to your child.",
     },
     {
       number: 3,
-      icon: "📅",
+      art: "school",
+      tint: "bg-peach-50",
       title: "You get a plan",
-      description: "A weekly menu ready to use.",
+      description: "A weekly menu and shopping list, ready to use.",
     },
   ] as Step[],
 };
 
 export type LunchStyle = {
-  icon: string;
   name: string;
   description: string;
+  /** Tints and fillings for the CSS lunchbox illustration on each card. */
+  tint: string;
+  boxTint: string;
+  items: string[];
 };
 
 export const LUNCH_STYLES = {
-  heading: "Lunches made for every child",
+  label: "Delicious, nutritious, personalized",
+  headingLead: "Lunches made for",
+  headingAccent: "every child.",
   intro:
-    "Every child eats differently, so every plan is built around the one you are packing for.",
+    "We combine nutrition, flavor and variety to create lunches that fit your child's needs and your family's lifestyle.",
   cta: { label: "Explore our plans", href: "/product" } as LinkTarget,
   styles: [
     {
-      icon: "🥪",
       name: "Classic",
-      description:
-        "The familiar favourites: a sandwich, fruit and something to drink.",
+      description: "Balanced and delicious for everyday.",
+      tint: "bg-rose-100",
+      boxTint: "bg-rose-200",
+      items: ["🥪", "🍅", "🥒", "⭐"],
     },
     {
-      icon: "💪",
       name: "High-protein",
-      description:
-        "Eggs, cheese, chicken or beans for the days that run long.",
+      description: "More energy for busy days.",
+      tint: "bg-leaf-100",
+      boxTint: "bg-leaf-200",
+      items: ["🍗", "🥚", "🫐", "🧀"],
     },
     {
-      icon: "🛡️",
       name: "Allergy-friendly",
-      description:
-        "Built around what your child cannot eat, checked every single day.",
+      description: "Options for specific needs.",
+      tint: "bg-amber-100",
+      boxTint: "bg-amber-200",
+      items: ["🍈", "🫐", "🥕", "🍚"],
     },
     {
-      icon: "🌈",
       name: "Fun and creative",
-      description:
-        "Colours, shapes and small surprises for the pickier eaters.",
+      description: "Meals that make lunch exciting.",
+      tint: "bg-sky-100",
+      boxTint: "bg-sky-200",
+      items: ["🐻", "🍓", "⭐", "🥒"],
     },
   ] as LunchStyle[],
 };
 
 export type Benefit = {
-  icon: string;
+  icon: IconName;
   title: string;
   description: string;
 };
 
 export const WHY_LUNCHIES = {
   heading: "Why families choose Lunchies",
-  intro: "What the app actually does for your week.",
   benefits: [
     {
-      icon: "👧",
-      title: "Built around your child",
-      description:
-        "Preferences, allergies and goals live in one profile, so every plan starts from your child instead of a generic menu.",
+      icon: "leaf",
+      title: "Real ingredients",
+      description: "Nutritious meals for growing minds and bodies.",
     },
     {
-      icon: "🗓️",
-      title: "A full week in one go",
-      description:
-        "You get five days of lunches at once, so there is no decision left to make on a weekday morning.",
+      icon: "heart",
+      title: "Kid-approved",
+      description: "Recipes built around what your child actually likes.",
     },
     {
-      icon: "🛡️",
-      title: "Allergies set once",
-      description:
-        "Tell us what your child cannot eat and every lunch we suggest respects it, without you checking twice.",
+      icon: "clock",
+      title: "Save time",
+      description: "Plan once and we help you all week long.",
     },
     {
-      icon: "🧾",
-      title: "Clear, simple plans",
-      description:
-        "Each lunch names what goes in it, so you know exactly what to buy and what your child is eating.",
+      icon: "users",
+      title: "Made for busy families",
+      description: "Allergies, preferences and schedules, handled.",
     },
   ] as Benefit[],
 };
 
 export const CLOSING_CTA = {
-  heading: "Ready to make lunchtime easier?",
-  description: "Build your first weekly plan and see what it looks like.",
+  headingLead: "Ready to make lunchtime",
+  headingAccent: "easier",
+  headingTail: "?",
+  description: "Join Lunchies and start planning better lunches today.",
   cta: { label: "Get started", href: "/core" } as LinkTarget,
 };
 
@@ -187,7 +211,7 @@ export type FooterColumn = {
 export const FOOTER = {
   brand: "Lunchies 🍎",
   tagline: "Better lunches, brighter days.",
-  badge: "Made with care for families ♥",
+  badge: "Made with care for families",
   copyright: "© 2026 Lunchies · Made by Valeria Gómez Zamudio",
   columns: [
     {

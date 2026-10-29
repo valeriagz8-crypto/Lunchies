@@ -1,4 +1,11 @@
+import { Fragment } from "react";
 import Link from "next/link";
+import { ArrowRight } from "lucide-react";
+import HeroArt from "@/components/home/HeroArt";
+import LunchStylesCarousel from "@/components/home/LunchStylesCarousel";
+import Spark from "@/components/home/Spark";
+import StepArt from "@/components/home/StepArt";
+import { ICONS, ICON_COLORS } from "@/components/home/icons";
 import {
   CLOSING_CTA,
   HERO,
@@ -7,50 +14,20 @@ import {
   WHY_LUNCHIES,
 } from "@/lib/homepageData";
 
-/** The lunchbox is drawn with CSS and emoji, so there is no image to load. */
-function LunchboxIllustration() {
+/** Soft wave divider between the coloured bands. */
+function Wave({ className = "", flip = false }: { className?: string; flip?: boolean }) {
   return (
-    <div
-      className="relative mx-auto w-full max-w-[22rem]"
-      role="img"
-      aria-label={HERO.lunchbox.caption}
+    <svg
+      aria-hidden="true"
+      viewBox="0 0 1440 80"
+      preserveAspectRatio="none"
+      className={`block h-10 w-full sm:h-14 ${flip ? "rotate-180" : ""} ${className}`}
     >
-      <span
-        aria-hidden="true"
-        className="absolute -left-1 -top-2 text-2xl sm:-left-3 sm:text-3xl"
-      >
-        🍓
-      </span>
-      <span
-        aria-hidden="true"
-        className="absolute -right-1 top-10 text-2xl sm:-right-3 sm:text-3xl"
-      >
-        🥦
-      </span>
-
-      {/* Handle */}
-      <div className="mx-auto h-7 w-24 rounded-t-full border-4 border-b-0 border-leaf-600" />
-
-      {/* Box */}
-      <div className="rounded-3xl border-4 border-leaf-600 bg-peach-100 p-3 shadow-lg">
-        {/* Lid strip */}
-        <div className="mx-auto mb-3 h-2 w-2/3 rounded-full bg-leaf-600/30" />
-
-        <div className="grid grid-cols-3 gap-2 rounded-2xl bg-white/70 p-2">
-          {HERO.lunchbox.items.map((item) => (
-            <div
-              key={item.label}
-              className="flex aspect-square items-center justify-center rounded-xl bg-leaf-50 text-3xl shadow-sm sm:text-4xl"
-            >
-              <span aria-hidden="true">{item.emoji}</span>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* Shadow under the box */}
-      <div className="mx-auto mt-4 h-3 w-3/4 rounded-full bg-leaf-200/60 blur-sm" />
-    </div>
+      <path
+        fill="currentColor"
+        d="M0 48c180-40 360-40 540-8s360 40 540 8 300-40 360-48v80H0z"
+      />
+    </svg>
   );
 }
 
@@ -58,180 +35,218 @@ export default function Home() {
   return (
     <>
       {/* 1. Hero */}
-      <section className="bg-peach-50">
-        <div className="mx-auto grid max-w-5xl items-center gap-12 px-4 py-16 sm:px-6 md:grid-cols-2 md:py-24">
+      <section className="bg-gradient-to-br from-[#FDF7EE] via-[#FCF0E4] to-[#F9E5D6]">
+        <div className="mx-auto grid max-w-6xl items-center gap-10 px-4 py-12 sm:px-6 lg:grid-cols-2 lg:py-16">
           <div>
-            <span className="inline-flex items-center gap-2 rounded-full bg-white px-4 py-1.5 text-xs font-semibold text-leaf-700 shadow-sm sm:text-sm">
-              <span aria-hidden="true">🌿</span>
+            <span className="inline-flex items-center gap-2 rounded-full bg-peach-100 px-4 py-1.5 text-[11px] font-bold uppercase tracking-[0.12em] text-peach-700 sm:text-xs">
               {HERO.badge}
+              <span aria-hidden="true">🌟</span>
             </span>
 
-            <h1 className="font-poppins mt-5 text-4xl font-extrabold tracking-tight text-gray-800 sm:text-5xl">
-              {HERO.headlineLead}{" "}
+            <h1 className="font-poppins mt-5 text-4xl font-extrabold leading-[1.05] tracking-tight text-leaf-900 sm:text-5xl lg:text-6xl">
+              {HERO.headlineLine1}
+              <br />
+              {HERO.headlineLine2Lead}{" "}
               <span className="text-peach-500">{HERO.headlineAccent}</span>
             </h1>
 
-            <p className="mt-5 max-w-md text-lg text-gray-600">
+            <p className="mt-5 max-w-md text-base leading-relaxed text-leaf-800 sm:text-lg">
               {HERO.subheadline}
             </p>
 
-            <div className="mt-8 flex flex-wrap items-center gap-3">
+            <div className="mt-7 flex flex-wrap items-center gap-3">
               <Link
                 href={HERO.primaryCta.href}
-                className="rounded-full bg-leaf-600 px-7 py-3 font-semibold text-white shadow-sm transition-colors hover:bg-leaf-700"
+                className="inline-flex items-center gap-2 rounded-full bg-leaf-700 px-7 py-3.5 font-semibold text-white shadow-sm transition-colors hover:bg-leaf-800"
               >
                 {HERO.primaryCta.label}
+                <ArrowRight className="h-4 w-4" aria-hidden="true" />
               </Link>
               <a
                 href={HERO.secondaryCta.href}
-                className="rounded-full border-2 border-leaf-600 px-7 py-3 font-semibold text-leaf-700 transition-colors hover:bg-leaf-50"
+                className="inline-flex items-center rounded-full border-2 border-leaf-600 px-7 py-3 font-semibold text-leaf-700 transition-colors hover:bg-leaf-50"
               >
                 {HERO.secondaryCta.label}
               </a>
             </div>
 
-            <ul className="mt-8 grid grid-cols-2 gap-x-5 gap-y-3 text-sm text-leaf-800 sm:grid-cols-4 md:grid-cols-2">
-              {HERO.benefits.map((benefit) => (
-                <li key={benefit.label} className="flex items-center gap-2">
-                  <span aria-hidden="true" className="text-lg">
-                    {benefit.icon}
-                  </span>
-                  <span className="min-w-0">{benefit.label}</span>
-                </li>
-              ))}
+            <ul className="mt-8 grid grid-cols-2 gap-x-5 gap-y-4 sm:grid-cols-4 lg:grid-cols-2 xl:grid-cols-4">
+              {HERO.benefits.map((benefit) => {
+                const Icon = ICONS[benefit.icon];
+                return (
+                  <li key={benefit.label} className="flex items-start gap-2">
+                    <Icon
+                      className={`mt-0.5 h-5 w-5 shrink-0 ${ICON_COLORS[benefit.icon]}`}
+                      aria-hidden="true"
+                    />
+                    <span className="min-w-0 text-sm leading-tight text-leaf-800">
+                      {benefit.label}
+                    </span>
+                  </li>
+                );
+              })}
             </ul>
           </div>
 
-          <div className="flex justify-center md:justify-end">
-            <LunchboxIllustration />
+          <div className="flex justify-center lg:justify-end">
+            <HeroArt />
           </div>
         </div>
       </section>
 
       {/* 2. How it works */}
-      <section id={HOW_IT_WORKS.id} className="scroll-mt-20 bg-white">
-        <div className="mx-auto max-w-5xl px-4 py-16 sm:px-6">
-          <h2 className="font-poppins text-center text-2xl font-extrabold text-leaf-800 sm:text-3xl">
-            {HOW_IT_WORKS.heading}
-          </h2>
-          <p className="mt-2 text-center text-leaf-600">
-            {HOW_IT_WORKS.intro}
-          </p>
+      <section
+        id={HOW_IT_WORKS.id}
+        className="scroll-mt-20 bg-[#FDF7EE] px-4 py-10 sm:px-6"
+      >
+        <div className="mx-auto max-w-6xl rounded-[2.5rem] bg-[#EDF6EC] p-6 sm:p-10">
+          <div className="flex flex-wrap items-end justify-between gap-4">
+            <div>
+              <h2 className="font-poppins flex items-center gap-1 text-2xl font-extrabold text-leaf-900 sm:text-3xl">
+                {HOW_IT_WORKS.heading}
+                <Spark />
+              </h2>
+              <p className="mt-1.5 text-sm text-leaf-700 sm:text-base">
+                {HOW_IT_WORKS.intro}
+              </p>
+            </div>
+            <Link
+              href={HOW_IT_WORKS.link.href}
+              className="inline-flex items-center gap-1.5 text-sm font-semibold text-leaf-700 transition-colors hover:text-peach-600"
+            >
+              {HOW_IT_WORKS.link.label}
+              <ArrowRight className="h-4 w-4" aria-hidden="true" />
+            </Link>
+          </div>
 
-          <div className="mt-10 grid gap-5 md:grid-cols-3">
-            {HOW_IT_WORKS.steps.map((step) => (
-              <div
-                key={step.number}
-                className="rounded-2xl border border-leaf-100 bg-leaf-50 p-6 shadow-sm"
-              >
-                <div className="flex items-center gap-3">
-                  <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-white text-xl shadow-sm">
-                    <span aria-hidden="true">{step.icon}</span>
+          <div className="mt-7 grid items-stretch gap-4 md:grid-cols-[1fr_auto_1fr_auto_1fr]">
+            {HOW_IT_WORKS.steps.map((step, index) => (
+              <Fragment key={step.number}>
+                <div
+                  className={`flex min-w-0 gap-4 rounded-3xl p-5 ${step.tint}`}
+                >
+                  <span className="flex h-20 w-20 shrink-0 items-center justify-center rounded-2xl bg-white/70">
+                    <StepArt art={step.art} />
                   </span>
-                  <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-leaf-600 text-sm font-bold text-white">
-                    {step.number}
-                  </span>
+                  <div className="min-w-0">
+                    <h3 className="font-poppins font-bold text-leaf-900">
+                      {step.number}. {step.title}
+                    </h3>
+                    <p className="mt-1.5 text-sm leading-snug text-leaf-700">
+                      {step.description}
+                    </p>
+                  </div>
                 </div>
-                <h3 className="font-poppins mt-4 font-semibold text-leaf-800">
-                  {step.title}
-                </h3>
-                <p className="mt-1.5 text-sm text-leaf-700">
-                  {step.description}
-                </p>
-              </div>
+                {index < HOW_IT_WORKS.steps.length - 1 && (
+                  <span
+                    aria-hidden="true"
+                    className="hidden items-center justify-center text-leaf-600 md:flex"
+                  >
+                    <ArrowRight className="h-5 w-5" />
+                  </span>
+                )}
+              </Fragment>
             ))}
           </div>
         </div>
       </section>
 
-      {/* 3. Lunch styles */}
-      <section className="bg-leaf-50">
-        <div className="mx-auto max-w-5xl px-4 py-16 sm:px-6">
-          <h2 className="font-poppins text-center text-2xl font-extrabold text-leaf-800 sm:text-3xl">
-            {LUNCH_STYLES.heading}
-          </h2>
-          <p className="mx-auto mt-2 max-w-2xl text-center text-leaf-600">
-            {LUNCH_STYLES.intro}
-          </p>
-
-          <div className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
-            {LUNCH_STYLES.styles.map((style) => (
-              <div
-                key={style.name}
-                className="flex flex-col rounded-2xl border border-leaf-100 bg-white p-6 shadow-sm"
-              >
-                <span className="flex h-14 w-14 items-center justify-center rounded-full bg-peach-100 text-3xl">
-                  <span aria-hidden="true">{style.icon}</span>
-                </span>
-                <h3 className="font-poppins mt-4 font-semibold text-leaf-800">
-                  {style.name}
-                </h3>
-                <p className="mt-1.5 text-sm text-leaf-700">
-                  {style.description}
-                </p>
-              </div>
-            ))}
-          </div>
-
-          <div className="mt-10 text-center">
+      {/* 3. Lunches made for every child */}
+      <div className="bg-[#FDF7EE] text-[#FBEADF]">
+        <Wave />
+      </div>
+      <section className="bg-[#FBEADF]">
+        <div className="mx-auto grid max-w-6xl items-center gap-10 px-4 pb-8 pt-2 sm:px-6 sm:pb-10 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]">
+          <div>
+            <span className="text-[11px] font-bold uppercase tracking-[0.12em] text-peach-600 sm:text-xs">
+              {LUNCH_STYLES.label}
+            </span>
+            <h2 className="font-poppins mt-3 text-3xl font-extrabold leading-tight text-leaf-900 sm:text-4xl">
+              {LUNCH_STYLES.headingLead}{" "}
+              <span className="text-peach-500">
+                {LUNCH_STYLES.headingAccent}
+              </span>
+            </h2>
+            <p className="mt-4 max-w-md text-sm leading-relaxed text-leaf-800 sm:text-base">
+              {LUNCH_STYLES.intro}
+            </p>
             <Link
               href={LUNCH_STYLES.cta.href}
-              className="inline-block rounded-full bg-peach-500 px-7 py-3 font-semibold text-white shadow-sm transition-colors hover:bg-peach-600"
+              className="mt-6 inline-flex items-center gap-2 rounded-full bg-leaf-700 px-7 py-3.5 font-semibold text-white shadow-sm transition-colors hover:bg-leaf-800"
             >
               {LUNCH_STYLES.cta.label}
+              <ArrowRight className="h-4 w-4" aria-hidden="true" />
             </Link>
           </div>
+
+          <LunchStylesCarousel />
         </div>
       </section>
 
       {/* 4. Why families choose Lunchies */}
-      <section className="bg-white">
-        <div className="mx-auto max-w-5xl px-4 py-16 sm:px-6">
-          <h2 className="font-poppins text-center text-2xl font-extrabold text-leaf-800 sm:text-3xl">
+      <div className="bg-[#FBEADF] text-[#EDF6EC]">
+        <Wave />
+      </div>
+      <section className="bg-[#EDF6EC]">
+        <div className="mx-auto max-w-6xl px-4 pb-12 pt-2 sm:px-6">
+          <h2 className="font-poppins flex items-center gap-1 text-2xl font-extrabold text-leaf-900 sm:text-3xl">
             {WHY_LUNCHIES.heading}
+            <Spark />
           </h2>
-          <p className="mt-2 text-center text-leaf-600">
-            {WHY_LUNCHIES.intro}
-          </p>
 
-          <div className="mt-10 grid gap-5 sm:grid-cols-2">
-            {WHY_LUNCHIES.benefits.map((benefit) => (
-              <div
-                key={benefit.title}
-                className="flex gap-4 rounded-2xl border border-leaf-100 bg-leaf-50 p-6 shadow-sm"
-              >
-                <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-white text-2xl shadow-sm">
-                  <span aria-hidden="true">{benefit.icon}</span>
-                </span>
-                <div className="min-w-0">
-                  <h3 className="font-poppins font-semibold text-leaf-800">
+          <ul className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-4 lg:gap-0">
+            {WHY_LUNCHIES.benefits.map((benefit, index) => {
+              const Icon = ICONS[benefit.icon];
+              return (
+                <li
+                  key={benefit.title}
+                  className={`min-w-0 lg:px-6 ${
+                    index > 0 ? "lg:border-l lg:border-leaf-200" : ""
+                  }`}
+                >
+                  <Icon
+                    className={`h-7 w-7 ${ICON_COLORS[benefit.icon]}`}
+                    aria-hidden="true"
+                    strokeWidth={1.75}
+                  />
+                  <h3 className="font-poppins mt-3 font-bold text-leaf-900">
                     {benefit.title}
                   </h3>
-                  <p className="mt-1.5 text-sm text-leaf-700">
+                  <p className="mt-1.5 text-sm leading-snug text-leaf-700">
                     {benefit.description}
                   </p>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
+                </li>
+              );
+            })}
+          </ul>
 
-      {/* 5. Closing call to action */}
-      <section className="bg-leaf-100">
-        <div className="mx-auto flex max-w-5xl flex-col items-center gap-6 px-4 py-14 text-center sm:px-6 md:flex-row md:justify-between md:text-left">
-          <div>
-            <h2 className="font-poppins text-2xl font-extrabold text-leaf-800 sm:text-3xl">
-              {CLOSING_CTA.heading}
-            </h2>
-            <p className="mt-2 text-leaf-700">{CLOSING_CTA.description}</p>
+          {/* 5. Closing band */}
+          <div className="mt-10 flex flex-col items-center gap-5 rounded-[2rem] bg-[#FBEADF] px-6 py-7 text-center sm:px-10 md:flex-row md:justify-between md:text-left">
+            <div className="flex items-center gap-5">
+              <span aria-hidden="true" className="hidden text-5xl sm:block">
+                🥕
+              </span>
+              <div>
+                <h2 className="font-poppins text-xl font-extrabold text-leaf-900 sm:text-2xl">
+                  {CLOSING_CTA.headingLead}{" "}
+                  <span className="text-peach-500">
+                    {CLOSING_CTA.headingAccent}
+                  </span>
+                  {CLOSING_CTA.headingTail}
+                </h2>
+                <p className="mt-1.5 text-sm text-leaf-700 sm:text-base">
+                  {CLOSING_CTA.description}
+                </p>
+              </div>
+            </div>
+            <Link
+              href={CLOSING_CTA.cta.href}
+              className="inline-flex shrink-0 items-center gap-2 rounded-full bg-leaf-700 px-7 py-3.5 font-semibold text-white shadow-sm transition-colors hover:bg-leaf-800"
+            >
+              {CLOSING_CTA.cta.label}
+              <ArrowRight className="h-4 w-4" aria-hidden="true" />
+            </Link>
           </div>
-          <Link
-            href={CLOSING_CTA.cta.href}
-            className="shrink-0 rounded-full bg-leaf-600 px-8 py-3 font-semibold text-white shadow-sm transition-colors hover:bg-leaf-700"
-          >
-            {CLOSING_CTA.cta.label}
-          </Link>
         </div>
       </section>
     </>

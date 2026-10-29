@@ -1,6 +1,8 @@
 "use client";
 
+import Image from "next/image";
 import { HERO_NOTES, HERO_PHONE } from "@/lib/marketingData";
+import { IMAGES } from "@/lib/marketingImages";
 
 /**
  * The hero illustration: a phone showing a Lunchies post, a handwritten note
@@ -47,19 +49,15 @@ export default function HeroArt() {
             </span>
           </div>
 
-          {/* The post: a lunchbox drawn with emoji */}
-          <div className="mx-2 rounded-2xl bg-peach-100 p-2">
-            <div className="grid grid-cols-3 gap-1 rounded-xl border-2 border-white bg-white/70 p-1.5">
-              {HERO_PHONE.lunchbox.map((item, index) => (
-                <span
-                  key={`${item}-${index}`}
-                  aria-hidden="true"
-                  className="flex aspect-square items-center justify-center rounded-lg bg-leaf-50 text-base sm:text-lg"
-                >
-                  {item}
-                </span>
-              ))}
-            </div>
+          {/* The post */}
+          <div className="relative mx-2 aspect-square overflow-hidden rounded-2xl bg-leaf-50">
+            <Image
+              src={IMAGES.lunchboxSandwichFruit.src}
+              alt={IMAGES.lunchboxSandwichFruit.alt}
+              fill
+              sizes="(max-width: 640px) 45vw, 220px"
+              className="object-cover"
+            />
           </div>
 
           <div className="flex items-center justify-between px-3 py-2 text-xs text-gray-500">

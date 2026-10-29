@@ -1,11 +1,15 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import Image from "next/image";
 import AbTester from "./AbTester";
 import CardActions from "./CardActions";
 import HeroArt from "./HeroArt";
 import OverviewCards from "./OverviewCards";
 import SavedAssets from "./SavedAssets";
+import SectionBanner from "@/components/marketing/SectionBanner";
+import { CARD_MOTION, SECTION_THEME, riseDelay } from "@/components/marketing/theme";
+import { IMAGES, POST_IMAGES, SCRIPT_IMAGES, imageFor } from "@/lib/marketingImages";
 import {
   AB_TEST_NAMES,
   BRAND,
@@ -170,10 +174,11 @@ function BrandPanel() {
           Colors
         </h3>
         <div className="mt-4 grid grid-cols-2 gap-4 sm:grid-cols-4">
-          {colors.map((color) => (
+          {colors.map((color, index) => (
             <div
               key={color.hex}
-              className="overflow-hidden rounded-xl border border-leaf-100 bg-white shadow-sm"
+              style={riseDelay(index)}
+              className={`overflow-hidden rounded-2xl border border-leaf-100 bg-white shadow-sm ${CARD_MOTION}`}
             >
               <div
                 className="h-20 w-full"
@@ -291,7 +296,8 @@ function PersonaPanel() {
         {PERSONA.insights.map((insight, index) => (
           <div
             key={insight.title}
-            className="rounded-2xl border border-leaf-100 bg-white p-5 shadow-sm"
+            style={riseDelay(index)}
+            className={`rounded-3xl border border-rose-100 bg-white p-5 shadow-sm ${CARD_MOTION}`}
           >
             <div className="flex items-center gap-3">
               <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-leaf-600 text-sm font-bold text-white">
@@ -390,15 +396,57 @@ function AbTestBlock({ test }: { test: AbTest }) {
 }
 
 function LandingPanel() {
+  const splitAt = LANDING_COPY.headline.indexOf(". ");
+  const heroLead =
+    splitAt > -1
+      ? LANDING_COPY.headline.slice(0, splitAt + 1)
+      : LANDING_COPY.headline;
+  const heroAccent =
+    splitAt > -1 ? LANDING_COPY.headline.slice(splitAt + 2) : "";
+
   return (
     <div className="space-y-8">
-      <div className="rounded-2xl border border-leaf-100 bg-white p-6 shadow-sm">
-        <p className="text-xs font-bold uppercase tracking-wide text-leaf-500">
-          Main headline
-        </p>
-        <p className="font-poppins mt-2 text-2xl font-bold text-leaf-800">
-          {LANDING_COPY.headline}
-        </p>
+      <div
+        className={`grid overflow-hidden rounded-3xl border border-leaf-100 bg-white shadow-sm md:grid-cols-2 ${CARD_MOTION}`}
+      >
+        <div className="p-6 sm:p-8">
+          <p className="text-xs font-bold uppercase tracking-wide text-leaf-500">
+            Hero copy
+          </p>
+          <p className="font-poppins mt-3 text-3xl font-extrabold leading-tight text-leaf-900">
+            {heroLead}{" "}
+            {heroAccent && (
+              <span className="text-peach-500">{heroAccent}</span>
+            )}
+          </p>
+          <p className="mt-3 text-sm leading-relaxed text-leaf-700">
+            {LANDING_COPY.subheadline}
+          </p>
+          <div className="mt-5 flex flex-wrap gap-2">
+            <span className="rounded-full bg-leaf-700 px-5 py-2.5 text-sm font-bold text-white">
+              {LANDING_COPY.ctaButton}
+            </span>
+            <span className="rounded-full border-2 border-leaf-600 px-5 py-2 text-sm font-bold text-leaf-700">
+              See how it works
+            </span>
+          </div>
+        </div>
+
+        <div className="relative min-h-[14rem] bg-leaf-50">
+          <Image
+            src={IMAGES.lunchboxSandwichFruit.src}
+            alt={IMAGES.lunchboxSandwichFruit.alt}
+            fill
+            sizes="(max-width: 768px) 100vw, 50vw"
+            className="object-cover"
+          />
+          <p
+            aria-hidden="true"
+            className="font-caveat absolute left-4 top-4 max-w-[9rem] -rotate-6 rounded-xl bg-white/85 px-3 py-2 text-lg leading-tight text-leaf-700 shadow-sm"
+          >
+            Real ingredients. Real smiles.
+          </p>
+        </div>
       </div>
 
       <div className="grid gap-4 md:grid-cols-2">
@@ -427,16 +475,32 @@ function LandingPanel() {
   );
 }
 
-function PostCard({ post }: { post: SocialPost }) {
+function PostCard({ post, index = 0 }: { post: SocialPost; index?: number }) {
+  const image = imageFor(POST_IMAGES, post.id);
+
   return (
     <article
-      className={`flex flex-col rounded-2xl border bg-white p-5 shadow-sm ${CHANNEL_STYLE[post.channel].border}`}
+      style={riseDelay(index)}
+      className={`flex flex-col overflow-hidden rounded-3xl border bg-white shadow-sm ${CARD_MOTION} ${CHANNEL_STYLE[post.channel].border}`}
     >
+      <div className="relative aspect-[4/3] w-full overflow-hidden bg-leaf-50">
+        <Image
+          src={image.src}
+          alt={image.alt}
+          fill
+          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+          className="object-cover"
+        />
+        <span className="absolute left-3 top-3">
+          <ChannelPill channel={post.channel} />
+        </span>
+      </div>
+
+      <div className="flex flex-1 flex-col p-5">
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <ChannelPill channel={post.channel} />
         <span className="font-mono text-[11px] text-gray-400">{post.id}</span>
       </div>
-      <h3 className="font-poppins mt-3 font-semibold text-leaf-800">
+      <h3 className="font-poppins mt-1 font-semibold text-leaf-800">
         {post.title}
       </h3>
       <p className="mt-2 flex-1 text-sm leading-relaxed text-leaf-700">
@@ -452,7 +516,8 @@ function PostCard({ post }: { post: SocialPost }) {
           </span>
         ))}
       </div>
-      <CardActions asset={postCardAsset(post)} className="mt-3" />
+        <CardActions asset={postCardAsset(post)} className="mt-3" />
+      </div>
     </article>
   );
 }
@@ -460,21 +525,55 @@ function PostCard({ post }: { post: SocialPost }) {
 function PostsPanel() {
   return (
     <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-      {SOCIAL_POSTS.map((post) => (
-        <PostCard key={post.id} post={post} />
+      {SOCIAL_POSTS.map((post, index) => (
+        <PostCard key={post.id} post={post} index={index} />
       ))}
     </div>
   );
 }
 
-function ScriptCard({ script }: { script: VideoScript }) {
+function ScriptCard({
+  script,
+  index = 0,
+}: {
+  script: VideoScript;
+  index?: number;
+}) {
+  const image = imageFor(SCRIPT_IMAGES, script.id);
+
   return (
-    <article className="rounded-2xl border border-leaf-100 bg-leaf-50 p-6 shadow-sm">
+    <article
+      style={riseDelay(index)}
+      className={`overflow-hidden rounded-3xl border border-sky-100 bg-white shadow-sm ${CARD_MOTION}`}
+    >
+      <div className="grid gap-5 p-5 md:grid-cols-[minmax(0,18rem)_minmax(0,1fr)]">
+        <div className="relative aspect-video overflow-hidden rounded-2xl bg-leaf-50 md:aspect-auto md:min-h-[12rem]">
+          <Image
+            src={image.src}
+            alt={image.alt}
+            fill
+            sizes="(max-width: 768px) 100vw, 18rem"
+            className="object-cover"
+          />
+          <span className="absolute inset-0 flex items-center justify-center">
+            <span
+              aria-hidden="true"
+              className="flex h-12 w-12 items-center justify-center rounded-full bg-white/90 text-base text-leaf-700 shadow-md"
+            >
+              ▶
+            </span>
+          </span>
+          <span className="absolute bottom-3 right-3 rounded-full bg-gray-900/80 px-2.5 py-1 text-xs font-bold text-white">
+            {script.duration}
+          </span>
+        </div>
+
+        <div className="min-w-0">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <h3 className="font-poppins font-semibold text-leaf-800">
           {script.title}
         </h3>
-        <span className="inline-flex shrink-0 items-center gap-1 rounded-full bg-leaf-600 px-3 py-1 text-xs font-bold text-white">
+        <span className="inline-flex shrink-0 items-center gap-1 rounded-full bg-sky-100 px-3 py-1 text-xs font-bold text-sky-700">
           <span aria-hidden="true">⏱</span>
           {script.duration}
         </span>
@@ -498,7 +597,9 @@ function ScriptCard({ script }: { script: VideoScript }) {
         </div>
       )}
 
-      <CardActions asset={scriptCardAsset(script)} className="mt-4" />
+          <CardActions asset={scriptCardAsset(script)} className="mt-4" />
+        </div>
+      </div>
     </article>
   );
 }
@@ -506,8 +607,8 @@ function ScriptCard({ script }: { script: VideoScript }) {
 function ScriptsPanel() {
   return (
     <div className="space-y-6">
-      {VIDEO_SCRIPTS.map((script) => (
-        <ScriptCard key={script.id} script={script} />
+      {VIDEO_SCRIPTS.map((script, index) => (
+        <ScriptCard key={script.id} script={script} index={index} />
       ))}
     </div>
   );
@@ -522,10 +623,13 @@ const REFERENCE_TITLES: Record<ContentReference, string> = {
 
 function CalendarCard({ day }: { day: CampaignDay }) {
   return (
-    <div className="flex flex-col rounded-2xl border border-leaf-100 bg-white p-4 shadow-sm">
+    <div
+      style={riseDelay(day.day - 1)}
+      className={`flex flex-col rounded-3xl border border-rose-100 bg-white p-4 shadow-sm ${CARD_MOTION}`}
+    >
       <div className="flex items-start justify-between gap-2">
         <div className="flex items-center gap-2">
-          <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-leaf-600 text-sm font-bold text-white">
+          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-2xl bg-rose-100 text-sm font-bold text-rose-700">
             {day.day}
           </span>
           <div className="min-w-0">
@@ -756,24 +860,22 @@ export default function MarketingClient() {
           id={`panel-${activeTab}`}
           aria-labelledby={`tab-${activeTab}`}
         >
-          <div className="flex flex-wrap items-start justify-between gap-3">
-            <div>
-              <h2 className="font-poppins text-2xl font-extrabold text-leaf-900 sm:text-3xl">
-                {activeTab === "overview"
-                  ? MARKETING_PAGE_COPY.overviewHeading
-                  : active.cardTitle}
-                <span aria-hidden="true" className="ml-2 text-peach-400">
-                  ✦
-                </span>
-              </h2>
-              <p className="mt-1.5 text-sm text-leaf-600 sm:text-base">
-                {activeTab === "overview"
-                  ? MARKETING_PAGE_COPY.overviewHelp
-                  : active.summary}
-              </p>
-            </div>
-            {panelAsset && <CardActions asset={panelAsset} />}
-          </div>
+          <SectionBanner
+            key={activeTab}
+            tabId={activeTab}
+            title={
+              activeTab === "overview"
+                ? MARKETING_PAGE_COPY.overviewHeading
+                : active.cardTitle
+            }
+            subtitle={
+              activeTab === "overview"
+                ? MARKETING_PAGE_COPY.overviewHelp
+                : active.summary
+            }
+            note={BRAND.tagline}
+            actions={panelAsset ? <CardActions asset={panelAsset} /> : null}
+          />
 
           <div className="mt-6">
             {activeTab === "overview" && <OverviewCards onSelect={goToTab} />}

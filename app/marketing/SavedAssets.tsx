@@ -1,10 +1,21 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import {
+  CalendarDays,
+  FileText,
+  Image as ImageIcon,
+  Palette,
+  Plus,
+  RefreshCw,
+  Video,
+} from "lucide-react";
+import type { LucideIcon } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import { copyToClipboard } from "@/lib/clipboard";
 import { TIMED_OUT, withTimeout } from "@/lib/requestTimeout";
 import { ASSET_ACTION_COPY, SAVED_ASSETS_COPY } from "@/lib/marketingData";
+import { CARD_MOTION, riseDelay } from "@/components/marketing/theme";
 import {
   ASSET_TYPES,
   buildAssetPayload,
@@ -22,6 +33,14 @@ type SavedAsset = {
 
 const FEEDBACK_MS = 2000;
 
+const TYPE_ICON: Record<string, LucideIcon> = {
+  "Social post": ImageIcon,
+  "Video script": Video,
+  Calendar: CalendarDays,
+  Copy: FileText,
+  "Brand asset": Palette,
+};
+
 const TYPE_STYLE: Record<string, string> = {
   "Social post": "bg-peach-100 text-peach-700",
   "Video script": "bg-leaf-100 text-leaf-700",
@@ -29,6 +48,12 @@ const TYPE_STYLE: Record<string, string> = {
   Copy: "bg-yellow-100 text-yellow-800",
   "Brand asset": "bg-gray-100 text-gray-700",
 };
+
+function FolderPlusIcon() {
+  return (
+    <Plus className="h-6 w-6 text-leaf-600" strokeWidth={1.75} aria-hidden="true" />
+  );
+}
 
 function formatDate(value: string): string {
   const date = new Date(value);
@@ -40,7 +65,8 @@ function formatDate(value: string): string {
   });
 }
 
-function AssetRow({ asset }: { asset: SavedAsset }) {
+function AssetRow({ asset, index = 0 }: { asset: SavedAsset; index?: number }) {
+  const TypeIcon = TYPE_ICON[asset.asset_type] ?? FileText;
   const [expanded, setExpanded] = useState(false);
   const [copied, setCopied] = useState(false);
   const timers = useRef<ReturnType<typeof setTimeout>[]>([]);
@@ -57,9 +83,20 @@ function AssetRow({ asset }: { asset: SavedAsset }) {
   }
 
   return (
-    <li className="rounded-2xl border border-leaf-100 bg-white p-4 shadow-sm">
+    <li
+      style={riseDelay(index)}
+      className={`rounded-3xl border border-leaf-100 bg-white p-4 shadow-sm ${CARD_MOTION}`}
+    >
       <div className="flex flex-wrap items-start justify-between gap-3">
-        <div className="min-w-0 flex-1">
+        <div className="flex min-w-0 flex-1 items-start gap-3">
+          <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-peach-50">
+            <TypeIcon
+              className="h-5 w-5 text-leaf-700"
+              strokeWidth={1.75}
+              aria-hidden="true"
+            />
+          </span>
+          <div className="min-w-0">
           <p className="font-poppins break-words font-semibold text-leaf-800">
             {asset.title}
           </p>
@@ -74,6 +111,7 @@ function AssetRow({ asset }: { asset: SavedAsset }) {
             <span className="text-xs text-leaf-500">
               {formatDate(asset.created_at)}
             </span>
+          </div>
           </div>
         </div>
 
@@ -235,16 +273,21 @@ export default function SavedAssets() {
             setFormError(null);
           }}
           aria-expanded={formOpen}
-          className="rounded-full bg-peach-500 px-5 py-2.5 text-sm font-bold text-white shadow-sm transition-colors hover:bg-peach-600"
+          className="inline-flex items-center gap-2 rounded-full bg-peach-500 px-5 py-2.5 text-sm font-bold text-white shadow-sm transition-colors hover:bg-peach-600"
         >
+          {!formOpen && <Plus className="h-4 w-4" aria-hidden="true" />}
           {formOpen ? SAVED_ASSETS_COPY.cancel : SAVED_ASSETS_COPY.newAsset}
         </button>
         <button
           type="button"
           onClick={handleRefresh}
           disabled={refreshing || loading}
-          className="rounded-full border border-leaf-200 px-4 py-2 text-xs font-semibold text-leaf-700 transition-colors hover:bg-leaf-50 disabled:cursor-not-allowed disabled:opacity-60"
+          className="inline-flex items-center gap-1.5 rounded-full border border-leaf-200 px-4 py-2 text-xs font-semibold text-leaf-700 transition-colors hover:bg-leaf-50 disabled:cursor-not-allowed disabled:opacity-60"
         >
+          <RefreshCw
+            className={`h-3.5 w-3.5 ${refreshing ? "animate-spin" : ""}`}
+            aria-hidden="true"
+          />
           {refreshing ? SAVED_ASSETS_COPY.refreshing : SAVED_ASSETS_COPY.refresh}
         </button>
         {savedFlash && (
@@ -356,9 +399,9 @@ export default function SavedAssets() {
       ) : loading ? (
         <p className="text-sm text-leaf-600">{SAVED_ASSETS_COPY.loading}</p>
       ) : assets.length === 0 ? (
-        <div className="rounded-2xl border border-dashed border-leaf-200 bg-leaf-50 p-8 text-center">
-          <span className="text-3xl" aria-hidden="true">
-            💾
+        <div className="rounded-3xl border-2 border-dashed border-leaf-200 bg-leaf-50 p-10 text-center">
+          <span className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-white shadow-sm">
+            <FolderPlusIcon />
           </span>
           <p className="font-poppins mt-2 font-semibold text-leaf-800">
             {SAVED_ASSETS_COPY.empty}
@@ -369,8 +412,8 @@ export default function SavedAssets() {
         </div>
       ) : (
         <ul className="space-y-3">
-          {assets.map((asset) => (
-            <AssetRow key={asset.id} asset={asset} />
+          {assets.map((asset, index) => (
+            <AssetRow key={asset.id} asset={asset} index={index} />
           ))}
         </ul>
       )}

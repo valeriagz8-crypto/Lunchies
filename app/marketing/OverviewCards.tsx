@@ -1,6 +1,17 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import Image from "next/image";
+import {
+  ArrowRight,
+  CalendarDays,
+  FileText,
+  Image as ImageIcon,
+  Palette,
+  Plus,
+  Video,
+} from "lucide-react";
+import type { LucideIcon } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import { TIMED_OUT, withTimeout } from "@/lib/requestTimeout";
 import {
@@ -16,6 +27,12 @@ import {
   MARKETING_TABS,
   type MarketingTabId,
 } from "@/lib/marketingData";
+import { POST_IMAGES, SCRIPT_IMAGES, imageFor } from "@/lib/marketingImages";
+import {
+  CARD_MOTION,
+  SECTION_THEME,
+  riseDelay,
+} from "@/components/marketing/theme";
 import {
   calculateConversion,
   emptyTotals,
@@ -32,33 +49,15 @@ const CHANNEL_EMOJI: Record<string, string> = {
   TikTok: "🎵",
 };
 
-const POST_TILE_TINTS = [
-  "from-leaf-200 to-leaf-100",
-  "from-rose-200 to-rose-100",
-  "from-peach-200 to-peach-100",
-];
-
-type CardTint = {
-  card: string;
-  icon: string;
-};
-
-const TINTS: Record<string, CardTint> = {
-  mint: { card: "border-leaf-100 bg-leaf-50", icon: "bg-leaf-100" },
-  rose: { card: "border-rose-100 bg-rose-50", icon: "bg-rose-100" },
-  cream: { card: "border-peach-100 bg-peach-50", icon: "bg-peach-100" },
-  sky: { card: "border-sky-100 bg-sky-50", icon: "bg-sky-100" },
-};
-
 function OverviewCard({
   tabId,
-  tint,
+  index = 0,
   className = "",
   onSelect,
   children,
 }: {
   tabId: MarketingTabId;
-  tint: CardTint;
+  index?: number;
   className?: string;
   onSelect: (tabId: MarketingTabId) => void;
   children: React.ReactNode;
@@ -66,19 +65,25 @@ function OverviewCard({
   const tab = MARKETING_TABS.find((entry) => entry.id === tabId);
   if (!tab) return null;
 
-  const { icon, cardTitle: title, summary: description } = tab;
+  const { cardTitle: title, summary: description } = tab;
+  const theme = SECTION_THEME[tabId];
+  const Icon = theme.icon;
 
   return (
     <article
-      className={`flex min-w-0 flex-col overflow-hidden rounded-3xl border p-5 shadow-sm transition-shadow hover:shadow-md ${tint.card} ${className}`}
+      style={riseDelay(index)}
+      className={`flex min-w-0 flex-col overflow-hidden rounded-3xl border p-5 shadow-sm ${CARD_MOTION} ${theme.card} ${className}`}
     >
       <div className="flex items-start justify-between gap-3">
         <div className="flex min-w-0 items-start gap-3">
           <span
-            aria-hidden="true"
-            className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl text-xl ${tint.icon}`}
+            className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl ${theme.iconTint}`}
           >
-            {icon}
+            <Icon
+              className="h-5 w-5 text-leaf-700"
+              strokeWidth={1.75}
+              aria-hidden="true"
+            />
           </span>
           <div className="min-w-0">
             <h3 className="font-poppins font-bold text-leaf-900">{title}</h3>
@@ -92,9 +97,9 @@ function OverviewCard({
           type="button"
           onClick={() => onSelect(tabId)}
           aria-label={`Open ${title}`}
-          className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-white text-leaf-700 shadow-sm transition-colors hover:bg-leaf-600 hover:text-white"
+          className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-white text-leaf-700 shadow-sm transition-colors hover:bg-leaf-700 hover:text-white"
         >
-          <span aria-hidden="true">→</span>
+          <ArrowRight className="h-4 w-4" aria-hidden="true" />
         </button>
       </div>
 
@@ -245,23 +250,33 @@ function LandingPreview() {
 function PostsPreview() {
   return (
     <div className="grid flex-1 grid-cols-3 gap-2">
-      {SOCIAL_POSTS.slice(0, POST_PREVIEW_COUNT).map((post, index) => (
-        <div
-          key={post.id}
-          className={`flex min-h-[8rem] flex-col justify-between rounded-2xl bg-gradient-to-br p-2 shadow-sm ${POST_TILE_TINTS[index % POST_TILE_TINTS.length]}`}
-        >
-          <span
-            aria-hidden="true"
-            className="text-sm"
-            title={post.channel}
+      {SOCIAL_POSTS.slice(0, POST_PREVIEW_COUNT).map((post) => {
+        const image = imageFor(POST_IMAGES, post.id);
+        return (
+          <div
+            key={post.id}
+            className="relative min-h-[9rem] overflow-hidden rounded-2xl bg-leaf-50 shadow-sm"
           >
-            {CHANNEL_EMOJI[post.channel]}
-          </span>
-          <span className="rounded-lg bg-white/90 px-1.5 py-1 text-[10px] font-bold leading-tight text-leaf-900">
-            {post.title}
-          </span>
-        </div>
-      ))}
+            <Image
+              src={image.src}
+              alt={image.alt}
+              fill
+              sizes="(max-width: 1024px) 30vw, 150px"
+              className="object-cover"
+            />
+            <span
+              aria-hidden="true"
+              className="absolute left-1.5 top-1.5 rounded-md bg-white/90 px-1.5 py-0.5 text-[11px]"
+              title={post.channel}
+            >
+              {CHANNEL_EMOJI[post.channel]}
+            </span>
+            <span className="absolute inset-x-1.5 bottom-1.5 rounded-lg bg-white/90 px-1.5 py-1 text-[10px] font-bold leading-tight text-leaf-900">
+              {post.title}
+            </span>
+          </div>
+        );
+      })}
     </div>
   );
 }
@@ -270,12 +285,21 @@ function ScriptsPreview() {
   const script = VIDEO_SCRIPTS[0];
   return (
     <Panel className="flex flex-1 flex-col p-2">
-      <div className="flex min-h-[6rem] flex-1 items-center justify-center rounded-xl bg-gradient-to-br from-leaf-200 to-peach-100">
-        <span
-          aria-hidden="true"
-          className="flex h-10 w-10 items-center justify-center rounded-full bg-white/90 text-sm text-leaf-700 shadow-sm"
-        >
-          ▶
+      <div className="relative min-h-[6rem] flex-1 overflow-hidden rounded-xl bg-leaf-50">
+        <Image
+          src={imageFor(SCRIPT_IMAGES, script.id).src}
+          alt={imageFor(SCRIPT_IMAGES, script.id).alt}
+          fill
+          sizes="(max-width: 1024px) 90vw, 260px"
+          className="object-cover"
+        />
+        <span className="absolute inset-0 flex items-center justify-center">
+          <span
+            aria-hidden="true"
+            className="flex h-10 w-10 items-center justify-center rounded-full bg-white/90 text-sm text-leaf-700 shadow-md"
+          >
+            ▶
+          </span>
         </span>
       </div>
       <div className="mt-2 flex items-end justify-between gap-2 px-1 pb-1">
@@ -397,6 +421,14 @@ function AbPreview({ totals, hasData }: { totals: TestTotals; hasData: boolean }
   );
 }
 
+const TILE_ICON: Record<string, LucideIcon> = {
+  "Brand logos": Palette,
+  "Social posts": ImageIcon,
+  "Video scripts": Video,
+  "Campaign calendar": CalendarDays,
+  "Copy and captions": FileText,
+};
+
 function SavedPreview({
   onSelect,
 }: {
@@ -404,27 +436,34 @@ function SavedPreview({
 }) {
   return (
     <div className="grid flex-1 grid-cols-3 items-stretch gap-2 sm:grid-cols-6">
-      {SAVED_ASSET_TILES.map((tile) => (
-        <div
-          key={tile.label}
-          className="flex flex-col items-center gap-1.5 rounded-2xl bg-white p-2 text-center shadow-sm"
-        >
-          <span aria-hidden="true" className="text-xl">
-            {tile.icon}
-          </span>
-          <span className="text-[10px] font-medium leading-tight text-leaf-700">
-            {tile.label}
-          </span>
-        </div>
-      ))}
+      {SAVED_ASSET_TILES.map((tile) => {
+        const TileIcon = TILE_ICON[tile.label] ?? FileText;
+        return (
+          <div
+            key={tile.label}
+            className="flex flex-col items-center gap-1.5 rounded-2xl bg-white p-2.5 text-center shadow-sm"
+          >
+            <TileIcon
+              className="h-5 w-5 text-leaf-700"
+              strokeWidth={1.75}
+              aria-hidden="true"
+            />
+            <span className="text-[10px] font-medium leading-tight text-leaf-700">
+              {tile.label}
+            </span>
+          </div>
+        );
+      })}
       <button
         type="button"
         onClick={() => onSelect("saved")}
         className="flex flex-col items-center justify-center gap-1.5 rounded-2xl border-2 border-dashed border-leaf-200 p-2 text-center transition-colors hover:bg-white"
       >
-        <span aria-hidden="true" className="text-xl text-leaf-500">
-          +
-        </span>
+        <Plus
+          className="h-5 w-5 text-leaf-500"
+          strokeWidth={2}
+          aria-hidden="true"
+        />
         <span className="text-[10px] font-medium leading-tight text-leaf-700">
           {ADD_NEW_ASSET_LABEL}
         </span>
@@ -474,7 +513,7 @@ export default function OverviewCards({
     <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-12">
       <OverviewCard
         tabId="brand"
-        tint={TINTS.mint}
+        index={0}
         className="lg:col-span-4"
         onSelect={onSelect}
       >
@@ -483,7 +522,7 @@ export default function OverviewCards({
 
       <OverviewCard
         tabId="persona"
-        tint={TINTS.rose}
+        index={1}
         className="lg:col-span-4"
         onSelect={onSelect}
       >
@@ -492,7 +531,7 @@ export default function OverviewCards({
 
       <OverviewCard
         tabId="landing"
-        tint={TINTS.mint}
+        index={2}
         className="lg:col-span-4"
         onSelect={onSelect}
       >
@@ -501,7 +540,7 @@ export default function OverviewCards({
 
       <OverviewCard
         tabId="posts"
-        tint={TINTS.cream}
+        index={3}
         className="lg:col-span-5"
         onSelect={onSelect}
       >
@@ -510,7 +549,7 @@ export default function OverviewCards({
 
       <OverviewCard
         tabId="scripts"
-        tint={TINTS.sky}
+        index={4}
         className="lg:col-span-3"
         onSelect={onSelect}
       >
@@ -519,7 +558,7 @@ export default function OverviewCards({
 
       <OverviewCard
         tabId="calendar"
-        tint={TINTS.rose}
+        index={5}
         className="lg:col-span-4"
         onSelect={onSelect}
       >
@@ -528,7 +567,7 @@ export default function OverviewCards({
 
       <OverviewCard
         tabId="ab-testing"
-        tint={TINTS.mint}
+        index={6}
         className="lg:col-span-5"
         onSelect={onSelect}
       >
@@ -537,7 +576,7 @@ export default function OverviewCards({
 
       <OverviewCard
         tabId="saved"
-        tint={TINTS.cream}
+        index={7}
         className="lg:col-span-7"
         onSelect={onSelect}
       >

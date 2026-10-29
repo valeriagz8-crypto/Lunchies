@@ -33,6 +33,15 @@ const config: Config = {
           900: "#7d3513",
         },
       },
+      keyframes: {
+        rise: {
+          "0%": { opacity: "0", transform: "translateY(12px)" },
+          "100%": { opacity: "1", transform: "translateY(0)" },
+        },
+      },
+      animation: {
+        rise: "rise 0.45s ease-out both",
+      },
       fontFamily: {
         // Brand fonts, opted into per page via font-inter / font-poppins so the
         // default sans stack below stays untouched.

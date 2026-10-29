@@ -26,6 +26,8 @@ export type SectionTheme = {
   iconTint: string;
   /** Accent used for chips and small highlights. */
   chip: string;
+  /** Pastel background for the whole section body. */
+  panel: string;
 };
 
 export const SECTION_THEME: Record<MarketingTabId, SectionTheme> = {
@@ -35,6 +37,7 @@ export const SECTION_THEME: Record<MarketingTabId, SectionTheme> = {
     card: "border-leaf-100 bg-leaf-50",
     iconTint: "bg-leaf-100",
     chip: "bg-leaf-100 text-leaf-700",
+    panel: "bg-leaf-50/60",
   },
   brand: {
     icon: Palette,
@@ -42,6 +45,7 @@ export const SECTION_THEME: Record<MarketingTabId, SectionTheme> = {
     card: "border-leaf-100 bg-leaf-50",
     iconTint: "bg-leaf-100",
     chip: "bg-leaf-100 text-leaf-700",
+    panel: "bg-leaf-50",
   },
   persona: {
     icon: Users,
@@ -49,6 +53,7 @@ export const SECTION_THEME: Record<MarketingTabId, SectionTheme> = {
     card: "border-rose-100 bg-rose-50",
     iconTint: "bg-rose-100",
     chip: "bg-rose-100 text-rose-700",
+    panel: "bg-rose-50",
   },
   landing: {
     icon: FileText,
@@ -56,6 +61,7 @@ export const SECTION_THEME: Record<MarketingTabId, SectionTheme> = {
     card: "border-leaf-100 bg-leaf-50",
     iconTint: "bg-leaf-100",
     chip: "bg-leaf-100 text-leaf-700",
+    panel: "bg-leaf-50/60",
   },
   posts: {
     icon: Camera,
@@ -63,6 +69,7 @@ export const SECTION_THEME: Record<MarketingTabId, SectionTheme> = {
     card: "border-peach-100 bg-peach-50",
     iconTint: "bg-peach-100",
     chip: "bg-peach-100 text-peach-700",
+    panel: "bg-peach-50/60",
   },
   scripts: {
     icon: Video,
@@ -70,6 +77,7 @@ export const SECTION_THEME: Record<MarketingTabId, SectionTheme> = {
     card: "border-sky-100 bg-sky-50",
     iconTint: "bg-sky-100",
     chip: "bg-sky-100 text-sky-700",
+    panel: "bg-sky-50/60",
   },
   calendar: {
     icon: CalendarDays,
@@ -77,6 +85,7 @@ export const SECTION_THEME: Record<MarketingTabId, SectionTheme> = {
     card: "border-rose-100 bg-rose-50",
     iconTint: "bg-rose-100",
     chip: "bg-rose-100 text-rose-700",
+    panel: "bg-rose-50",
   },
   "ab-testing": {
     icon: BarChart3,
@@ -84,6 +93,7 @@ export const SECTION_THEME: Record<MarketingTabId, SectionTheme> = {
     card: "border-leaf-100 bg-leaf-50",
     iconTint: "bg-leaf-100",
     chip: "bg-leaf-100 text-leaf-700",
+    panel: "bg-leaf-50",
   },
   saved: {
     icon: FolderOpen,
@@ -91,6 +101,7 @@ export const SECTION_THEME: Record<MarketingTabId, SectionTheme> = {
     card: "border-peach-100 bg-peach-50",
     iconTint: "bg-amber-100",
     chip: "bg-amber-100 text-amber-800",
+    panel: "bg-amber-50",
   },
 };
 

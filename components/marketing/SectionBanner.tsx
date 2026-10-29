@@ -49,7 +49,17 @@ export default function SectionBanner({
           </div>
         </div>
 
-        {actions}
+        <div className="flex flex-col items-end gap-3">
+          {actions}
+          {note && (
+            <p
+              aria-hidden="true"
+              className="font-caveat hidden max-w-[12rem] -rotate-3 text-right text-xl leading-tight text-leaf-600/90 lg:block"
+            >
+              {note}
+            </p>
+          )}
+        </div>
       </div>
 
       {/* Decoration */}
@@ -57,14 +67,6 @@ export default function SectionBanner({
         aria-hidden="true"
         className="pointer-events-none absolute -right-6 -top-8 hidden h-40 w-40 rounded-full bg-white/40 blur-xl lg:block"
       />
-      {note && (
-        <p
-          aria-hidden="true"
-          className="font-caveat pointer-events-none absolute right-8 top-6 hidden max-w-[11rem] -rotate-6 text-xl leading-tight text-leaf-600/80 xl:block"
-        >
-          {note}
-        </p>
-      )}
     </div>
   );
 }

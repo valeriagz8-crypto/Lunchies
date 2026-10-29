@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { RefreshCw } from "lucide-react";
+import { BookOpen, RefreshCw } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import { REQUEST_TIMEOUT_MS, TIMED_OUT, withTimeout } from "@/lib/requestTimeout";
 import {
@@ -10,7 +10,9 @@ import {
   type AbTest,
   type AbTestName,
 } from "@/lib/marketingData";
-import { CARD_MOTION, riseDelay } from "@/components/marketing/theme";
+import { CARD_MOTION, SECTION_THEME, riseDelay } from "@/components/marketing/theme";
+import { Photo, SectionPanel, StickyNote } from "@/components/marketing/pieces";
+import { IMAGES } from "@/lib/marketingImages";
 import {
   VARIANTS,
   calculateConversion,
@@ -29,6 +31,13 @@ import {
  * so the guard lives outside the component.
  */
 const viewedTests = new Set<AbTestName>();
+
+const VARIANT_PHOTO: Record<string, (typeof IMAGES)[keyof typeof IMAGES]> = {
+  "priority-A": IMAGES.freshProduce,
+  "priority-B": IMAGES.lunchboxSandwichFruit,
+  "time-A": IMAGES.lunchboxRiceVeggies,
+  "time-B": IMAGES.bentoTray,
+};
 
 const VARIANT_STYLE: Record<
   Variant,
@@ -289,29 +298,35 @@ function AbTestPanel({ test }: { test: AbTest }) {
           {testName}
         </span>
       </div>
-      <p className="mt-2 text-sm text-leaf-600">{test.hypothesis}</p>
+      <div className="mt-4 grid gap-3 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]">
+        <StickyNote tone="mint" className="text-lg sm:text-xl">
+          {test.hypothesis}
+        </StickyNote>
 
-      <p className="mt-3 rounded-xl border border-leaf-100 bg-leaf-50 p-3 text-xs leading-relaxed text-leaf-700">
-        <span className="font-semibold">{AB_TESTER_COPY.sourceLabel}:</span>{" "}
-        {test.source.text}{" "}
-        <a
-          href={test.source.url}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="break-words font-semibold text-leaf-700 underline underline-offset-2 transition-colors hover:text-peach-600"
-        >
-          {test.source.url}
-        </a>
-        {test.note && (
-          <>
-            <br />
-            <span className="font-semibold">
-              {AB_TESTER_COPY.noteLabel}:
-            </span>{" "}
-            {test.note}
-          </>
-        )}
-      </p>
+        <div className="rounded-2xl border border-leaf-100 bg-white p-4">
+          <p className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-wide text-leaf-500">
+            <BookOpen className="h-4 w-4" strokeWidth={1.75} aria-hidden="true" />
+            {AB_TESTER_COPY.sourceLabel}
+          </p>
+          <p className="mt-1.5 text-xs leading-relaxed text-leaf-700">
+            {test.source.text}
+          </p>
+          <a
+            href={test.source.url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="mt-2 inline-block break-words text-xs font-semibold text-leaf-700 underline underline-offset-2 transition-colors hover:text-peach-600"
+          >
+            {test.source.url}
+          </a>
+          {test.note && (
+            <p className="mt-2 rounded-xl bg-peach-50 px-3 py-2 text-xs text-peach-800">
+              <span className="font-semibold">{AB_TESTER_COPY.noteLabel}:</span>{" "}
+              {test.note}
+            </p>
+          )}
+        </div>
+      </div>
 
       <p className="font-poppins mt-5 text-center text-base font-semibold text-leaf-800">
         {test.question}
@@ -330,10 +345,21 @@ function AbTestPanel({ test }: { test: AbTest }) {
           return (
             <div
               key={variant.id}
-              className={`flex flex-col rounded-2xl border p-5 shadow-sm ${style.card} ${
+              className={`flex flex-col overflow-hidden rounded-3xl border shadow-sm ${style.card} ${
                 isChosen ? "ring-2 ring-leaf-500" : ""
               }`}
             >
+              <Photo
+                image={
+                  VARIANT_PHOTO[`${testName}-${variant.id}`] ??
+                  IMAGES.lunchboxSandwichFruit
+                }
+                sizes="(max-width: 640px) 90vw, 320px"
+                className="h-32 w-full"
+                rounded="rounded-none"
+              />
+
+              <div className="flex flex-1 flex-col p-5">
               <div className="flex items-center justify-between gap-2">
                 <span
                   className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-sm font-bold text-white ${style.badge}`}
@@ -350,7 +376,7 @@ function AbTestPanel({ test }: { test: AbTest }) {
               <p className="mt-3 text-[11px] font-bold uppercase tracking-wide text-leaf-500">
                 {variant.label}
               </p>
-              <p className="font-poppins mt-1 text-xl font-bold text-leaf-800">
+              <p className="font-poppins mt-1 text-2xl font-extrabold leading-tight text-leaf-900">
                 {variant.text}
               </p>
 
@@ -373,6 +399,7 @@ function AbTestPanel({ test }: { test: AbTest }) {
                   ? AB_TESTER_COPY.yourPick
                   : `${AB_TESTER_COPY.pick} ${variant.id}`}
               </button>
+              </div>
             </div>
           );
         })}
@@ -447,13 +474,16 @@ function AbTestPanel({ test }: { test: AbTest }) {
 
 export default function AbTester() {
   return (
-    <div className="space-y-6">
+    <SectionPanel
+      tint={SECTION_THEME["ab-testing"].panel}
+      className="space-y-6"
+    >
       <p className="text-sm text-leaf-700">{AB_TESTER_COPY.intro}</p>
       {LANDING_COPY.tests.map((test, index) => (
         <div key={test.testName} style={riseDelay(index)}>
           <AbTestPanel test={test} />
         </div>
       ))}
-    </div>
+    </SectionPanel>
   );
 }

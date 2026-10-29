@@ -15,7 +15,9 @@ import { supabase } from "@/lib/supabase";
 import { copyToClipboard } from "@/lib/clipboard";
 import { TIMED_OUT, withTimeout } from "@/lib/requestTimeout";
 import { ASSET_ACTION_COPY, SAVED_ASSETS_COPY } from "@/lib/marketingData";
-import { CARD_MOTION, riseDelay } from "@/components/marketing/theme";
+import { CARD_MOTION, SECTION_THEME, riseDelay } from "@/components/marketing/theme";
+import { Photo, SectionPanel, StickyNote } from "@/components/marketing/pieces";
+import { IMAGES } from "@/lib/marketingImages";
 import {
   ASSET_TYPES,
   buildAssetPayload,
@@ -39,6 +41,14 @@ const TYPE_ICON: Record<string, LucideIcon> = {
   Calendar: CalendarDays,
   Copy: FileText,
   "Brand asset": Palette,
+};
+
+const TYPE_PHOTO: Record<string, (typeof IMAGES)[keyof typeof IMAGES]> = {
+  "Social post": IMAGES.bentoTray,
+  "Video script": IMAGES.produceFlatlay,
+  Calendar: IMAGES.lunchboxRiceVeggies,
+  Copy: IMAGES.lunchboxSandwichFruit,
+  "Brand asset": IMAGES.freshProduce,
 };
 
 const TYPE_STYLE: Record<string, string> = {
@@ -65,8 +75,15 @@ function formatDate(value: string): string {
   });
 }
 
-function AssetRow({ asset, index = 0 }: { asset: SavedAsset; index?: number }) {
+function AssetTile({
+  asset,
+  index = 0,
+}: {
+  asset: SavedAsset;
+  index?: number;
+}) {
   const TypeIcon = TYPE_ICON[asset.asset_type] ?? FileText;
+  const photo = TYPE_PHOTO[asset.asset_type] ?? IMAGES.lunchboxSandwichFruit;
   const [expanded, setExpanded] = useState(false);
   const [copied, setCopied] = useState(false);
   const timers = useRef<ReturnType<typeof setTimeout>[]>([]);
@@ -85,37 +102,46 @@ function AssetRow({ asset, index = 0 }: { asset: SavedAsset; index?: number }) {
   return (
     <li
       style={riseDelay(index)}
-      className={`rounded-3xl border border-leaf-100 bg-white p-4 shadow-sm ${CARD_MOTION}`}
+      className={`flex flex-col overflow-hidden rounded-3xl bg-white shadow-sm ${CARD_MOTION}`}
     >
-      <div className="flex flex-wrap items-start justify-between gap-3">
-        <div className="flex min-w-0 flex-1 items-start gap-3">
-          <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-peach-50">
-            <TypeIcon
-              className="h-5 w-5 text-leaf-700"
-              strokeWidth={1.75}
-              aria-hidden="true"
-            />
-          </span>
-          <div className="min-w-0">
-          <p className="font-poppins break-words font-semibold text-leaf-800">
-            {asset.title}
-          </p>
-          <div className="mt-1.5 flex flex-wrap items-center gap-2">
-            <span
-              className={`inline-block rounded-full px-2.5 py-1 text-xs font-medium ${
-                TYPE_STYLE[asset.asset_type] ?? "bg-gray-100 text-gray-700"
-              }`}
-            >
-              {asset.asset_type}
-            </span>
-            <span className="text-xs text-leaf-500">
-              {formatDate(asset.created_at)}
-            </span>
-          </div>
-          </div>
-        </div>
+      <div className="relative">
+        <Photo
+          image={photo}
+          sizes="(max-width: 640px) 90vw, (max-width: 1024px) 45vw, 280px"
+          className="h-28 w-full"
+          rounded="rounded-none"
+        />
+        <span className="absolute left-3 top-3 flex h-9 w-9 items-center justify-center rounded-2xl bg-white/95 shadow-sm">
+          <TypeIcon
+            className="h-4 w-4 text-leaf-700"
+            strokeWidth={1.75}
+            aria-hidden="true"
+          />
+        </span>
+        <span
+          className={`absolute right-3 top-3 rounded-full px-2.5 py-1 text-[11px] font-semibold shadow-sm ${
+            TYPE_STYLE[asset.asset_type] ?? "bg-white text-gray-700"
+          }`}
+        >
+          {asset.asset_type}
+        </span>
+      </div>
 
-        <div className="flex flex-wrap items-center gap-2">
+      <div className="flex flex-1 flex-col p-4">
+        <p className="font-poppins break-words font-bold text-leaf-900">
+          {asset.title}
+        </p>
+        <p className="mt-1 text-xs text-leaf-500">
+          {formatDate(asset.created_at)}
+        </p>
+
+        {expanded && (
+          <pre className="mt-3 max-h-56 overflow-auto whitespace-pre-wrap break-words rounded-2xl bg-leaf-50 p-3 font-inter text-xs text-leaf-800">
+            {asset.content}
+          </pre>
+        )}
+
+        <div className="mt-4 flex flex-wrap gap-2">
           <button
             type="button"
             onClick={() => setExpanded((open) => !open)}
@@ -140,12 +166,26 @@ function AssetRow({ asset, index = 0 }: { asset: SavedAsset; index?: number }) {
           </button>
         </div>
       </div>
+    </li>
+  );
+}
 
-      {expanded && (
-        <pre className="mt-3 whitespace-pre-wrap break-words rounded-xl border border-leaf-100 bg-leaf-50 p-4 font-inter text-sm text-leaf-800">
-          {asset.content}
-        </pre>
-      )}
+/** The dashed tile that opens the form, mirroring the Overview card. */
+function AddAssetTile({ onClick }: { onClick: () => void }) {
+  return (
+    <li>
+      <button
+        type="button"
+        onClick={onClick}
+        className="flex h-full min-h-[14rem] w-full flex-col items-center justify-center gap-3 rounded-3xl border-2 border-dashed border-leaf-300 bg-white/60 p-6 text-center transition-colors hover:bg-white"
+      >
+        <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-leaf-100">
+          <Plus className="h-5 w-5 text-leaf-700" aria-hidden="true" />
+        </span>
+        <span className="font-poppins text-sm font-bold text-leaf-800">
+          {SAVED_ASSETS_COPY.newAsset}
+        </span>
+      </button>
     </li>
   );
 }
@@ -262,8 +302,15 @@ export default function SavedAssets() {
   }
 
   return (
-    <div className="space-y-5">
-      <p className="text-sm text-leaf-700">{SAVED_ASSETS_COPY.intro}</p>
+    <SectionPanel tint={SECTION_THEME.saved.panel} className="space-y-5">
+      <div className="flex flex-wrap items-center justify-between gap-4">
+        <p className="max-w-xl text-sm text-leaf-700">
+          {SAVED_ASSETS_COPY.intro}
+        </p>
+        <StickyNote tone="cream" className="hidden text-lg lg:block">
+          Save it once, reuse it all month.
+        </StickyNote>
+      </div>
 
       <div className="flex flex-wrap items-center gap-3">
         <button
@@ -301,9 +348,9 @@ export default function SavedAssets() {
         <form
           onSubmit={handleSubmit}
           noValidate
-          className="rounded-2xl border border-leaf-100 bg-leaf-50 p-5 shadow-sm"
+          className="rounded-3xl border border-leaf-100 bg-white p-6 shadow-sm"
         >
-          <h3 className="font-poppins text-base font-semibold text-leaf-700">
+          <h3 className="font-poppins text-base font-bold text-leaf-900">
             {SAVED_ASSETS_COPY.formHeading}
           </h3>
 
@@ -399,24 +446,48 @@ export default function SavedAssets() {
       ) : loading ? (
         <p className="text-sm text-leaf-600">{SAVED_ASSETS_COPY.loading}</p>
       ) : assets.length === 0 ? (
-        <div className="rounded-3xl border-2 border-dashed border-leaf-200 bg-leaf-50 p-10 text-center">
-          <span className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-white shadow-sm">
-            <FolderPlusIcon />
-          </span>
-          <p className="font-poppins mt-2 font-semibold text-leaf-800">
-            {SAVED_ASSETS_COPY.empty}
-          </p>
-          <p className="mt-1 text-sm text-leaf-600">
-            {SAVED_ASSETS_COPY.emptyHint}
-          </p>
+        <div className="grid items-center gap-6 rounded-3xl bg-white p-8 shadow-sm sm:grid-cols-[minmax(0,1fr)_minmax(0,0.8fr)]">
+          <div>
+            <span className="flex h-14 w-14 items-center justify-center rounded-2xl bg-amber-100 shadow-sm">
+              <FolderPlusIcon />
+            </span>
+            <p className="font-poppins mt-4 text-xl font-extrabold text-leaf-900">
+              {SAVED_ASSETS_COPY.empty}
+            </p>
+            <p className="mt-1.5 text-sm text-leaf-700">
+              {SAVED_ASSETS_COPY.emptyHint}
+            </p>
+            <button
+              type="button"
+              onClick={() => setFormOpen(true)}
+              className="mt-5 inline-flex items-center gap-2 rounded-full bg-peach-500 px-5 py-2.5 text-sm font-bold text-white shadow-sm transition-colors hover:bg-peach-600"
+            >
+              <Plus className="h-4 w-4" aria-hidden="true" />
+              {SAVED_ASSETS_COPY.newAsset}
+            </button>
+          </div>
+
+          <div className="grid grid-cols-2 gap-3">
+            <Photo
+              image={IMAGES.bentoTray}
+              sizes="(max-width: 640px) 45vw, 200px"
+              className="min-h-[7rem]"
+            />
+            <Photo
+              image={IMAGES.freshProduce}
+              sizes="(max-width: 640px) 45vw, 200px"
+              className="min-h-[7rem]"
+            />
+          </div>
         </div>
       ) : (
-        <ul className="space-y-3">
+        <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {assets.map((asset, index) => (
-            <AssetRow key={asset.id} asset={asset} index={index} />
+            <AssetTile key={asset.id} asset={asset} index={index} />
           ))}
+          <AddAssetTile onClick={() => setFormOpen(true)} />
         </ul>
       )}
-    </div>
+    </SectionPanel>
   );
 }

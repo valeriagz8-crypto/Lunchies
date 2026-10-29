@@ -8,6 +8,12 @@ import HeroArt from "./HeroArt";
 import OverviewCards from "./OverviewCards";
 import SavedAssets from "./SavedAssets";
 import SectionBanner from "@/components/marketing/SectionBanner";
+import {
+  PersonaAvatar,
+  Photo,
+  SectionPanel,
+  StickyNote,
+} from "@/components/marketing/pieces";
 import { CARD_MOTION, SECTION_THEME, riseDelay } from "@/components/marketing/theme";
 import { IMAGES, POST_IMAGES, SCRIPT_IMAGES, imageFor } from "@/lib/marketingImages";
 import {
@@ -157,161 +163,254 @@ function Beat({ label, text }: { label: string; text: string }) {
 function BrandPanel() {
   const colors = Object.values(BRAND.colors);
   const fonts = [BRAND.fonts.headings, BRAND.fonts.text];
+  const strip = [
+    IMAGES.lunchboxSandwichFruit,
+    IMAGES.freshProduce,
+    IMAGES.fruitPlate,
+    IMAGES.vegetablesCloseup,
+  ];
 
   return (
-    <div className="space-y-8">
-      <div className="rounded-2xl border border-peach-100 bg-peach-50 p-6 text-center shadow-sm">
-        <p className="text-xs font-bold uppercase tracking-wide text-peach-600">
-          Tagline
-        </p>
-        <p className="font-poppins mt-2 text-2xl font-bold text-leaf-700 sm:text-3xl">
-          {BRAND.tagline}
-        </p>
+    <SectionPanel tint={SECTION_THEME.brand.panel} className="space-y-5">
+      {/* Logo showcase */}
+      <div className="grid gap-5 lg:grid-cols-[minmax(0,1.3fr)_minmax(0,1fr)]">
+        <div
+          className={`flex flex-col items-center justify-center rounded-3xl bg-white px-6 py-10 text-center shadow-sm ${CARD_MOTION}`}
+        >
+          <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-leaf-500">
+            Primary logo
+          </p>
+          <p className="font-poppins mt-4 flex items-center gap-3 text-4xl font-extrabold text-leaf-700 sm:text-5xl">
+            {BRAND.name}
+            <span aria-hidden="true">🍎</span>
+          </p>
+          <p className="mt-2 text-sm text-leaf-600">{BRAND.tagline}</p>
+
+          <div className="mt-7 grid w-full grid-cols-3 gap-3">
+            <span className="font-poppins rounded-2xl bg-leaf-50 py-3 text-sm font-bold text-leaf-700">
+              Lunchies
+            </span>
+            <span className="font-poppins rounded-2xl bg-leaf-700 py-3 text-sm font-bold text-white">
+              Lunchies
+            </span>
+            <span className="font-poppins rounded-2xl bg-peach-100 py-3 text-sm font-bold text-peach-700">
+              Lunchies
+            </span>
+          </div>
+          <p className="mt-2 text-[11px] text-leaf-500">Logo variations</p>
+        </div>
+
+        <div className="flex flex-col gap-5">
+          <StickyNote tone="cream" className={CARD_MOTION}>
+            {BRAND.tagline}
+            <span aria-hidden="true"> 🍏</span>
+          </StickyNote>
+
+          {/* Food photo collage */}
+          <div className="grid flex-1 grid-cols-2 gap-3">
+            {strip.map((image, index) => (
+              <Photo
+                key={image.src}
+                image={image}
+                sizes="(max-width: 1024px) 45vw, 200px"
+                className={`min-h-[6.5rem] ${CARD_MOTION}`}
+                rounded={index % 3 === 0 ? "rounded-[1.75rem]" : "rounded-2xl"}
+              />
+            ))}
+          </div>
+        </div>
       </div>
 
-      <div className="rounded-2xl border border-leaf-100 bg-leaf-50 p-6 shadow-sm">
-        <h3 className="font-poppins text-base font-semibold text-leaf-700">
-          Colors
+      {/* Colors */}
+      <div className={`rounded-3xl bg-white p-6 shadow-sm ${CARD_MOTION}`}>
+        <h3 className="font-poppins text-base font-bold text-leaf-900">
+          Color palette
         </h3>
-        <div className="mt-4 grid grid-cols-2 gap-4 sm:grid-cols-4">
+        <div className="mt-5 grid grid-cols-2 gap-5 sm:grid-cols-4">
           {colors.map((color, index) => (
             <div
               key={color.hex}
               style={riseDelay(index)}
-              className={`overflow-hidden rounded-2xl border border-leaf-100 bg-white shadow-sm ${CARD_MOTION}`}
+              className="animate-rise flex flex-col items-center text-center"
             >
-              <div
-                className="h-20 w-full"
-                style={{ backgroundColor: color.hex }}
+              <span
                 aria-hidden="true"
+                className="h-20 w-20 rounded-full shadow-md ring-4 ring-white"
+                style={{ backgroundColor: color.hex }}
               />
-              <div className="p-3">
-                <p className="text-sm font-semibold text-leaf-800">
-                  {color.name}
-                </p>
-                <p className="mt-0.5 font-mono text-xs uppercase text-leaf-600">
-                  {color.hex}
-                </p>
-                <p className="mt-2 text-[11px] text-gray-500">
-                  {color.tailwind}
-                </p>
-                <p className="mt-2 text-xs text-leaf-700">{color.usage}</p>
-              </div>
+              <p className="mt-3 text-sm font-bold text-leaf-800">
+                {color.name}
+              </p>
+              <p className="font-mono text-xs uppercase text-leaf-600">
+                {color.hex}
+              </p>
+              <p className="mt-1 text-[11px] text-gray-500">{color.tailwind}</p>
             </div>
           ))}
         </div>
       </div>
 
-      <div className="rounded-2xl border border-leaf-100 bg-white p-6 shadow-sm">
-        <h3 className="font-poppins text-base font-semibold text-leaf-700">
-          Fonts
-        </h3>
-        <div className="mt-4 grid gap-4 sm:grid-cols-2">
-          {fonts.map((font) => (
-            <div
-              key={font.family}
-              className="rounded-xl border border-leaf-100 bg-leaf-50 p-5"
-            >
-              <p className="text-xs font-bold uppercase tracking-wide text-leaf-500">
-                {font.role}
-              </p>
-              <p
-                className={`${FONT_CLASS[font.role]} mt-1 text-2xl font-semibold text-leaf-800`}
-              >
-                {font.family}
-              </p>
-              <p
-                className={`${FONT_CLASS[font.role]} mt-2 text-sm text-leaf-700`}
-              >
-                {BRAND.tagline}
-              </p>
-              <div className="mt-3 flex flex-wrap gap-1.5">
-                {font.weights.map((weight) => (
-                  <Chip key={weight}>{weight}</Chip>
-                ))}
-              </div>
-              <p className="mt-3 break-words text-[11px] text-gray-500">
-                {font.fallback}
-              </p>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      <div className="rounded-2xl border border-leaf-100 bg-leaf-50 p-6 shadow-sm">
-        <h3 className="font-poppins text-base font-semibold text-leaf-700">
-          Brand voice
-        </h3>
-        <div className="mt-4 grid gap-4 sm:grid-cols-2">
-          {BRAND.voice.map((voice) => (
-            <div
-              key={voice.word}
-              className="rounded-xl border border-leaf-100 bg-white p-5"
-            >
-              <div className="flex items-center gap-2">
-                <span className="text-xl" aria-hidden="true">
-                  {VOICE_ICON[voice.word] ?? "💬"}
-                </span>
-                <p className="font-poppins font-semibold text-leaf-800">
-                  {voice.word}
-                </p>
-              </div>
-              <p className="mt-2 text-sm text-leaf-700">{voice.meaning}</p>
-              <p className="mt-2 text-xs text-leaf-600">{voice.soundsLike}</p>
-            </div>
-          ))}
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function PersonaPanel() {
-  return (
-    <div className="space-y-8">
-      <div className="rounded-2xl border border-leaf-100 bg-leaf-50 p-6 shadow-sm">
-        <div className="flex flex-wrap items-center gap-3">
-          <span
-            className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-white text-2xl shadow-sm"
-            aria-hidden="true"
-          >
-            👩‍👧
-          </span>
-          <div>
-            <h3 className="font-poppins text-lg font-bold text-leaf-800">
-              {PERSONA.name}
-            </h3>
-            <div className="mt-1 flex flex-wrap gap-1.5">
-              <Chip>{PERSONA.ageRange}</Chip>
-              <Chip tone="peach">{PERSONA.location}</Chip>
-            </div>
-          </div>
-        </div>
-        <p className="mt-4 text-sm leading-relaxed text-leaf-700">
-          {PERSONA.description}
-        </p>
-      </div>
-
-      <div className="grid gap-4 sm:grid-cols-2">
-        {PERSONA.insights.map((insight, index) => (
+      {/* Typography */}
+      <div className="grid gap-5 sm:grid-cols-2">
+        {fonts.map((font, index) => (
           <div
-            key={insight.title}
+            key={font.family}
             style={riseDelay(index)}
-            className={`rounded-3xl border border-rose-100 bg-white p-5 shadow-sm ${CARD_MOTION}`}
+            className={`rounded-3xl bg-white p-6 shadow-sm ${CARD_MOTION}`}
           >
-            <div className="flex items-center gap-3">
-              <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-leaf-600 text-sm font-bold text-white">
-                {index + 1}
-              </span>
-              <p className="font-poppins font-semibold text-leaf-800">
-                {insight.title}
-              </p>
+            <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-leaf-500">
+              {font.role}
+            </p>
+            <p
+              className={`${FONT_CLASS[font.role]} mt-2 text-6xl font-bold leading-none text-leaf-800`}
+            >
+              Aa
+            </p>
+            <p className="font-poppins mt-3 text-lg font-bold text-leaf-900">
+              {font.family}
+            </p>
+            <p className={`${FONT_CLASS[font.role]} mt-1 text-sm text-leaf-700`}>
+              {BRAND.tagline}
+            </p>
+            <div className="mt-3 flex flex-wrap gap-1.5">
+              {font.weights.map((weight) => (
+                <Chip key={weight}>{weight}</Chip>
+              ))}
             </div>
-            <p className="mt-2 text-sm text-leaf-700">{insight.detail}</p>
           </div>
         ))}
       </div>
-    </div>
+
+      {/* Brand voice */}
+      <div className={`rounded-3xl bg-white p-6 shadow-sm ${CARD_MOTION}`}>
+        <h3 className="font-poppins text-base font-bold text-leaf-900">
+          Brand voice
+        </h3>
+        <div className="mt-4 flex flex-wrap gap-2">
+          {BRAND.voice.map((voice, index) => (
+            <span
+              key={voice.word}
+              className={`rounded-full px-4 py-2 text-sm font-bold ${
+                [
+                  "bg-leaf-100 text-leaf-700",
+                  "bg-peach-100 text-peach-700",
+                  "bg-rose-100 text-rose-700",
+                  "bg-sky-100 text-sky-700",
+                ][index % 4]
+              }`}
+            >
+              {VOICE_ICON[voice.word] ?? "💬"} {voice.word}
+            </span>
+          ))}
+        </div>
+        <div className="mt-5 grid gap-4 sm:grid-cols-2">
+          {BRAND.voice.map((voice, index) => (
+            <div
+              key={voice.word}
+              style={riseDelay(index)}
+              className="animate-rise rounded-2xl bg-leaf-50 p-4"
+            >
+              <p className="font-poppins font-semibold text-leaf-800">
+                {voice.word}
+              </p>
+              <p className="mt-1.5 text-sm text-leaf-700">{voice.meaning}</p>
+              <p className="mt-1 text-xs text-leaf-600">{voice.soundsLike}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+    </SectionPanel>
+  );
+}
+
+const INSIGHT_ICON = ["🥗", "⏱️", "✨", "🌈"];
+
+function PersonaPanel() {
+  return (
+    <SectionPanel tint={SECTION_THEME.persona.panel} className="space-y-5">
+      {/* Persona card */}
+      <div
+        className={`grid gap-6 rounded-3xl bg-white p-6 shadow-sm sm:p-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,0.8fr)] ${CARD_MOTION}`}
+      >
+        <div className="flex flex-col gap-5 sm:flex-row sm:items-start">
+          <PersonaAvatar className="h-28 w-28 shrink-0 rounded-full shadow-sm" />
+
+          <div className="min-w-0">
+            <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-rose-500">
+              Primary persona
+            </p>
+            <h3 className="font-poppins mt-2 text-2xl font-extrabold text-leaf-900 sm:text-3xl">
+              {PERSONA.name}
+            </h3>
+            <div className="mt-2 flex flex-wrap gap-2">
+              <span className="rounded-full bg-rose-100 px-3 py-1 text-xs font-semibold text-rose-700">
+                {PERSONA.ageRange} years old
+              </span>
+              <span className="rounded-full bg-leaf-100 px-3 py-1 text-xs font-semibold text-leaf-700">
+                {PERSONA.location}
+              </span>
+            </div>
+            <p className="mt-4 text-sm leading-relaxed text-leaf-700">
+              {PERSONA.description}
+            </p>
+          </div>
+        </div>
+
+        {/* Food accent */}
+        <div className="grid grid-cols-2 gap-3 lg:grid-cols-1">
+          <Photo
+            image={IMAGES.lunchboxSaladBlue}
+            sizes="(max-width: 1024px) 45vw, 260px"
+            className="min-h-[8rem]"
+          />
+          <Photo
+            image={IMAGES.fruitPlate}
+            sizes="(max-width: 1024px) 45vw, 260px"
+            className="min-h-[8rem]"
+          />
+        </div>
+      </div>
+
+      {/* What matters to them */}
+      <div>
+        <h3 className="font-poppins px-1 text-base font-bold text-leaf-900">
+          What matters to them
+        </h3>
+        <div className="mt-4 grid gap-4 sm:grid-cols-2">
+          {PERSONA.insights.map((insight, index) => (
+            <div
+              key={insight.title}
+              style={riseDelay(index)}
+              className={`flex gap-4 rounded-3xl bg-white p-5 shadow-sm ${CARD_MOTION}`}
+            >
+              <span
+                aria-hidden="true"
+                className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl text-xl ${
+                  [
+                    "bg-leaf-100",
+                    "bg-peach-100",
+                    "bg-rose-100",
+                    "bg-sky-100",
+                  ][index % 4]
+                }`}
+              >
+                {INSIGHT_ICON[index % INSIGHT_ICON.length]}
+              </span>
+              <div className="min-w-0">
+                <p className="font-poppins font-bold text-leaf-900">
+                  {insight.title}
+                </p>
+                <p className="mt-1.5 text-sm text-leaf-700">{insight.detail}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <StickyNote tone="rose" className={`max-w-md ${CARD_MOTION}`}>
+        Write for the parent packing lunch at 7am, not for the brand.
+      </StickyNote>
+    </SectionPanel>
   );
 }
 
@@ -621,37 +720,77 @@ const REFERENCE_TITLES: Record<ContentReference, string> = {
   ),
 } as Record<ContentReference, string>;
 
+const CONTENT_TYPE_ICON: Record<string, string> = {
+  Carousel: "🖼️",
+  Reel: "🎞️",
+  Story: "⚡",
+  "Short video": "🎬",
+  "Static post": "📌",
+  Poll: "📊",
+  "Q&A": "💬",
+};
+
+// Every card gets a photo so the rows line up; the set rotates for variety.
+const CALENDAR_PHOTOS = [
+  IMAGES.lunchboxSandwichFruit,
+  IMAGES.produceFlatlay,
+  IMAGES.bentoTray,
+  IMAGES.vegetablesCloseup,
+  IMAGES.lunchboxRiceVeggies,
+  IMAGES.freshProduce,
+  IMAGES.lunchboxSaladBlue,
+];
+
 function CalendarCard({ day }: { day: CampaignDay }) {
+  const photo = CALENDAR_PHOTOS[(day.day - 1) % CALENDAR_PHOTOS.length];
+
   return (
     <div
       style={riseDelay(day.day - 1)}
-      className={`flex flex-col rounded-3xl border border-rose-100 bg-white p-4 shadow-sm ${CARD_MOTION}`}
+      className={`flex flex-col overflow-hidden rounded-3xl bg-white shadow-sm ${CARD_MOTION}`}
     >
-      <div className="flex items-start justify-between gap-2">
-        <div className="flex items-center gap-2">
-          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-2xl bg-rose-100 text-sm font-bold text-rose-700">
-            {day.day}
-          </span>
-          <div className="min-w-0">
-            <p className="text-sm font-semibold text-leaf-800">
-              {day.weekday}
-            </p>
-            <p className="text-xs text-leaf-600">{day.contentType}</p>
-          </div>
-        </div>
-        <ChannelPill channel={day.channel} />
+      <div className="relative">
+        <Photo
+          image={photo}
+          sizes="(max-width: 640px) 90vw, (max-width: 1024px) 45vw, 260px"
+          className="h-24 w-full"
+          rounded="rounded-none"
+        />
+        <span className="absolute left-3 top-3 flex h-9 w-9 items-center justify-center rounded-2xl bg-white/95 font-poppins text-sm font-extrabold text-rose-600 shadow-sm">
+          {day.day}
+        </span>
+        <span className="absolute right-3 top-3">
+          <ChannelPill channel={day.channel} />
+        </span>
       </div>
-      <p className="mt-3 flex-1 text-sm text-leaf-700">{day.topic}</p>
-      <p className="mt-3 flex flex-wrap items-center gap-1.5 border-t border-leaf-50 pt-3 text-xs text-leaf-600">
-        <span aria-hidden="true">🔗</span>
-        <span className="font-mono text-[11px] text-gray-400">
-          {day.reference}
-        </span>
-        <span className="min-w-0 break-words">
-          {REFERENCE_TITLES[day.reference]}
-        </span>
-      </p>
-      <CardActions asset={calendarDayCardAsset(day)} className="mt-3" />
+
+      <div className="flex flex-1 flex-col p-4">
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <p className="font-poppins text-sm font-bold text-leaf-900">
+            {day.weekday}
+          </p>
+          <span className="inline-flex items-center gap-1 rounded-full bg-rose-50 px-2.5 py-1 text-[11px] font-semibold text-rose-700">
+            <span aria-hidden="true">
+              {CONTENT_TYPE_ICON[day.contentType] ?? "📄"}
+            </span>
+            {day.contentType}
+          </span>
+        </div>
+
+        <p className="mt-3 flex-1 text-sm text-leaf-800">{day.topic}</p>
+
+        <p className="mt-3 flex flex-wrap items-center gap-1.5 border-t border-leaf-50 pt-3 text-xs text-leaf-600">
+          <span aria-hidden="true">🔗</span>
+          <span className="font-mono text-[11px] text-gray-400">
+            {day.reference}
+          </span>
+          <span className="min-w-0 break-words">
+            {REFERENCE_TITLES[day.reference]}
+          </span>
+        </p>
+
+        <CardActions asset={calendarDayCardAsset(day)} className="mt-3" />
+      </div>
     </div>
   );
 }
@@ -663,23 +802,33 @@ function CalendarPanel() {
   ];
 
   return (
-    <div className="space-y-8">
+    <SectionPanel tint={SECTION_THEME.calendar.panel} className="space-y-7">
       {weeks.map((days, index) => (
         <div key={index}>
-          <p className="font-poppins text-sm font-semibold text-leaf-700">
-            Week {index + 1}
-            <span className="ml-2 font-inter text-xs font-normal text-leaf-500">
-              days {days[0].day} to {days[days.length - 1].day}
+          <div className="flex flex-wrap items-center justify-between gap-3 px-1">
+            <h3 className="font-poppins flex items-center gap-2 text-lg font-extrabold text-leaf-900">
+              <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-white text-sm shadow-sm">
+                <span aria-hidden="true">📅</span>
+              </span>
+              Week {index + 1}
+            </h3>
+            <span className="rounded-full bg-white px-3 py-1 text-xs font-semibold text-leaf-700 shadow-sm">
+              Days {days[0].day} to {days[days.length - 1].day}
             </span>
-          </p>
-          <div className="mt-3 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          </div>
+
+          <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             {days.map((day) => (
               <CalendarCard key={day.day} day={day} />
             ))}
           </div>
         </div>
       ))}
-    </div>
+
+      <StickyNote tone="peach" className={`max-w-md ${CARD_MOTION}`}>
+        Two weeks planned. Nothing is published yet.
+      </StickyNote>
+    </SectionPanel>
   );
 }
 

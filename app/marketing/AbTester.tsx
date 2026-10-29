@@ -5,7 +5,6 @@ import { supabase } from "@/lib/supabase";
 import { REQUEST_TIMEOUT_MS, TIMED_OUT, withTimeout } from "@/lib/requestTimeout";
 import {
   AB_TESTER_COPY,
-  AB_TEST_NAMES,
   LANDING_COPY,
   type AbTest,
   type AbTestName,
@@ -117,15 +116,8 @@ function ResultsTable({ totals }: { totals: TestTotals }) {
   );
 }
 
-function AbTestPanel({
-  testName,
-  test,
-  asButton = false,
-}: {
-  testName: AbTestName;
-  test: AbTest;
-  asButton?: boolean;
-}) {
+function AbTestPanel({ test }: { test: AbTest }) {
+  const testName = test.testName;
   const [totals, setTotals] = useState<TestTotals>(emptyTotals());
   const [voted, setVoted] = useState<Variant | null>(null);
   const [justVoted, setJustVoted] = useState(false);
@@ -275,8 +267,30 @@ function AbTestPanel({
       </div>
       <p className="mt-2 text-sm text-leaf-600">{test.hypothesis}</p>
 
+      <p className="mt-3 rounded-xl border border-leaf-100 bg-leaf-50 p-3 text-xs leading-relaxed text-leaf-700">
+        <span className="font-semibold">{AB_TESTER_COPY.sourceLabel}:</span>{" "}
+        {test.source.text}{" "}
+        <a
+          href={test.source.url}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="break-words font-semibold text-leaf-700 underline underline-offset-2 transition-colors hover:text-peach-600"
+        >
+          {test.source.url}
+        </a>
+        {test.note && (
+          <>
+            <br />
+            <span className="font-semibold">
+              {AB_TESTER_COPY.noteLabel}:
+            </span>{" "}
+            {test.note}
+          </>
+        )}
+      </p>
+
       <p className="font-poppins mt-5 text-center text-base font-semibold text-leaf-800">
-        {AB_TESTER_COPY.question}
+        {test.question}
       </p>
 
       <div className="mt-4 grid gap-4 sm:grid-cols-2">
@@ -303,19 +317,12 @@ function AbTestPanel({
                 )}
               </div>
 
-              {asButton ? (
-                <p className="mt-4">
-                  <span
-                    className={`inline-block rounded-full px-6 py-2.5 text-sm font-bold text-white shadow-sm ${style.button}`}
-                  >
-                    {variant.text}
-                  </span>
-                </p>
-              ) : (
-                <p className="font-poppins mt-3 text-xl font-bold text-leaf-800">
-                  {variant.text}
-                </p>
-              )}
+              <p className="mt-3 text-[11px] font-bold uppercase tracking-wide text-leaf-500">
+                {variant.label}
+              </p>
+              <p className="font-poppins mt-1 text-xl font-bold text-leaf-800">
+                {variant.text}
+              </p>
 
               <p className="mt-2 flex-1 text-xs text-leaf-600">
                 {variant.rationale}
@@ -408,15 +415,9 @@ export default function AbTester() {
   return (
     <div className="space-y-6">
       <p className="text-sm text-leaf-700">{AB_TESTER_COPY.intro}</p>
-      <AbTestPanel
-        testName={AB_TEST_NAMES.headline}
-        test={LANDING_COPY.headlineTest}
-      />
-      <AbTestPanel
-        testName={AB_TEST_NAMES.button}
-        test={LANDING_COPY.buttonTest}
-        asButton
-      />
+      {LANDING_COPY.tests.map((test) => (
+        <AbTestPanel key={test.testName} test={test} />
+      ))}
     </div>
   );
 }

@@ -311,14 +311,14 @@ function PersonaPanel() {
 
 function VariantCard({
   letter,
+  label,
   text,
   rationale,
-  asButton = false,
 }: {
   letter: string;
+  label: string;
   text: string;
   rationale: string;
-  asButton?: boolean;
 }) {
   const isA = letter === "A";
   return (
@@ -334,33 +334,18 @@ function VariantCard({
       >
         {letter}
       </span>
-      {asButton ? (
-        <p className="mt-4">
-          <span
-            className={`inline-block rounded-full px-6 py-2.5 text-sm font-bold text-white shadow-sm ${
-              isA ? "bg-leaf-600" : "bg-peach-500"
-            }`}
-          >
-            {text}
-          </span>
-        </p>
-      ) : (
-        <p className="font-poppins mt-3 text-xl font-bold text-leaf-800">
-          {text}
-        </p>
-      )}
+      <p className="mt-3 text-[11px] font-bold uppercase tracking-wide text-leaf-500">
+        {label}
+      </p>
+      <p className="font-poppins mt-1 text-xl font-bold text-leaf-800">
+        {text}
+      </p>
       <p className="mt-3 text-xs text-leaf-600">{rationale}</p>
     </div>
   );
 }
 
-function AbTestBlock({
-  test,
-  asButton = false,
-}: {
-  test: AbTest;
-  asButton?: boolean;
-}) {
+function AbTestBlock({ test }: { test: AbTest }) {
   return (
     <div className="rounded-2xl border border-leaf-100 bg-white p-6 shadow-sm">
       <div className="flex flex-wrap items-center gap-2">
@@ -370,14 +355,33 @@ function AbTestBlock({
         <Chip tone="muted">{test.id}</Chip>
       </div>
       <p className="mt-2 text-sm text-leaf-600">{test.hypothesis}</p>
+
+      <p className="mt-3 rounded-xl border border-leaf-100 bg-leaf-50 p-3 text-xs leading-relaxed text-leaf-700">
+        <span className="font-semibold">Source:</span> {test.source.text}{" "}
+        <a
+          href={test.source.url}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="break-words font-semibold underline underline-offset-2 transition-colors hover:text-peach-600"
+        >
+          {test.source.url}
+        </a>
+        {test.note && (
+          <>
+            <br />
+            <span className="font-semibold">Note:</span> {test.note}
+          </>
+        )}
+      </p>
+
       <div className="mt-4 grid gap-4 sm:grid-cols-2">
         {test.variants.map((variant) => (
           <VariantCard
             key={variant.id}
             letter={variant.id}
+            label={variant.label}
             text={variant.text}
             rationale={variant.rationale}
-            asButton={asButton}
           />
         ))}
       </div>
@@ -388,7 +392,14 @@ function AbTestBlock({
 function LandingPanel() {
   return (
     <div className="space-y-8">
-      <AbTestBlock test={LANDING_COPY.headlineTest} />
+      <div className="rounded-2xl border border-leaf-100 bg-white p-6 shadow-sm">
+        <p className="text-xs font-bold uppercase tracking-wide text-leaf-500">
+          Main headline
+        </p>
+        <p className="font-poppins mt-2 text-2xl font-bold text-leaf-800">
+          {LANDING_COPY.headline}
+        </p>
+      </div>
 
       <div className="grid gap-4 md:grid-cols-2">
         <div className="rounded-2xl border border-leaf-100 bg-leaf-50 p-6 shadow-sm">
@@ -409,7 +420,9 @@ function LandingPanel() {
         </div>
       </div>
 
-      <AbTestBlock test={LANDING_COPY.buttonTest} asButton />
+      {LANDING_COPY.tests.map((test) => (
+        <AbTestBlock key={test.testName} test={test} />
+      ))}
     </div>
   );
 }

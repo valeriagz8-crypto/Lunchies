@@ -108,9 +108,22 @@ export function personaCardAsset(): CardAsset {
 
 function abTestText(test: AbTest): string {
   const variants = test.variants
-    .map((variant) => `- ${variant.id}: ${variant.text} (${variant.rationale})`)
+    .map(
+      (variant) =>
+        `- ${variant.id} (${variant.label}): ${variant.text} — ${variant.rationale}`,
+    )
     .join("\n");
-  return `${test.element}\nHypothesis: ${test.hypothesis}\n${variants}`;
+
+  return [
+    `A/B test: ${test.element} [${test.testName}]`,
+    `Question: ${test.question}`,
+    `Hypothesis: ${test.hypothesis}`,
+    variants,
+    `Source: ${test.source.text} ${test.source.url}`,
+    test.note ? `Note: ${test.note}` : "",
+  ]
+    .filter(Boolean)
+    .join("\n");
 }
 
 export function landingCardAsset(): CardAsset {
@@ -119,10 +132,11 @@ export function landingCardAsset(): CardAsset {
     assetType: "Copy",
     text: joinBlocks([
       "Landing copy",
-      abTestText(LANDING_COPY.headlineTest),
+      `Headline: ${LANDING_COPY.headline}`,
       `Subheadline: ${LANDING_COPY.subheadline}`,
       `Call to action: ${LANDING_COPY.callToAction}`,
-      abTestText(LANDING_COPY.buttonTest),
+      `Button: ${LANDING_COPY.ctaButton}`,
+      ...LANDING_COPY.tests.map(abTestText),
     ]),
   };
 }
@@ -222,20 +236,27 @@ export function buildExportText(): string {
 
   // 3. Landing copy
   sections.push("## Landing copy");
-  for (const test of [LANDING_COPY.headlineTest, LANDING_COPY.buttonTest]) {
-    sections.push(`### ${test.element}`);
+  sections.push(`**Headline:** ${LANDING_COPY.headline}`);
+  sections.push(`**Subheadline:** ${LANDING_COPY.subheadline}`);
+  sections.push(`**Call to action:** ${LANDING_COPY.callToAction}`);
+  sections.push(`**Button:** ${LANDING_COPY.ctaButton}`);
+
+  sections.push("## A/B tests");
+  for (const test of LANDING_COPY.tests) {
+    sections.push(`### ${test.element} \`${test.testName}\``);
+    sections.push(`**Question:** ${test.question}`);
     sections.push(`_${test.hypothesis}_`);
     sections.push(
       test.variants
         .map(
           (variant) =>
-            `- **${variant.id}:** ${variant.text} — ${variant.rationale}`,
+            `- **${variant.id} (${variant.label}):** ${variant.text} — ${variant.rationale}`,
         )
         .join("\n"),
     );
+    sections.push(`**Source:** ${test.source.text} <${test.source.url}>`);
+    if (test.note) sections.push(`**Note:** ${test.note}`);
   }
-  sections.push(`**Subheadline:** ${LANDING_COPY.subheadline}`);
-  sections.push(`**Call to action:** ${LANDING_COPY.callToAction}`);
 
   // 4. Social posts
   sections.push(`## Social posts (${SOCIAL_POSTS.length})`);

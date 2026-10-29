@@ -1,3 +1,5 @@
+import { WEEKLY_PRICES } from "./pricingAssumptions";
+
 /**
  * Static content and data layer for the Lunchies marketing engine.
  *
@@ -168,66 +170,112 @@ export const PERSONA: Persona = {
 
 export type AbVariantId = "A" | "B";
 
+/** The ab_events.test_name each landing copy test is recorded under. */
+export const AB_TEST_NAMES = {
+  priority: "priority",
+  time: "time",
+} as const;
+
+export type AbTestName = (typeof AB_TEST_NAMES)[keyof typeof AB_TEST_NAMES];
+
 export type AbVariant = {
   id: AbVariantId;
+  /** What this variant is testing, e.g. "Health" or "Price". */
+  label: string;
   text: string;
   rationale: string;
 };
 
+/** The research a test is built on, shown under the variants. */
+export type AbSource = {
+  text: string;
+  url: string;
+};
+
 export type AbTest = {
   id: string;
+  testName: AbTestName;
   element: string;
+  question: string;
   hypothesis: string;
+  source: AbSource;
+  /** Extra context, e.g. where a price in a variant comes from. */
+  note?: string;
   variants: [AbVariant, AbVariant];
 };
 
 export type LandingCopy = {
+  headline: string;
   subheadline: string;
   callToAction: string;
-  headlineTest: AbTest;
-  buttonTest: AbTest;
+  ctaButton: string;
+  tests: [AbTest, AbTest];
 };
 
+const KANTAR_SOURCE_URL =
+  "https://www.kantar.com/latin-america/inspiracion/consumidor/2023-wp-mx-lonchera-escolar-en-el-regreso-a-clases";
+
 export const LANDING_COPY: LandingCopy = {
+  headline: "Healthy lunches. Happier kids.",
   subheadline:
     "Lunchies plans a week of balanced lunches for your kids, so you can stop deciding at 7am and start the day already sorted.",
   callToAction: "Build your first week of lunches in a few minutes.",
-  headlineTest: {
-    id: "ab-headline",
-    element: "Landing hero headline",
-    hypothesis:
-      "Parents respond more to the outcome for their child than to the ease of the tool. Variant A leads with the child, variant B leads with simplicity.",
-    variants: [
-      {
-        id: "A",
-        text: "Healthy lunches. Happier kids.",
-        rationale: "Leads with the emotional payoff for the child.",
+  ctaButton: "Create my plan",
+  tests: [
+    {
+      id: "ab-priority",
+      testName: AB_TEST_NAMES.priority,
+      element: "What we lead with: health or price",
+      question: "Which message would make you want to try Lunchies?",
+      hypothesis:
+        "Health matters more than price to parents, so leading with real ingredients should beat leading with the daily cost.",
+      source: {
+        text: "Kantar Mexico, Oct 11, 2023: health was the top priority when packing school lunches (46.3%), followed by price (24%).",
+        url: KANTAR_SOURCE_URL,
       },
-      {
-        id: "B",
-        text: "Nutritious lunches, made simple.",
-        rationale: "Leads with the practical payoff for the parent.",
+      note: `$60 a day is the Basic plan at $${WEEKLY_PRICES.basic} per week divided by 5 school days.`,
+      variants: [
+        {
+          id: "A",
+          label: "Health",
+          text: "Real ingredients for growing kids.",
+          rationale: "Leads with what actually goes into the lunchbox.",
+        },
+        {
+          id: "B",
+          label: "Price",
+          text: "Healthy lunches from $60 a day.",
+          rationale: "Leads with what a school day costs.",
+        },
+      ],
+    },
+    {
+      id: "ab-time",
+      testName: AB_TEST_NAMES.time,
+      element: "Hook: a specific time saving or a general benefit",
+      question: "Which one would make you stop scrolling?",
+      hypothesis:
+        "A concrete time saving convinces more than a general benefit, because the parent can picture the minutes they get back.",
+      source: {
+        text: "Kantar Mexico, Oct 11, 2023: families spend about 15 minutes preparing school lunches.",
+        url: KANTAR_SOURCE_URL,
       },
-    ],
-  },
-  buttonTest: {
-    id: "ab-cta-button",
-    element: "Primary call-to-action button",
-    hypothesis:
-      "Ownership wording converts better than instruction wording. Variant A frames the plan as already theirs, variant B frames the first step.",
-    variants: [
-      {
-        id: "A",
-        text: "Create my plan",
-        rationale: "First person, makes the plan feel personal and owned.",
-      },
-      {
-        id: "B",
-        text: "Start your plan",
-        rationale: "Second person, lowers commitment to a single first step.",
-      },
-    ],
-  },
+      variants: [
+        {
+          id: "A",
+          label: "Specific time",
+          text: "Skip the 15-minute morning lunch rush.",
+          rationale: "Names the exact minutes the morning gives back.",
+        },
+        {
+          id: "B",
+          label: "General benefit",
+          text: "Healthy lunches. Happier kids.",
+          rationale: "Leads with the broad promise, with no numbers in it.",
+        },
+      ],
+    },
+  ],
 };
 
 /* -------------------------------------------------------------------------- */
@@ -647,7 +695,7 @@ export const MARKETING_TABS: MarketingTab[] = [
     label: "A/B Testing",
     cardTitle: "A/B Testing",
     icon: "📊",
-    summary: "Test different headlines to see what works best.",
+    summary: "Test what we lead with to see which message works best.",
   },
   {
     id: "saved",
@@ -689,17 +737,10 @@ export const MARKETING_PAGE_COPY: MarketingPageCopy = {
 /* A/B tester                                                                 */
 /* -------------------------------------------------------------------------- */
 
-/** The ab_events.test_name value each landing copy test is recorded under. */
-export const AB_TEST_NAMES = {
-  headline: "headline",
-  button: "button",
-} as const;
-
-export type AbTestName = (typeof AB_TEST_NAMES)[keyof typeof AB_TEST_NAMES];
-
 export type AbTesterCopy = {
   intro: string;
-  question: string;
+  sourceLabel: string;
+  noteLabel: string;
   thanks: string;
   alreadyVoted: string;
   pick: string;
@@ -719,8 +760,9 @@ export type AbTesterCopy = {
 
 export const AB_TESTER_COPY: AbTesterCopy = {
   intro:
-    "Both tests are running live. Pick the option you prefer and the vote is counted right away, next to everyone else who has voted.",
-  question: "Which one would make you want to try Lunchies?",
+    "Both tests are running live, and both come from research on how families in Mexico pack school lunches. Pick the option you prefer and the vote is counted right away.",
+  sourceLabel: "Source",
+  noteLabel: "Note",
   thanks: "Thanks for voting",
   alreadyVoted: "You already voted on this test from this browser.",
   pick: "Pick",

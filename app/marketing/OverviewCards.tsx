@@ -5,7 +5,6 @@ import { supabase } from "@/lib/supabase";
 import { TIMED_OUT, withTimeout } from "@/lib/requestTimeout";
 import {
   ADD_NEW_ASSET_LABEL,
-  AB_TEST_NAMES,
   BRAND,
   CAMPAIGN_CALENDAR,
   LANDING_COPY,
@@ -215,7 +214,7 @@ function PersonaPreview() {
 }
 
 function LandingPreview() {
-  const headline = LANDING_COPY.headlineTest.variants[0].text;
+  const headline = LANDING_COPY.headline;
   const splitAt = headline.indexOf(". ");
   const lead = splitAt > -1 ? headline.slice(0, splitAt + 1) : headline;
   const accent = splitAt > -1 ? headline.slice(splitAt + 2) : "";
@@ -237,7 +236,7 @@ function LandingPreview() {
         {OVERVIEW_PREVIEW_COPY.cta}
       </p>
       <span className="mt-1.5 inline-block rounded-full bg-leaf-600 px-4 py-2 text-xs font-bold text-white">
-        {LANDING_COPY.buttonTest.variants[0].text}
+        {LANDING_COPY.ctaButton}
       </span>
     </Panel>
   );
@@ -355,7 +354,7 @@ function AbPreview({ totals, hasData }: { totals: TestTotals; hasData: boolean }
 
   return (
     <div className="grid flex-1 gap-2 sm:grid-cols-2">
-      {LANDING_COPY.headlineTest.variants.map((variant) => {
+      {LANDING_COPY.tests[0].variants.map((variant) => {
         const { views, clicks } = totals[variant.id];
         const rate = calculateConversion(views, clicks);
         return (
@@ -457,7 +456,7 @@ export default function OverviewCards({
         supabase
           .from("ab_events")
           .select("test_name, variant, event_type")
-          .eq("test_name", AB_TEST_NAMES.headline),
+          .eq("test_name", LANDING_COPY.tests[0].testName),
       );
 
       if (response === TIMED_OUT || response.error) {

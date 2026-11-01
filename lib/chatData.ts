@@ -423,6 +423,8 @@ export const SERVICE_ANSWERS: ServiceAnswer[] = [
       "schedule",
       "when do you deliver",
       "delivery time",
+      "deliver",
+      "delivery",
       "pedido",
       "ordenar",
       "comprar",
@@ -438,6 +440,8 @@ export const SERVICE_ANSWERS: ServiceAnswer[] = [
       "horario",
       "cuando entregan",
       "cuándo entregan",
+      "entrega",
+      "entregas",
     ],
     answer:
       "Ordering, delivery schedules, payment and contracts are not available yet, so I do not have that information. I can connect you with someone from the Lunchies team who can help.",

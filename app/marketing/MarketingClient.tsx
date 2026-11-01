@@ -36,9 +36,13 @@ import {
   type SocialPost,
   type VideoScript,
 } from "@/lib/marketingData";
+import { supabase } from "@/lib/supabase";
+import { TIMED_OUT, withTimeout } from "@/lib/requestTimeout";
+import { tallyEvents, type AbEvent } from "@/lib/abTest";
 import {
   ASSET_TYPES,
   EXPORT_FILENAME,
+  type AbVotes,
   brandCardAsset,
   buildExportText,
   calendarDayCardAsset,
@@ -857,10 +861,32 @@ export default function MarketingClient() {
 
   useEffect(() => () => clearTimeout(exportTimer.current), []);
 
-  /** Builds the kit in the browser and hands it to the download. */
-  function handleExport() {
+  /**
+   * Reads the current vote tallies so the exported A/B section is not empty,
+   * then builds the kit in the browser and hands it to the download. A failed
+   * read only means the file says "no votes yet".
+   */
+  async function loadVotes(): Promise<AbVotes | undefined> {
+    const response = await withTimeout(
+      supabase.from("ab_events").select("test_name, variant, event_type"),
+    );
+    if (response === TIMED_OUT || response.error) return undefined;
+
+    const rows = (response.data ?? []) as AbEvent[];
+    const votes: AbVotes = {};
+    for (const test of LANDING_COPY.tests) {
+      const totals = tallyEvents(
+        rows.filter((row) => row.test_name === test.testName),
+      );
+      votes[test.testName] = { A: totals.A.clicks, B: totals.B.clicks };
+    }
+    return votes;
+  }
+
+  async function handleExport() {
     try {
-      const blob = new Blob([buildExportText()], {
+      const votes = await loadVotes();
+      const blob = new Blob([buildExportText(votes)], {
         type: "text/markdown;charset=utf-8",
       });
       const url = URL.createObjectURL(blob);

@@ -5,7 +5,12 @@ import {
   buildExportText,
   validateAsset,
 } from "@/lib/marketingExport";
-import { calculateConversion, getLeader, tallyEvents } from "@/lib/abTest";
+import {
+  calculateConversion,
+  getLeader,
+  tallyEvents,
+  voteShare,
+} from "@/lib/abTest";
 import type { AbEvent } from "@/lib/abTest";
 import {
   CAMPAIGN_CALENDAR,
@@ -147,6 +152,19 @@ describe("Extra unit checks", () => {
     expect(calculateConversion(0, 0)).toBe(0);
     expect(calculateConversion(0, 5)).toBe(0);
     expect(calculateConversion(3, 1)).toBe(33.3);
+  });
+
+  it("voteShare splits the vote, halves a tie and returns 0 with no votes", () => {
+    // Normal case: 5 of 9 votes rounds to 56%, and the two shares cover the vote.
+    expect(voteShare(5, 9)).toBe(56);
+    expect(voteShare(4, 9)).toBe(44);
+
+    // Tie.
+    expect(voteShare(6, 12)).toBe(50);
+
+    // Nobody has voted.
+    expect(voteShare(0, 0)).toBe(0);
+    expect(voteShare(3, 0)).toBe(0);
   });
 
   it("getLeader returns null when the two variants tie", () => {

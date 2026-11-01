@@ -46,6 +46,28 @@ export function getLeader(a: VariantTotals, b: VariantTotals): Variant | null {
   return rateA > rateB ? "A" : "B";
 }
 
+/**
+ * One variant's share of the votes cast in its test, as a whole percentage.
+ * Returns 0 when nobody has voted, so an empty test shows empty rings.
+ */
+export function voteShare(votes: number, totalVotes: number): number {
+  if (totalVotes <= 0) return 0;
+  return Math.round((votes / totalVotes) * 100);
+}
+
+/**
+ * Which variant has more votes: "A", "B", "tie" when both are level, or null
+ * when there is nothing to call yet.
+ */
+export function voteLeader(
+  a: VariantTotals,
+  b: VariantTotals,
+): Variant | "tie" | null {
+  if (a.clicks + b.clicks < 1) return null;
+  if (a.clicks === b.clicks) return "tie";
+  return a.clicks > b.clicks ? "A" : "B";
+}
+
 export function emptyTotals(): TestTotals {
   return {
     A: { views: 0, clicks: 0 },

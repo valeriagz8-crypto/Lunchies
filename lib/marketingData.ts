@@ -750,6 +750,11 @@ export type AbTesterCopy = {
   loading: string;
   noData: string;
   leading: string;
+  tie: string;
+  vote: string;
+  votes: string;
+  totalOne: string;
+  totalMany: string;
   tooEarly: string;
   error: string;
   timeout: string;
@@ -772,6 +777,11 @@ export const AB_TESTER_COPY: AbTesterCopy = {
   loading: "Loading results...",
   noData: "No votes yet",
   leading: "is leading right now",
+  tie: "It's a tie right now",
+  vote: "vote",
+  votes: "votes",
+  totalOne: "1 person voted in this test",
+  totalMany: "{count} people voted in this test",
   tooEarly: "Too early to call. Waiting for the first clicks.",
   error:
     "We could not reach the results right now. The page is fine, nothing is broken. Try refreshing in a moment.",

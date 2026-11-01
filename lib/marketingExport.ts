@@ -54,6 +54,21 @@ export type AssetPayload = {
 
 export const EXPORT_FILENAME = "lunchies-marketing-kit.md";
 
+/** Votes per variant for each test, keyed by ab_events.test_name. */
+export type AbVotes = Record<string, { A: number; B: number }>;
+
+/** One line summarising a test's votes, or a friendly line when there are none. */
+function votesLine(testName: string, votes?: AbVotes): string {
+  const tally = votes?.[testName];
+  const total = (tally?.A ?? 0) + (tally?.B ?? 0);
+  if (!tally || total === 0) return "**Votes:** no votes yet";
+
+  const share = (count: number) => Math.round((count / total) * 100);
+  const people = total === 1 ? "1 person voted" : `${total} people voted`;
+
+  return `**Votes:** A ${tally.A} (${share(tally.A)}%) · B ${tally.B} (${share(tally.B)}%) · ${people}`;
+}
+
 function joinBlocks(blocks: string[]): string {
   return blocks.filter(Boolean).join("\n\n");
 }
@@ -190,7 +205,7 @@ export function calendarDayCardAsset(day: CampaignDay): CardAsset {
  * The whole marketing kit as Markdown, in a fixed order: brand, persona,
  * landing copy, social posts, video scripts, campaign calendar.
  */
-export function buildExportText(): string {
+export function buildExportText(votes?: AbVotes): string {
   const sections: string[] = [];
 
   sections.push(`# ${BRAND.name} marketing kit`);
@@ -254,6 +269,7 @@ export function buildExportText(): string {
         )
         .join("\n"),
     );
+    sections.push(votesLine(test.testName, votes));
     sections.push(`**Source:** ${test.source.text} <${test.source.url}>`);
     if (test.note) sections.push(`**Note:** ${test.note}`);
   }

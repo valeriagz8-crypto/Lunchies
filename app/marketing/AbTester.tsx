@@ -15,11 +15,10 @@ import { Photo, SectionPanel, StickyNote } from "@/components/marketing/pieces";
 import { IMAGES } from "@/lib/marketingImages";
 import {
   VARIANTS,
-  calculateConversion,
   emptyTotals,
-  getLeader,
-  hasAnyData,
   tallyEvents,
+  voteLeader,
+  voteShare,
   voteStorageKey,
   type AbEvent,
   type TestTotals,
@@ -94,50 +93,45 @@ function Ring({ percent, color }: { percent: number; color: string }) {
 
 function ResultsTable({ totals }: { totals: TestTotals }) {
   const ringColor: Record<string, string> = { A: "#2f7d49", B: "#ec6410" };
+  const totalVotes = totals.A.clicks + totals.B.clicks;
 
   return (
     <div className="grid gap-3 sm:grid-cols-2">
       {VARIANTS.map((variant) => {
-        const { views, clicks } = totals[variant];
-        const rate = calculateConversion(views, clicks);
+        const votes = totals[variant].clicks;
+        const share = voteShare(votes, totalVotes);
         const style = VARIANT_STYLE[variant];
         return (
           <div
             key={variant}
             className="rounded-2xl border border-leaf-100 bg-white p-4"
           >
-            <div className="flex flex-wrap items-center gap-x-4 gap-y-3">
-              <Ring percent={rate} color={ringColor[variant]} />
+            <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
+              <Ring percent={share} color={ringColor[variant]} />
               <span
                 className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-xs font-bold text-white ${style.badge}`}
               >
                 {variant}
               </span>
-              <dl className="flex flex-1 flex-wrap items-baseline justify-end gap-x-5 gap-y-1 text-sm">
-                <div className="flex items-baseline gap-1.5">
-                  <dt className="text-xs text-leaf-500">Views</dt>
-                  <dd className="font-semibold text-leaf-800">{views}</dd>
-                </div>
-                <div className="flex items-baseline gap-1.5">
-                  <dt className="text-xs text-leaf-500">Clicks</dt>
-                  <dd className="font-semibold text-leaf-800">{clicks}</dd>
-                </div>
-                <div className="flex items-baseline gap-1.5">
-                  <dt className="text-xs text-leaf-500">Conversion</dt>
-                  <dd className="font-bold text-leaf-800">
-                    {rate.toFixed(1)}%
-                  </dd>
-                </div>
-              </dl>
+              <div className="ml-auto min-w-0 text-right">
+                <p className="font-poppins text-2xl font-extrabold leading-none text-leaf-900">
+                  {share}%
+                </p>
+                <p className="mt-1 text-xs font-medium text-leaf-600">
+                  {votes}{" "}
+                  {votes === 1 ? AB_TESTER_COPY.vote : AB_TESTER_COPY.votes}
+                </p>
+              </div>
             </div>
+
             <div
               className="mt-3 h-2 w-full overflow-hidden rounded-full bg-leaf-100"
               role="img"
-              aria-label={`Variant ${variant} conversion ${rate.toFixed(1)} percent`}
+              aria-label={`Variant ${variant} has ${votes} of ${totalVotes} votes, ${share} percent`}
             >
               <div
                 className={`h-full rounded-full ${style.bar}`}
-                style={{ width: `${Math.min(rate, 100)}%` }}
+                style={{ width: `${share}%` }}
               />
             </div>
           </div>
@@ -284,8 +278,14 @@ function AbTestPanel({ test }: { test: AbTest }) {
     setRefreshing(false);
   }
 
-  const leader = getLeader(totals.A, totals.B);
-  const showData = hasAnyData(totals);
+  const totalVotes = totals.A.clicks + totals.B.clicks;
+  const leader = voteLeader(totals.A, totals.B);
+  const totalLine =
+    totalVotes === 0
+      ? AB_TESTER_COPY.noData
+      : totalVotes === 1
+        ? AB_TESTER_COPY.totalOne
+        : AB_TESTER_COPY.totalMany.replace("{count}", String(totalVotes));
 
   return (
     <div
@@ -448,21 +448,31 @@ function AbTestPanel({ test }: { test: AbTest }) {
           </p>
         ) : (
           <div className="mt-4 space-y-3">
-            <ResultsTable totals={totals} />
-            <p className="text-sm text-leaf-700">
-              {!showData ? (
-                <span className="text-leaf-600">{AB_TESTER_COPY.noData}</span>
-              ) : leader ? (
-                <>
-                  <span className="font-semibold">Variant {leader}</span>{" "}
-                  {AB_TESTER_COPY.leading}
-                </>
-              ) : (
-                <span className="text-leaf-600">
-                  {AB_TESTER_COPY.tooEarly}
-                </span>
-              )}
+            <p
+              className={`rounded-2xl px-4 py-3 text-center text-sm font-semibold ${
+                totalVotes === 0
+                  ? "bg-leaf-50 text-leaf-600"
+                  : "bg-leaf-100 text-leaf-800"
+              }`}
+            >
+              <span aria-hidden="true">{totalVotes === 0 ? "🗳️" : "👥"}</span>{" "}
+              {totalLine}
             </p>
+
+            <ResultsTable totals={totals} />
+
+            {leader && (
+              <p className="text-sm text-leaf-700">
+                {leader === "tie" ? (
+                  <span className="font-semibold">{AB_TESTER_COPY.tie}</span>
+                ) : (
+                  <>
+                    <span className="font-semibold">Variant {leader}</span>{" "}
+                    {AB_TESTER_COPY.leading}
+                  </>
+                )}
+              </p>
+            )}
           </div>
         )}
       </div>

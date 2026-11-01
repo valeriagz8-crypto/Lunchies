@@ -9,7 +9,7 @@
  */
 
 import { ALLERGY_OPTIONS, PREFERENCE_OPTIONS } from "./lunchMenu";
-import { FEATURES, PLANS } from "./productData";
+import { PLANS } from "./productData";
 import { formatWeekly } from "./pricing";
 
 /* -------------------------------------------------------------------------- */
@@ -270,145 +270,34 @@ export const LUNCHBOX_IDEAS: LunchboxIdea[] = [
 
 export type ServiceAnswer = {
   id: string;
-  /** Lower-case keywords in English and Spanish. */
+  /** Lower-case keywords in English and Spanish, matched as whole words. */
   keywords: string[];
   answer: string;
-  /**
-   * false means the site has no answer yet, so the reply says so and offers a
-   * person instead of guessing.
-   */
+  /** false means the site has no answer yet, so the reply says so. */
   available: boolean;
+  /**
+   * true keeps the human-review banner even when the question was answered,
+   * for topics where the site can only answer part of it.
+   */
+  needsHuman?: boolean;
 };
 
 const PLAN_LINE = PLANS.map(
   (plan) => `${plan.name} ${formatWeekly(plan.weeklyPrice)}`,
 ).join(", ");
 
-const BASIC_FEATURES = FEATURES.filter((feature) =>
-  feature.plans.includes("basic"),
-)
-  .map((feature) => feature.name.toLowerCase())
-  .join(", ");
-
+/**
+ * Order matters: entries are scored by how many keywords they match, and the
+ * first entry wins a tie. Ordering and payment sits first so an explicit
+ * schedule or payment question beats the more general delivery entry.
+ */
 export const SERVICE_ANSWERS: ServiceAnswer[] = [
-  {
-    id: "plans-and-prices",
-    keywords: [
-      "price",
-      "prices",
-      "pricing",
-      "cost",
-      "how much",
-      "plan",
-      "plans",
-      "subscription",
-      "precio",
-      "precios",
-      "costo",
-      "cuanto cuesta",
-      "cuánto cuesta",
-      "plan",
-      "planes",
-      "suscripcion",
-      "suscripción",
-    ],
-    answer: `We have three plans: ${PLAN_LINE}. You can compare what each one includes on the Product and Pricing pages.`,
-    available: true,
-  },
-  {
-    id: "whats-included",
-    keywords: [
-      "include",
-      "included",
-      "features",
-      "what do i get",
-      "offer",
-      "incluye",
-      "incluido",
-      "caracteristicas",
-      "características",
-      "que ofrecen",
-      "qué ofrecen",
-    ],
-    answer: `Every plan includes ${BASIC_FEATURES}. Plus and Premium add more, such as nutrition information, recipe customization and multi-child profiles.`,
-    available: true,
-  },
-  {
-    id: "personalized",
-    keywords: [
-      "personalized",
-      "personalised",
-      "customize",
-      "tailored",
-      "preferences",
-      "picky",
-      "personalizado",
-      "personalizada",
-      "a la medida",
-      "preferencias",
-    ],
-    answer:
-      "Lunches are personalized: you set your child's preferences, allergies and goals once, and the weekly plan is built around them.",
-    available: true,
-  },
-  {
-    id: "allergies-handling",
-    keywords: [
-      "allergen",
-      "allergens",
-      "allergy filter",
-      "gluten",
-      "dairy",
-      "peanut",
-      "nut free",
-      "alergeno",
-      "alérgeno",
-      "alergenos",
-      "alérgenos",
-      "sin gluten",
-      "sin lacteos",
-      "sin lácteos",
-      "cacahuate",
-    ],
-    answer:
-      "In Core you can mark allergies such as peanuts, dairy, gluten, eggs, shellfish and soy, and the planner filters meals that contain them. A Lunchies team member still confirms anything allergy related before it is used.",
-    available: true,
-  },
-  {
-    id: "school-delivery",
-    keywords: [
-      "school",
-      "delivered",
-      "delivery at school",
-      "escuela",
-      "colegio",
-      "entrega en la escuela",
-    ],
-    answer:
-      "Lunchies is built around lunches delivered at school, so the plan fits a normal school day.",
-    available: true,
-  },
-  {
-    id: "how-it-works",
-    keywords: [
-      "how does it work",
-      "how it works",
-      "get started",
-      "start",
-      "sign up",
-      "como funciona",
-      "cómo funciona",
-      "empezar",
-      "registrarme",
-    ],
-    answer:
-      "Three steps: you tell us about your child, we create personalized options, and you get a weekly menu you can use. You can try the planner on the Core page.",
-    available: true,
-  },
   {
     id: "ordering-and-payment",
     keywords: [
+      // English
       "order",
+      "orders",
       "ordering",
       "buy",
       "checkout",
@@ -421,11 +310,15 @@ export const SERVICE_ANSWERS: ServiceAnswer[] = [
       "cancel",
       "refund",
       "schedule",
-      "when do you deliver",
+      "schedules",
+      "what time",
       "delivery time",
-      "deliver",
-      "delivery",
+      "delivery times",
+      "delivery days",
+      "when do you deliver",
+      // Spanish
       "pedido",
+      "pedidos",
       "ordenar",
       "comprar",
       "pagar",
@@ -433,23 +326,149 @@ export const SERVICE_ANSWERS: ServiceAnswer[] = [
       "tarjeta",
       "factura",
       "facturacion",
-      "facturación",
       "contrato",
       "cancelar",
       "reembolso",
       "horario",
+      "horarios",
+      "a que hora",
       "cuando entregan",
-      "cuándo entregan",
-      "entrega",
-      "entregas",
     ],
     answer:
-      "Ordering, delivery schedules, payment and contracts are not available yet, so I do not have that information. I can connect you with someone from the Lunchies team who can help.",
+      "Ordering, payment, contracts, refunds and exact delivery schedules are not defined yet, so I do not have that information. I can connect you with someone from the Lunchies team who can help.",
     available: false,
+  },
+  {
+    id: "delivery",
+    keywords: [
+      "deliver",
+      "delivers",
+      "delivery",
+      "delivered",
+      "school",
+      "schools",
+      "entrega",
+      "entregan",
+      "entregar",
+      "escuela",
+      "colegio",
+    ],
+    answer:
+      "Lunchies lunches are delivered at your child's school. Delivery days, times and zones are not defined yet. I can connect you with someone from the team.",
+    available: true,
+    // Only half of this is settled, so a person still picks it up.
+    needsHuman: true,
+  },
+  {
+    id: "plans-and-prices",
+    keywords: [
+      "price",
+      "prices",
+      "pricing",
+      "cost",
+      "costs",
+      "how much",
+      "plan",
+      "plans",
+      "subscription",
+      "precio",
+      "precios",
+      "costo",
+      "cuesta",
+      "cuanto cuesta",
+      "planes",
+      "suscripcion",
+    ],
+    answer: `We have three plans: ${PLAN_LINE}. You can compare what each one includes on the Product and Pricing pages.`,
+    available: true,
+  },
+  {
+    id: "allergies-and-preferences",
+    keywords: [
+      "allergy",
+      "allergies",
+      "allergic",
+      "allergen",
+      "allergens",
+      "gluten",
+      "dairy",
+      "lactose",
+      "peanut",
+      "peanuts",
+      "egg",
+      "eggs",
+      "shellfish",
+      "soy",
+      "preference",
+      "preferences",
+      "vegetarian",
+      "alergia",
+      "alergias",
+      "alergico",
+      "alergeno",
+      "alergenos",
+      "lacteos",
+      "cacahuate",
+      "huevo",
+      "preferencia",
+      "preferencias",
+      "vegetariano",
+    ],
+    answer:
+      "In the Core planner you mark the allergens your child cannot eat, from peanuts, dairy, gluten, eggs, shellfish and soy, and meals containing them are filtered out. Food preferences work the same way. I can never call a lunch safe for an allergy, so a Lunchies team member confirms anything allergy related before you rely on it.",
+    available: true,
+    needsHuman: true,
+  },
+  {
+    id: "personalization",
+    keywords: [
+      "personalized",
+      "personalised",
+      "personalize",
+      "customize",
+      "customise",
+      "customized",
+      "tailored",
+      "picky",
+      "personalizado",
+      "personalizada",
+      "personalizar",
+      "a la medida",
+      "adaptado",
+    ],
+    answer:
+      "Every plan is built around your child: you give their age, their allergies and their food preferences, and the lunches are chosen to match.",
+    available: true,
+  },
+  {
+    id: "what-is-lunchies",
+    keywords: [
+      "what is lunchies",
+      "what does lunchies do",
+      "what do you do",
+      "who are you",
+      "how does it work",
+      "how it works",
+      "how does this work",
+      "get started",
+      "sign up",
+      "que es lunchies",
+      "que hacen",
+      "como funciona",
+      "empezar",
+      "registrarme",
+    ],
+    answer:
+      "Lunchies plans personalized, healthy lunches for school-age children. You tell us your child's age, allergies and food preferences, and the Core planner builds a 5-day lunch plan from that.",
+    available: true,
   },
 ];
 
 /** Used when nothing matches, so the chat never guesses about the business. */
+/** Reason recorded when an answered question still needs a person. */
+export const SERVICE_REVIEW_REASON =
+  "The question touches something that is not defined yet, so a team member should follow up.";
+
 export const SERVICE_FALLBACK =
   "I can't answer that one. I can connect you with someone from the Lunchies team who can.";
 

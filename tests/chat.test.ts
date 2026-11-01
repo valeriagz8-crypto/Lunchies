@@ -275,14 +275,86 @@ describe("Extra unit checks", () => {
       const result = answerServiceQuestion(text);
       expect(result.matched).toBe(false);
       expect(result.offerHuman).toBe(true);
-      expect(result.answer).toContain("not available yet");
+      expect(result.answer).toContain("not defined yet");
     }
 
-    // The delivery keywords above must not swallow the question the site can
-    // answer: delivery at school is a fact already on the site.
+    // The schedule keywords must not swallow the part the site can answer.
     const atSchool = answerServiceQuestion("do you deliver at school?");
     expect(atSchool.matched).toBe(true);
-    expect(atSchool.topic).toBe("school-delivery");
+    expect(atSchool.topic).toBe("delivery");
+  });
+
+  it("answers common delivery questions with the school fact and still flags a person", () => {
+    const phrasings = [
+      "how do they deliver the lunchbox",
+      "where is the lunch delivered?",
+      "do you deliver to my daughter's school?",
+      "como entregan la lonchera?",
+      "la entrega es en la escuela?",
+    ];
+
+    for (const text of phrasings) {
+      const result = answerServiceQuestion(text);
+      expect(result.topic).toBe("delivery");
+      expect(result.matched).toBe(true);
+      expect(result.answer).toContain("delivered at your child's school");
+      // The half that is not settled is stated plainly, not guessed at.
+      expect(result.answer).toContain("not defined yet");
+      // Answered, but a person still picks it up.
+      expect(result.offerHuman).toBe(true);
+    }
+  });
+
+  it("keeps ordering, payment and exact schedules on the not-defined-yet reply", () => {
+    const phrasings = [
+      "can I pay with a credit card?",
+      "how do I order?",
+      "what time do you deliver?",
+      "what is the delivery schedule?",
+      "quiero cancelar mi pedido",
+      "a que hora entregan?",
+    ];
+
+    for (const text of phrasings) {
+      const result = answerServiceQuestion(text);
+      expect(result.topic).toBe("ordering-and-payment");
+      expect(result.matched).toBe(false);
+      expect(result.offerHuman).toBe(true);
+      expect(result.answer).toContain("not defined yet");
+    }
+  });
+
+  it("answers what Lunchies is, personalization and allergy handling from site facts", () => {
+    for (const text of ["what is Lunchies?", "how does it work?", "como funciona?"]) {
+      const result = answerServiceQuestion(text);
+      expect(result.topic).toBe("what-is-lunchies");
+      expect(result.answer).toMatch(/5-day lunch plan/);
+      expect(result.answer).toMatch(/age, allergies and food preferences/);
+    }
+
+    const personal = answerServiceQuestion("are the lunches personalized?");
+    expect(personal.topic).toBe("personalization");
+    expect(personal.answer).toMatch(/age/);
+    expect(personal.answer).toMatch(/allergies/);
+    expect(personal.answer).toMatch(/preferences/);
+
+    const allergies = answerServiceQuestion("can you handle a gluten allergy?");
+    expect(allergies.topic).toBe("allergies-and-preferences");
+    expect(allergies.answer).toContain("filtered out");
+    // Never a safety claim, always a human confirmation.
+    expect(allergies.answer).toMatch(/never call a lunch safe/i);
+    expect(allergies.answer).not.toMatch(
+      /\bis safe\b|\bcompletely safe\b|allergy[- ]free|guaranteed/i,
+    );
+    expect(allergies.offerHuman).toBe(true);
+  });
+
+  it("still falls back rather than guessing when nothing matches", () => {
+    const unknown = answerServiceQuestion("what is the capital of France?");
+    expect(unknown.matched).toBe(false);
+    expect(unknown.topic).toBeNull();
+    expect(unknown.answer).toBe(SERVICE_FALLBACK);
+    expect(unknown.offerHuman).toBe(true);
   });
 
   it("an idea for a child with allergies asks for confirmation and never claims it is safe", () => {

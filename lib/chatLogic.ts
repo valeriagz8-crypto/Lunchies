@@ -32,17 +32,22 @@ export function normalize(text: string): string {
     .trim();
 }
 
+/** Whole-word (or whole-phrase) match, so "er" does not fire inside "dinner". */
+function matchesWholeWord(haystack: string, keyword: string): boolean {
+  const needle = normalize(keyword);
+  if (!needle) return false;
+  const pattern = new RegExp(
+    `(^|[^a-z0-9])${needle.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}([^a-z0-9]|$)`,
+  );
+  return pattern.test(haystack);
+}
+
 function containsKeyword(text: string, keywords: string[]): string | null {
   const haystack = normalize(text);
   if (!haystack) return null;
 
   for (const keyword of keywords) {
-    const needle = normalize(keyword);
-    // Whole-word match, so "er" does not fire inside "dinner".
-    const pattern = new RegExp(
-      `(^|[^a-z0-9])${needle.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}([^a-z0-9]|$)`,
-    );
-    if (pattern.test(haystack)) return keyword;
+    if (matchesWholeWord(haystack, keyword)) return keyword;
   }
   return null;
 }
@@ -142,9 +147,11 @@ export function answerServiceQuestion(text: string): ServiceResult {
   let bestEntry = null as (typeof SERVICE_ANSWERS)[number] | null;
   let bestHits = 0;
 
+  // Most keyword hits wins; a tie goes to the entry defined first, which is
+  // why ordering and payment sits above the broader delivery entry.
   for (const entry of SERVICE_ANSWERS) {
     const hits = entry.keywords.filter((keyword) =>
-      haystack.includes(normalize(keyword)),
+      matchesWholeWord(haystack, keyword),
     ).length;
     if (hits > bestHits) {
       bestHits = hits;
@@ -165,7 +172,9 @@ export function answerServiceQuestion(text: string): ServiceResult {
     answer: bestEntry.answer,
     matched: bestEntry.available,
     topic: bestEntry.id,
-    offerHuman: !bestEntry.available,
+    // Some topics are answered and still need a person, because only part of
+    // the answer exists on the site.
+    offerHuman: !bestEntry.available || bestEntry.needsHuman === true,
   };
 }
 

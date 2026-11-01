@@ -24,6 +24,7 @@ import {
   CHAT_IMAGES,
   CHAT_PREFERENCES,
   INTENTS,
+  SERVICE_REVIEW_REASON,
   type AgeGroup,
   type AllergyStatus,
   type Intent,
@@ -374,8 +375,7 @@ export default function ChatClient() {
     // 3. Answer from the fixed service answers, unless the guardrail fired.
     if (!guardrail.triggered) {
       const result = answerServiceQuestion(text);
-      const unanswered = !result.matched;
-      const reviewForAnswer = unanswered
+      const reviewForAnswer = !result.matched
         ? needsHumanReview({
             allergyStatus,
             allergies,
@@ -385,15 +385,22 @@ export default function ChatClient() {
           })
         : review;
 
+      // Some topics are answered and still need a person, because the site
+      // only covers part of them (delivery at school, anything allergy
+      // related). offerHuman carries that, so the banner follows it too.
+      const showBanner = reviewForAnswer.needed || result.offerHuman;
+
       if (reviewForAnswer.needed) {
         reviewReasonRef.current = reviewForAnswer.reason;
+      } else if (result.offerHuman) {
+        reviewReasonRef.current = SERVICE_REVIEW_REASON;
       }
 
       next.push(
         assistant(result.answer, {
           rateable: true,
           rating: null,
-          review: reviewForAnswer.needed,
+          review: showBanner,
         }),
       );
     } else if (review.needed) {

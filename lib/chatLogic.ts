@@ -10,16 +10,19 @@
  */
 
 import {
-  CHAT_NOTES,
+  CHAT_NOTES_BY_LANG,
   HUMAN_CHECKPOINT_KEYWORDS,
   LUNCHBOX_IDEAS,
   MEDICAL_KEYWORDS,
-  MEDICAL_RESPONSE,
+  MEDICAL_RESPONSE_BY_LANG,
   SERVICE_ANSWERS,
-  SERVICE_FALLBACK,
+  SERVICE_ANSWERS_ES,
+  SERVICE_FALLBACK_BY_LANG,
+  localizedIdea,
   type AgeGroup,
   type AllergyStatus,
   type Intent,
+  type Lang,
   type LunchboxIdea,
 } from "./chatData";
 
@@ -75,11 +78,13 @@ export function getLunchboxIdea(
   age: AgeGroup,
   allergies: string[] = [],
   preferences: string[] = [],
+  lang: Lang = "en",
 ): LunchboxResult {
+  const notes = CHAT_NOTES_BY_LANG[lang];
   const hasAllergies = allergies.length > 0;
   const note = hasAllergies
-    ? `${CHAT_NOTES.generalGuidance} ${CHAT_NOTES.allergyConfirmation}`
-    : CHAT_NOTES.generalGuidance;
+    ? `${notes.generalGuidance} ${notes.allergyConfirmation}`
+    : notes.generalGuidance;
 
   const vegetarian = preferences.includes("Vegetarian");
   const noRedMeat = preferences.includes("No red meat");
@@ -103,7 +108,9 @@ export function getLunchboxIdea(
       note,
       needsHumanConfirmation: hasAllergies,
       noMatchReason:
-        "I don't have an idea that fits all of those at once. A Lunchies team member can put something together for you.",
+        lang === "es"
+          ? "No tengo una idea que cumpla con todo eso a la vez. Alguien del equipo de Lunchies puede armarte algo."
+          : "I don't have an idea that fits all of those at once. A Lunchies team member can put something together for you.",
     };
   }
 
@@ -116,7 +123,9 @@ export function getLunchboxIdea(
   );
 
   return {
-    idea: best,
+    // Filtering ran on the canonical English data; only the names shown to the
+    // parent are translated.
+    idea: localizedIdea(best, lang),
     note,
     needsHumanConfirmation: hasAllergies,
     noMatchReason: null,
@@ -141,7 +150,12 @@ export type ServiceResult = {
  * most keyword hits wins; nothing matching returns the fallback rather than a
  * guess about the business.
  */
-export function answerServiceQuestion(text: string): ServiceResult {
+export function answerServiceQuestion(
+  text: string,
+  lang: Lang = "en",
+): ServiceResult {
+  // Keywords stay bilingual, so a parent can type in either language no
+  // matter which interface language is selected.
   const haystack = normalize(text);
 
   let bestEntry = null as (typeof SERVICE_ANSWERS)[number] | null;
@@ -161,7 +175,7 @@ export function answerServiceQuestion(text: string): ServiceResult {
 
   if (!bestEntry) {
     return {
-      answer: SERVICE_FALLBACK,
+      answer: SERVICE_FALLBACK_BY_LANG[lang],
       matched: false,
       topic: null,
       offerHuman: true,
@@ -169,7 +183,10 @@ export function answerServiceQuestion(text: string): ServiceResult {
   }
 
   return {
-    answer: bestEntry.answer,
+    answer:
+      lang === "es"
+        ? (SERVICE_ANSWERS_ES[bestEntry.id] ?? bestEntry.answer)
+        : bestEntry.answer,
     matched: bestEntry.available,
     topic: bestEntry.id,
     // Some topics are answered and still need a person, because only part of
@@ -190,14 +207,19 @@ export type GuardrailResult = {
 };
 
 /** Catches medical and dietary-treatment requests before anything else runs. */
-export function checkGuardrail(text: string): GuardrailResult {
+export function checkGuardrail(
+  text: string,
+  lang: Lang = "en",
+): GuardrailResult {
+  // The keyword list covers both languages, so a Spanish medical question is
+  // caught while the interface is in English and the other way round.
   const matched = containsKeyword(text, MEDICAL_KEYWORDS);
   if (!matched) {
     return { triggered: false, response: null, matchedKeyword: null };
   }
   return {
     triggered: true,
-    response: MEDICAL_RESPONSE,
+    response: MEDICAL_RESPONSE_BY_LANG[lang],
     matchedKeyword: matched,
   };
 }

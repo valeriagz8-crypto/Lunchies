@@ -19,15 +19,21 @@ import {
 import Spark from "@/components/home/Spark";
 import {
   AGE_GROUPS,
+  ALLERGEN_LABELS,
   ALLERGY_STATUSES,
+  ALLERGY_STATUS_LABELS,
   CHAT_ALLERGENS,
   CHAT_IMAGES,
   CHAT_PREFERENCES,
   INTENTS,
+  INTENT_LABELS,
+  LANGS,
+  PREFERENCE_LABELS,
   SERVICE_REVIEW_REASON,
   type AgeGroup,
   type AllergyStatus,
   type Intent,
+  type Lang,
 } from "@/lib/chatData";
 import {
   answerServiceQuestion,
@@ -45,7 +51,7 @@ import {
   type ChatMessage,
   type ChatRating,
 } from "@/lib/chatStorage";
-import { CHAT_PAGE_COPY as COPY } from "./chatCopy";
+import { CHAT_PAGE_COPY } from "./chatCopy";
 
 /* -------------------------------------------------------------------------- */
 /* Conversation model                                                         */
@@ -64,6 +70,8 @@ type Bubble = {
   id: number;
   role: "assistant" | "parent";
   text: string;
+  /** The language this bubble was written in. Past bubbles never change. */
+  lang?: Lang;
   /** A lunchbox idea rendered as a card instead of plain text. */
   idea?: LunchboxResult;
   /** Thumbs are offered under answers, not under questions. */
@@ -80,17 +88,22 @@ function assistant(text: string, extra: Partial<Bubble> = {}): Bubble {
   return { id: nextId(), role: "assistant", text, ...extra };
 }
 
-function parent(text: string): Bubble {
-  return { id: nextId(), role: "parent", text };
+function parent(text: string, extra: Partial<Bubble> = {}): Bubble {
+  return { id: nextId(), role: "parent", text, ...extra };
 }
 
-/** The plain transcript stored in Supabase: no names, no contact details. */
-function toTranscript(bubbles: Bubble[]): ChatMessage[] {
+/**
+ * The plain transcript stored in Supabase: no names, no contact details. Each
+ * message carries the language it was written in, which is how the language is
+ * recorded without touching the schema.
+ */
+function toTranscript(bubbles: Bubble[], lang: Lang): ChatMessage[] {
   return bubbles.map((bubble) => ({
     role: bubble.role,
     text: bubble.idea
       ? `${bubble.text} ${ideaToText(bubble.idea)}`
       : bubble.text,
+    lang: bubble.lang ?? lang,
   }));
 }
 
@@ -132,18 +145,24 @@ function QuickReply({
   );
 }
 
-function IdeaCard({ result }: { result: LunchboxResult }) {
+const IDEA_LABELS: Record<Lang, [string, string, string, string]> = {
+  en: ["Main", "Side", "Fruit", "Extra"],
+  es: ["Principal", "Acompañamiento", "Fruta", "Extra"],
+};
+
+function IdeaCard({ result, lang }: { result: LunchboxResult; lang: Lang }) {
   if (!result.idea) {
     return (
       <p className="mt-2 text-sm text-leaf-800">{result.noMatchReason}</p>
     );
   }
 
+  const [mainLabel, sideLabel, fruitLabel, extraLabel] = IDEA_LABELS[lang];
   const rows = [
-    ["Main", result.idea.main],
-    ["Side", result.idea.side],
-    ["Fruit", result.idea.fruit],
-    ["Extra", result.idea.extra],
+    [mainLabel, result.idea.main],
+    [sideLabel, result.idea.side],
+    [fruitLabel, result.idea.fruit],
+    [extraLabel, result.idea.extra],
   ];
 
   return (
@@ -190,9 +209,13 @@ export default function ChatClient() {
   const searchParams = useSearchParams();
   const isTest = searchParams.get("test") === "1";
 
+  // Spanish by default for a Spanish browser, which is most of the audience.
+  const [lang, setLang] = useState<Lang>("es");
+  const COPY = CHAT_PAGE_COPY[lang];
+
   const [bubbles, setBubbles] = useState<Bubble[]>(() => [
-    assistant(COPY.greeting),
-    assistant(COPY.questions.age),
+    assistant(CHAT_PAGE_COPY.es.greeting, { lang: "es" }),
+    assistant(CHAT_PAGE_COPY.es.questions.age, { lang: "es" }),
   ]);
   const [step, setStep] = useState<Step>("age");
 
@@ -223,12 +246,29 @@ export default function ChatClient() {
     setBubbles((current) => [...current, ...next]);
   }, []);
 
+  const startedRef = useRef(false);
+
+  useEffect(() => {
+    if (startedRef.current) return;
+    startedRef.current = true;
+
+    const browser = navigator.language?.toLowerCase() ?? "";
+    const detected: Lang = browser.startsWith("es") ? "es" : "en";
+    if (detected === "es") return; // already the default
+
+    setLang(detected);
+    setBubbles([
+      assistant(CHAT_PAGE_COPY[detected].greeting, { lang: detected }),
+      assistant(CHAT_PAGE_COPY[detected].questions.age, { lang: detected }),
+    ]);
+  }, []);
+
   /* ---- persistence ---------------------------------------------------- */
 
   const persist = useCallback(
     async (current: Bubble[]) => {
       const flagged = current.some((bubble) => bubble.review);
-      const transcript = toTranscript(current);
+      const transcript = toTranscript(current, lang);
 
       if (!sessionIdRef.current) {
         const result = await saveChatSession({
@@ -241,7 +281,7 @@ export default function ChatClient() {
           flaggedForReview: flagged,
           reviewReason: reviewReasonRef.current,
           isTest,
-        });
+        }, lang);
         if (result.ok) {
           sessionIdRef.current = result.data;
           setSaveError(null);
@@ -251,14 +291,18 @@ export default function ChatClient() {
         return;
       }
 
-      const result = await updateChatSession(sessionIdRef.current, {
-        messages: transcript,
-        flaggedForReview: flagged,
-        reviewReason: reviewReasonRef.current,
-      });
+      const result = await updateChatSession(
+        sessionIdRef.current,
+        {
+          messages: transcript,
+          flaggedForReview: flagged,
+          reviewReason: reviewReasonRef.current,
+        },
+        lang,
+      );
       setSaveError(result.ok ? null : result.error);
     },
-    [ageGroup, allergyStatus, allergies, preferences, intent, isTest],
+    [ageGroup, allergyStatus, allergies, preferences, intent, isTest, lang],
   );
 
   // The conversation is stored once the assistant has given a real answer,
@@ -283,15 +327,21 @@ export default function ChatClient() {
 
   function answerIntent(choice: Intent) {
     setIntent(choice);
-    push(parent(choice));
+    push(parent(INTENT_LABELS[lang][choice], { lang }));
 
     if (choice === "Lunchbox ideas") {
-      const result = getLunchboxIdea(ageGroup ?? "7-9", allergies, preferences);
+      const result = getLunchboxIdea(
+        ageGroup ?? "7-9",
+        allergies,
+        preferences,
+        lang,
+      );
       const review = needsHumanReview({ allergyStatus, allergies, intent: choice });
       if (review.needed) reviewReasonRef.current = review.reason;
 
       push(
         assistant(COPY.ideaIntro(ageGroup ?? "7-9"), {
+          lang,
           idea: result,
           rateable: true,
           rating: null,
@@ -303,40 +353,48 @@ export default function ChatClient() {
     }
 
     if (choice === "Questions about the service") {
-      push(assistant(COPY.askQuestion));
+      push(assistant(COPY.askQuestion, { lang }));
       setStep("await-question");
       return;
     }
 
     const review = needsHumanReview({ allergyStatus, allergies, intent: choice });
     reviewReasonRef.current = review.reason;
-    push(assistant(COPY.review.title, { review: true }));
+    push(assistant(COPY.review.title, { lang, review: true }));
     setStep("open");
   }
 
   function answerAllergy(choice: AllergyStatus) {
     setAllergyStatus(choice);
-    push(parent(choice));
+    push(parent(ALLERGY_STATUS_LABELS[lang][choice], { lang }));
 
     if (choice === "Has allergies") {
-      push(assistant(COPY.questions.allergyList));
+      push(assistant(COPY.questions.allergyList, { lang }));
       setStep("allergy-list");
       return;
     }
     if (choice === "Preferences") {
-      push(assistant(COPY.questions.preferenceList));
+      push(assistant(COPY.questions.preferenceList, { lang }));
       setStep("preference-list");
       return;
     }
 
-    push(assistant(COPY.questions.intent));
+    push(assistant(COPY.questions.intent, { lang }));
     setStep("intent");
   }
 
   function finishList(kind: "allergy" | "preference") {
     const chosen = kind === "allergy" ? allergies : preferences;
-    push(parent(chosen.length > 0 ? chosen.join(", ") : "None selected"));
-    push(assistant(COPY.questions.intent));
+    const labels = kind === "allergy" ? ALLERGEN_LABELS : PREFERENCE_LABELS;
+    const shown =
+      chosen.length > 0
+        ? chosen.map((value) => labels[lang][value] ?? value).join(", ")
+        : lang === "es"
+          ? "Ninguna"
+          : "None selected";
+
+    push(parent(shown, { lang }));
+    push(assistant(COPY.questions.intent, { lang }));
     setStep("intent");
   }
 
@@ -356,12 +414,13 @@ export default function ChatClient() {
     if (!text) return;
     setDraft("");
 
-    const next: Bubble[] = [parent(text)];
+    const next: Bubble[] = [parent(text, { lang })];
 
     // 1. Guardrail first: medical and dietary-treatment requests are refused.
-    const guardrail = checkGuardrail(text);
+    // The keyword lists cover both languages whatever the interface shows.
+    const guardrail = checkGuardrail(text, lang);
     if (guardrail.triggered && guardrail.response) {
-      next.push(assistant(guardrail.response));
+      next.push(assistant(guardrail.response, { lang }));
     }
 
     // 2. Does this need a person?
@@ -374,7 +433,7 @@ export default function ChatClient() {
 
     // 3. Answer from the fixed service answers, unless the guardrail fired.
     if (!guardrail.triggered) {
-      const result = answerServiceQuestion(text);
+      const result = answerServiceQuestion(text, lang);
       const reviewForAnswer = !result.matched
         ? needsHumanReview({
             allergyStatus,
@@ -398,6 +457,7 @@ export default function ChatClient() {
 
       next.push(
         assistant(result.answer, {
+          lang,
           rateable: true,
           rating: null,
           review: showBanner,
@@ -405,13 +465,13 @@ export default function ChatClient() {
       );
     } else if (review.needed) {
       reviewReasonRef.current = review.reason;
-      next.push(assistant(COPY.review.title, { review: true }));
+      next.push(assistant(COPY.review.title, { lang, review: true }));
     }
 
     // A question asked mid-intake is answered, then the pending question is
     // repeated so the parent does not lose their place.
     const pending = pendingQuestion();
-    if (pending) next.push(assistant(pending));
+    if (pending) next.push(assistant(pending, { lang }));
     if (step === "await-question") setStep("open");
 
     push(...next);
@@ -436,7 +496,7 @@ export default function ChatClient() {
     );
 
     if (!sessionIdRef.current) return;
-    const result = await saveRating(sessionIdRef.current, rating);
+    const result = await saveRating(sessionIdRef.current, rating, lang);
     if (!result.ok) setSaveError(result.error);
   }
 
@@ -444,7 +504,7 @@ export default function ChatClient() {
 
   async function handleReviewSubmit(event: React.FormEvent) {
     event.preventDefault();
-    const invalid = validateContact(contact);
+    const invalid = validateContact(contact, lang);
     if (invalid) {
       setReviewError(invalid);
       return;
@@ -452,12 +512,10 @@ export default function ChatClient() {
 
     setReviewError(null);
     setReviewSending(true);
-    const result = await saveReviewRequest({
-      sessionId: sessionIdRef.current,
-      contact,
-      note,
-      isTest,
-    });
+    const result = await saveReviewRequest(
+      { sessionId: sessionIdRef.current, contact, note, isTest },
+      lang,
+    );
     setReviewSending(false);
 
     if (!result.ok) {
@@ -477,7 +535,10 @@ export default function ChatClient() {
     sessionIdRef.current = null;
     reviewReasonRef.current = null;
     savedCountRef.current = 0;
-    setBubbles([assistant(COPY.greeting), assistant(COPY.questions.age)]);
+    setBubbles([
+      assistant(COPY.greeting, { lang }),
+      assistant(COPY.questions.age, { lang }),
+    ]);
     setStep("age");
     setAgeGroup(null);
     setAllergyStatus(null);
@@ -498,6 +559,8 @@ export default function ChatClient() {
   const listStep = step === "allergy-list" || step === "preference-list";
   const listOptions = step === "allergy-list" ? CHAT_ALLERGENS : CHAT_PREFERENCES;
   const listSelected = step === "allergy-list" ? allergies : preferences;
+  const listLabels =
+    step === "allergy-list" ? ALLERGEN_LABELS : PREFERENCE_LABELS;
 
   return (
     <div className="font-inter bg-[#FDF7EE]">
@@ -556,6 +619,41 @@ export default function ChatClient() {
       <section className="mx-auto grid max-w-6xl gap-6 px-4 pb-12 pt-1 sm:px-6 lg:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)]">
         {/* Chat panel */}
         <div className="flex min-w-0 flex-col rounded-[2rem] bg-white p-4 shadow-sm sm:p-6">
+          {/* Language toggle. Switching changes the interface and every
+              message from here on; what was already said stays as it was. */}
+          <div className="mb-3 flex items-center justify-end gap-2">
+            <span className="text-xs font-medium text-leaf-600">
+              {COPY.languageLabel}
+            </span>
+            <div
+              role="group"
+              aria-label={COPY.languageLabel}
+              className="flex items-center gap-0.5 rounded-full bg-leaf-50 p-0.5"
+            >
+              {LANGS.map((option) => {
+                const active = option === lang;
+                return (
+                  <button
+                    key={option}
+                    type="button"
+                    onClick={() => setLang(option)}
+                    aria-pressed={active}
+                    aria-label={
+                      option === "es" ? "Cambiar a español" : "Switch to English"
+                    }
+                    className={`rounded-full px-3 py-1 text-xs font-bold uppercase transition-colors ${FOCUS} ${
+                      active
+                        ? "bg-leaf-700 text-white"
+                        : "text-leaf-700 hover:bg-white"
+                    }`}
+                  >
+                    {option}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
           <div
             ref={scrollRef}
             className="max-h-[32rem] min-h-[22rem] flex-1 space-y-4 overflow-y-auto pr-1"
@@ -589,7 +687,12 @@ export default function ChatClient() {
                     <p className="whitespace-pre-wrap break-words font-medium">
                       {bubble.text}
                     </p>
-                    {bubble.idea && <IdeaCard result={bubble.idea} />}
+                    {bubble.idea && (
+                      <IdeaCard
+                        result={bubble.idea}
+                        lang={bubble.lang ?? lang}
+                      />
+                    )}
                   </div>
 
                   {bubble.role === "parent" && (
@@ -688,7 +791,10 @@ export default function ChatClient() {
                     label={group}
                     onClick={() => {
                       setAgeGroup(group);
-                      push(parent(group), assistant(COPY.questions.allergy));
+                      push(
+                        parent(group, { lang }),
+                        assistant(COPY.questions.allergy, { lang }),
+                      );
                       setStep("allergy");
                     }}
                   />
@@ -698,7 +804,7 @@ export default function ChatClient() {
                 ALLERGY_STATUSES.map((status) => (
                   <QuickReply
                     key={status}
-                    label={status}
+                    label={ALLERGY_STATUS_LABELS[lang][status]}
                     onClick={() => answerAllergy(status)}
                   />
                 ))}
@@ -709,7 +815,7 @@ export default function ChatClient() {
                     {listOptions.map((option) => (
                       <QuickReply
                         key={option}
-                        label={option}
+                        label={listLabels[lang][option] ?? option}
                         selected={listSelected.includes(option)}
                         onClick={() =>
                           step === "allergy-list"
@@ -738,7 +844,7 @@ export default function ChatClient() {
                 INTENTS.map((option) => (
                   <QuickReply
                     key={option}
-                    label={option}
+                    label={INTENT_LABELS[lang][option]}
                     onClick={() => answerIntent(option)}
                   />
                 ))}

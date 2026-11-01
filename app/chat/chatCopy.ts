@@ -1,6 +1,11 @@
-/** Fixed copy for the chat page, kept out of the JSX. */
+/**
+ * Fixed copy for the chat page in both languages, kept out of the JSX.
+ * Both entries must carry the same keys: a test checks that.
+ */
 
-export const CHAT_PAGE_COPY = {
+import type { Lang } from "@/lib/chatData";
+
+const EN = {
   eyebrow: "Lunchies assistant",
   titleLead: "Chat with",
   titleAccent: "Lunchies",
@@ -27,6 +32,7 @@ export const CHAT_PAGE_COPY = {
     "Sure. Type your question about Lunchies below and I'll answer from what's on the site.",
   ideaIntro: (age: string) =>
     `Here's a balanced lunchbox idea for a ${age} year old:`,
+  languageLabel: "Language",
   rating: {
     prompt: "Was this helpful?",
     up: "Yes, this was helpful",
@@ -74,4 +80,83 @@ export const CHAT_PAGE_COPY = {
       body: "Responses are based on general guidance for balanced and practical school lunches.",
     },
   },
-} as const;
+};
+
+const ES: typeof EN = {
+  eyebrow: "Asistente Lunchies",
+  titleLead: "Chatea con",
+  titleAccent: "Lunchies",
+  description:
+    "Recibe ideas de loncheras personalizadas, información sobre el servicio y orientación general para las comidas de la escuela.",
+  medicalNote:
+    "Este chat da orientación general y no sustituye la opinión de un profesional de la salud.",
+  heroCards: [
+    { icon: "✨", label: "Ideas para la lonchera" },
+    { icon: "ℹ️", label: "Dudas sobre el servicio" },
+    { icon: "🧑", label: "Hablar con una persona" },
+  ],
+  greeting:
+    "¡Hola! Soy Lunchies, tu guía para loncheras escolares saludables y prácticas. Para darte una mejor recomendación, déjame hacerte unas preguntas rápidas.",
+  questions: {
+    age: "1. ¿Qué edad tiene tu hijo?",
+    allergy: "2. ¿Tiene alguna alergia o preferencia de comida?",
+    allergyList: "¿Cuáles? Marca todas las que apliquen y dale a Continuar.",
+    preferenceList:
+      "¿Qué preferencias? Marca todas las que apliquen y dale a Continuar.",
+    intent: "3. ¿Cómo te puedo ayudar hoy?",
+  },
+  askQuestion:
+    "Claro. Escribe tu duda sobre Lunchies aquí abajo y te respondo con lo que está en el sitio.",
+  ideaIntro: (age: string) =>
+    `Esta es una idea de lonchera balanceada para ${age} años:`,
+  languageLabel: "Idioma",
+  rating: {
+    prompt: "¿Te sirvió?",
+    up: "Sí, me sirvió",
+    down: "No, no me sirvió",
+    thanks: "Gracias por tu opinión.",
+  },
+  review: {
+    title: "Esto necesita que lo revise alguien del equipo de Lunchies.",
+    body: "Si quieres ayuda personalizada, déjanos tus datos y alguien del equipo lo revisa.",
+    cta: "Dejar mis datos de contacto",
+    contactLabel: "Correo o teléfono",
+    contactPlaceholder: "tu@ejemplo.com o 55 1234 5678",
+    noteLabel: "¿Algo más que debamos saber? (opcional)",
+    notePlaceholder: "Una alergia específica, una necesidad alimenticia, una petición especial",
+    submit: "Enviar al equipo",
+    sending: "Enviando...",
+    cancel: "Cancelar",
+    sent: "Listo, ya tenemos tus datos. Alguien del equipo de Lunchies lo va a revisar.",
+  },
+  composer: {
+    placeholder: "Escribe un mensaje...",
+    send: "Enviar mensaje",
+  },
+  reset: "Empezar una conversación nueva",
+  continue: "Continuar",
+  sidebar: {
+    doHere: {
+      title: "¿Qué puedes hacer aquí?",
+      items: [
+        "Recibir ideas de loncheras personalizadas",
+        "Preguntar sobre Lunchies",
+        "Pedir ayuda de alguien del equipo",
+      ],
+    },
+    howItWorks: {
+      title: "Cómo funciona",
+      steps: [
+        "Responde 3 preguntas rápidas",
+        "Recibe una respuesta personalizada",
+        "Califica tu experiencia",
+      ],
+    },
+    care: {
+      title: "Hecho con cuidado",
+      body: "Las respuestas se basan en orientación general para loncheras escolares balanceadas y prácticas.",
+    },
+  },
+};
+
+export const CHAT_PAGE_COPY: Record<Lang, typeof EN> = { en: EN, es: ES };

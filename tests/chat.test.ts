@@ -13,7 +13,22 @@ import {
   validateContact,
   type ChatMessage,
 } from "@/lib/chatStorage";
-import { AGE_GROUPS, CHAT_ALLERGENS, SERVICE_FALLBACK } from "@/lib/chatData";
+import {
+  AGE_GROUPS,
+  ALLERGEN_LABELS,
+  ALLERGY_STATUS_LABELS,
+  CHAT_ALLERGENS,
+  CHAT_PREFERENCES,
+  IDEA_ES,
+  INTENT_LABELS,
+  LANGS,
+  LUNCHBOX_IDEAS,
+  PREFERENCE_LABELS,
+  SERVICE_ANSWERS,
+  SERVICE_ANSWERS_ES,
+  SERVICE_FALLBACK,
+} from "@/lib/chatData";
+import { CHAT_PAGE_COPY } from "@/app/chat/chatCopy";
 import { PLANS } from "@/lib/productData";
 
 /**
@@ -375,5 +390,157 @@ describe("Extra unit checks", () => {
     const plain = getLunchboxIdea("7-9", [], []);
     expect(plain.needsHumanConfirmation).toBe(false);
     expect(plain.note).toContain("not a safety guarantee");
+  });
+});
+
+describe("Spanish support", () => {
+  it("every translation key exists in both languages with no empty value", () => {
+    // Walks both copy trees together: same shape, same keys, nothing blank.
+    const walk = (en: unknown, es: unknown, path: string) => {
+      if (typeof en === "function") {
+        expect(typeof es, `${path} should also be a function`).toBe("function");
+        const enText = (en as (value: string) => string)("7-9");
+        const esText = (es as (value: string) => string)("7-9");
+        expect(enText.trim().length, `${path} en`).toBeGreaterThan(0);
+        expect(esText.trim().length, `${path} es`).toBeGreaterThan(0);
+        expect(esText, `${path} should be translated`).not.toBe(enText);
+        return;
+      }
+
+      if (Array.isArray(en)) {
+        expect(Array.isArray(es), `${path} should be an array`).toBe(true);
+        expect((es as unknown[]).length, `${path} length`).toBe(en.length);
+        en.forEach((item, index) =>
+          walk(item, (es as unknown[])[index], `${path}[${index}]`),
+        );
+        return;
+      }
+
+      if (en && typeof en === "object") {
+        expect(es && typeof es === "object", `${path} should be an object`).toBe(
+          true,
+        );
+        const enKeys = Object.keys(en as object).sort();
+        const esKeys = Object.keys(es as object).sort();
+        expect(esKeys, `${path} keys`).toEqual(enKeys);
+        for (const key of enKeys) {
+          walk(
+            (en as Record<string, unknown>)[key],
+            (es as Record<string, unknown>)[key],
+            `${path}.${key}`,
+          );
+        }
+        return;
+      }
+
+      expect(typeof es, `${path} type`).toBe(typeof en);
+      if (typeof en === "string") {
+        expect(en.trim().length, `${path} en is empty`).toBeGreaterThan(0);
+        expect((es as string).trim().length, `${path} es is empty`).toBeGreaterThan(0);
+      }
+    };
+
+    walk(CHAT_PAGE_COPY.en, CHAT_PAGE_COPY.es, "copy");
+
+    // The data-layer maps must cover every option and every idea.
+    for (const lang of LANGS) {
+      for (const allergen of CHAT_ALLERGENS) {
+        expect(ALLERGEN_LABELS[lang][allergen]?.trim()).toBeTruthy();
+      }
+      for (const preference of CHAT_PREFERENCES) {
+        expect(PREFERENCE_LABELS[lang][preference]?.trim()).toBeTruthy();
+      }
+      expect(Object.values(ALLERGY_STATUS_LABELS[lang]).every((v) => v.trim())).toBe(true);
+      expect(Object.values(INTENT_LABELS[lang]).every((v) => v.trim())).toBe(true);
+    }
+
+    for (const idea of LUNCHBOX_IDEAS) {
+      const translated = IDEA_ES[idea.id];
+      expect(translated, `missing Spanish for ${idea.id}`).toBeDefined();
+      for (const field of ["main", "side", "fruit", "extra"] as const) {
+        expect(translated[field].trim().length).toBeGreaterThan(0);
+      }
+    }
+
+    for (const entry of SERVICE_ANSWERS) {
+      expect(
+        SERVICE_ANSWERS_ES[entry.id]?.trim(),
+        `missing Spanish answer for ${entry.id}`,
+      ).toBeTruthy();
+    }
+  });
+
+  it("Spanish lunchbox ideas still exclude every selected allergen", () => {
+    for (const age of AGE_GROUPS) {
+      for (const allergen of CHAT_ALLERGENS) {
+        const result = getLunchboxIdea(age, [allergen], [], "es");
+        expect(result.idea).not.toBeNull();
+        // Filtering runs on the canonical English tags, not the shown names.
+        expect(result.idea!.allergens).not.toContain(allergen);
+        // The names really are translated.
+        expect(result.idea!.main).toBe(IDEA_ES[result.idea!.id].main);
+        expect(result.note).toMatch(/guía general/);
+        expect(result.note).toMatch(/equipo de Lunchies necesita confirmar/);
+      }
+
+      const vegetarian = getLunchboxIdea(age, [], ["Vegetarian"], "es");
+      expect(vegetarian.idea!.vegetarian).toBe(true);
+    }
+  });
+
+  it("Spanish service answers quote the same prices and never claim a lunch is safe", () => {
+    const prices = answerServiceQuestion("cuanto cuesta?", "es");
+    expect(prices.topic).toBe("plans-and-prices");
+    for (const plan of PLANS) {
+      expect(prices.answer).toContain(`$${plan.weeklyPrice}`);
+    }
+
+    const allergies = answerServiceQuestion("tiene alergia al gluten", "es");
+    expect(allergies.topic).toBe("allergies-and-preferences");
+    expect(allergies.answer).toMatch(/nunca puedo decirte que una lonchera sea segura/i);
+    expect(allergies.answer).toMatch(/equipo de Lunchies confirma/i);
+    expect(allergies.offerHuman).toBe(true);
+
+    // The honesty wording carries over to Spanish.
+    const delivery = answerServiceQuestion("como entregan la lonchera?", "es");
+    expect(delivery.answer).toMatch(/se entregan en la escuela/i);
+    expect(delivery.answer).toMatch(/no están definidos/i);
+    expect(delivery.offerHuman).toBe(true);
+
+    const payment = answerServiceQuestion("puedo pagar con tarjeta?", "es");
+    expect(payment.matched).toBe(false);
+    expect(payment.answer).toMatch(/no están definidos/i);
+  });
+
+  it("keyword matching works across languages whatever the interface shows", () => {
+    // Spanish medical question, English interface.
+    const esMedical = checkGuardrail("mi hijo tiene gastritis, que dieta le doy?", "en");
+    expect(esMedical.triggered).toBe(true);
+    expect(esMedical.response).toMatch(/pediatrician|registered nutritionist/);
+
+    // English medical question, Spanish interface.
+    const enMedical = checkGuardrail("what medication for obesity?", "es");
+    expect(enMedical.triggered).toBe(true);
+    expect(enMedical.response).toMatch(/pediatra|nutriólogo/);
+
+    // Spanish allergy mention flags a person regardless of interface language.
+    const esAllergy = needsHumanReview({
+      allergyStatus: "No allergies",
+      freeText: "le salieron ronchas, creo que es una alergia",
+    });
+    expect(esAllergy.needed).toBe(true);
+
+    const enAllergy = needsHumanReview({
+      allergyStatus: "No allergies",
+      freeText: "she had an allergic reaction",
+    });
+    expect(enAllergy.needed).toBe(true);
+
+    // And an ordinary Spanish question still does not flag anyone.
+    const ordinary = needsHumanReview({
+      allergyStatus: "No allergies",
+      freeText: "cuanto cuesta el plan basico?",
+    });
+    expect(ordinary.needed).toBe(false);
   });
 });

@@ -613,3 +613,231 @@ export const CHAT_IMAGES = {
     height: 800,
   },
 } as const;
+
+/* -------------------------------------------------------------------------- */
+/* Languages                                                                  */
+/* -------------------------------------------------------------------------- */
+
+/**
+ * The chat is bilingual. Stored values stay canonical English (age_group,
+ * allergy_status, allergies, preferences, intent) so filtering, the rules and
+ * the database do not change with the interface language; only what the parent
+ * reads is translated.
+ */
+export const LANGS = ["es", "en"] as const;
+export type Lang = (typeof LANGS)[number];
+
+export const ALLERGY_STATUS_LABELS: Record<
+  Lang,
+  Record<AllergyStatus, string>
+> = {
+  en: {
+    "No allergies": "No allergies",
+    "Has allergies": "Has allergies",
+    Preferences: "Preferences",
+  },
+  es: {
+    "No allergies": "Sin alergias",
+    "Has allergies": "Tiene alergias",
+    Preferences: "Preferencias",
+  },
+};
+
+export const INTENT_LABELS: Record<Lang, Record<Intent, string>> = {
+  en: {
+    "Lunchbox ideas": "Lunchbox ideas",
+    "Questions about the service": "Questions about the service",
+    "Talk to a person": "Talk to a person",
+  },
+  es: {
+    "Lunchbox ideas": "Ideas para la lonchera",
+    "Questions about the service": "Dudas sobre el servicio",
+    "Talk to a person": "Hablar con una persona",
+  },
+};
+
+export const ALLERGEN_LABELS: Record<Lang, Record<string, string>> = {
+  en: {
+    Peanuts: "Peanuts",
+    Dairy: "Dairy",
+    Gluten: "Gluten",
+    Eggs: "Eggs",
+    Shellfish: "Shellfish",
+    Soy: "Soy",
+  },
+  es: {
+    Peanuts: "Cacahuate",
+    Dairy: "Lácteos",
+    Gluten: "Gluten",
+    Eggs: "Huevo",
+    Shellfish: "Mariscos",
+    Soy: "Soya",
+  },
+};
+
+export const PREFERENCE_LABELS: Record<Lang, Record<string, string>> = {
+  en: {
+    "No red meat": "No red meat",
+    "Loves fruits": "Loves fruits",
+    "Loves veggies": "Loves veggies",
+    Vegetarian: "Vegetarian",
+  },
+  es: {
+    "No red meat": "Sin carne roja",
+    "Loves fruits": "Le encanta la fruta",
+    "Loves veggies": "Le encantan las verduras",
+    Vegetarian: "Vegetariano",
+  },
+};
+
+/** Spanish names for each idea, keyed by the idea id. */
+export const IDEA_ES: Record<
+  string,
+  { main: string; side: string; fruit: string; extra: string }
+> = {
+  "idea-56-1": {
+    main: "Wrap de pavo y queso en tortilla integral",
+    side: "Bastones de zanahoria y pepino",
+    fruit: "Fresas",
+    extra: "Yogurt natural",
+  },
+  "idea-56-2": {
+    main: "Pollo deshebrado con arroz",
+    side: "Ejotes al vapor",
+    fruit: "Plátano",
+    extra: "Galletas de arroz",
+  },
+  "idea-56-3": {
+    main: "Taco de frijoles negros en tortilla de maíz",
+    side: "Jitomates cherry",
+    fruit: "Rebanadas de manzana",
+    extra: "Pepitas",
+  },
+  "idea-56-4": {
+    main: "Mitades de huevo cocido",
+    side: "Bastones de pepino",
+    fruit: "Uvas",
+    extra: "Totopos",
+  },
+  "idea-56-5": {
+    main: "Sopa de pollo y verduras en termo",
+    side: "Zanahorias al vapor",
+    fruit: "Cubos de melón",
+    extra: "Palomitas naturales",
+  },
+  "idea-79-1": {
+    main: "Tiras de pollo a la plancha",
+    side: "Camote al horno",
+    fruit: "Gajos de naranja",
+    extra: "Pepitas",
+  },
+  "idea-79-2": {
+    main: "Quesadilla de frijoles en tortilla de maíz",
+    side: "Bastones de jícama con limón",
+    fruit: "Trozos de piña",
+    extra: "Yogurt natural",
+  },
+  "idea-79-3": {
+    main: "Sándwich de pavo y aguacate en pan integral",
+    side: "Bastones de zanahoria",
+    fruit: "Manzana",
+    extra: "Palomitas naturales",
+  },
+  "idea-79-4": {
+    main: "Arroz salteado con verduras y tofu",
+    side: "Rodajas de pepino",
+    fruit: "Mango",
+    extra: "Galletas de arroz",
+  },
+  "idea-79-5": {
+    main: "Picadillo de res con arroz",
+    side: "Zanahoria y chícharos al vapor",
+    fruit: "Plátano",
+    extra: "Tortilla de maíz",
+  },
+  "idea-1012-1": {
+    main: "Ensalada de pollo con quinoa",
+    side: "Jitomates cherry y pepino",
+    fruit: "Uvas",
+    extra: "Galletas integrales",
+  },
+  "idea-1012-2": {
+    main: "Tacos de huevo con papa en tortilla de maíz",
+    side: "Ensalada de nopales",
+    fruit: "Naranja",
+    extra: "Semillas de girasol",
+  },
+  "idea-1012-3": {
+    main: "Bowl de lentejas con arroz",
+    side: "Calabacita al horno",
+    fruit: "Manzana",
+    extra: "Totopos",
+  },
+  "idea-1012-4": {
+    main: "Torta de pollo a la plancha en bolillo integral",
+    side: "Bastones de zanahoria y jícama",
+    fruit: "Melón",
+    extra: "Barrita de queso",
+  },
+  "idea-1012-5": {
+    main: "Bowl de arroz con pollo y verduras",
+    side: "Brócoli al vapor",
+    fruit: "Fresas y plátano",
+    extra: "Palomitas naturales",
+  },
+};
+
+/** Returns the idea with its food names in the requested language. */
+export function localizedIdea(
+  idea: LunchboxIdea,
+  lang: Lang,
+): LunchboxIdea {
+  if (lang === "en") return idea;
+  const translated = IDEA_ES[idea.id];
+  return translated ? { ...idea, ...translated } : idea;
+}
+
+/** Spanish answer for each service topic, keyed by the entry id. */
+export const SERVICE_ANSWERS_ES: Record<string, string> = {
+  "ordering-and-payment":
+    "Los pedidos, los pagos, los contratos, los reembolsos y los horarios exactos de entrega todavía no están definidos, así que no tengo esa información. Puedo ponerte en contacto con alguien del equipo de Lunchies.",
+  delivery:
+    "Las loncheras de Lunchies se entregan en la escuela de tu hijo. Los días, los horarios y las zonas de entrega todavía no están definidos. Puedo ponerte en contacto con alguien del equipo.",
+  "plans-and-prices": `Tenemos tres planes: ${PLANS.map(
+    (plan) => `${plan.name} $${plan.weeklyPrice}/semana`,
+  ).join(", ")}. Puedes comparar qué incluye cada uno en las páginas de Producto y Precios.`,
+  "allergies-and-preferences":
+    "En el planeador de Core marcas los alérgenos que tu hijo no puede comer, entre cacahuate, lácteos, gluten, huevo, mariscos y soya, y las comidas que los contienen se filtran. Las preferencias funcionan igual. Nunca puedo decirte que una lonchera sea segura para una alergia, así que alguien del equipo de Lunchies confirma todo lo relacionado con alergias antes de que te confíes.",
+  personalization:
+    "Cada plan se arma alrededor de tu hijo: nos dices su edad, sus alergias y sus preferencias de comida, y elegimos las loncheras según eso.",
+  "what-is-lunchies":
+    "Lunchies planea loncheras saludables y personalizadas para niños en edad escolar. Nos dices la edad de tu hijo, sus alergias y sus preferencias, y el planeador de Core arma un plan de 5 días con eso.",
+};
+
+export const SERVICE_FALLBACK_BY_LANG: Record<Lang, string> = {
+  en: SERVICE_FALLBACK,
+  es: "Esa no te la puedo responder. Puedo ponerte en contacto con alguien del equipo de Lunchies que sí sepa.",
+};
+
+export const MEDICAL_RESPONSE_BY_LANG: Record<Lang, string> = {
+  en: MEDICAL_RESPONSE,
+  es: "No puedo ayudarte con temas médicos ni con tratamientos alimenticios, incluyendo diagnósticos, medicamentos, suplementos o dietas para bajar de peso. Para algo así, consulta al pediatra de tu hijo o a un nutriólogo certificado. Con gusto te sigo ayudando con ideas generales para la lonchera y con dudas sobre Lunchies.",
+};
+
+export type ChatNotes = {
+  generalGuidance: string;
+  allergyConfirmation: string;
+  notMedicalAdvice: string;
+};
+
+export const CHAT_NOTES_BY_LANG: Record<Lang, ChatNotes> = {
+  en: CHAT_NOTES,
+  es: {
+    generalGuidance:
+      "Esto es una guía general para una lonchera balanceada, no una garantía de seguridad. Revisa siempre las etiquetas y lo que permite la escuela.",
+    allergyConfirmation:
+      "Me dijiste que tu hijo tiene alergias, así que no puedo decirte que alguna lonchera sea segura. Alguien del equipo de Lunchies necesita confirmar esta idea con las alergias específicas de tu hijo antes de que la uses.",
+    notMedicalAdvice:
+      "No doy consejos médicos, ni tratamientos alimenticios ni diagnósticos.",
+  },
+};

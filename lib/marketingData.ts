@@ -899,7 +899,9 @@ export const HERO_NOTES: HeroNote[] = [
 
 export const HERO_PHONE = {
   handle: "Lunchies",
-  caption: "Healthy lunches. Happier kids.",
+  // Mirrors the live landing headline, so the mock post never shows wording
+  // the site has moved on from. The A/B variants stay fixed separately.
+  caption: LANDING_COPY.headline,
   note: "Good food, brighter futures",
   /** The lunchbox inside the phone, drawn with emoji instead of a photo. */
   lunchbox: ["🍓", "🥪", "🥒", "🫐", "🧀", "🥕", "🍅", "⭐", "🍇"],

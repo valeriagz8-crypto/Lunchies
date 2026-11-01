@@ -14,6 +14,7 @@ import {
 import type { AbEvent } from "@/lib/abTest";
 import {
   CAMPAIGN_CALENDAR,
+  LANDING_COPY,
   SOCIAL_POSTS,
   VIDEO_SCRIPTS,
 } from "@/lib/marketingData";
@@ -152,6 +153,20 @@ describe("Extra unit checks", () => {
     expect(calculateConversion(0, 0)).toBe(0);
     expect(calculateConversion(0, 5)).toBe(0);
     expect(calculateConversion(3, 1)).toBe(33.3);
+  });
+
+  it("the A/B variant wording stays fixed, independent of the live headline", () => {
+    // People voted on these exact strings, so they must not follow the
+    // homepage headline when it changes.
+    const timeTest = LANDING_COPY.tests.find(
+      (test) => test.testName === "time",
+    );
+    expect(timeTest).toBeDefined();
+    expect(timeTest?.variants[0].text).toBe(
+      "Skip the 15-minute morning lunch rush.",
+    );
+    expect(timeTest?.variants[1].text).toBe("Healthy lunches. Happier kids.");
+    expect(timeTest?.variants[1].text).not.toBe(LANDING_COPY.headline);
   });
 
   it("voteShare splits the vote, halves a tie and returns 0 with no votes", () => {

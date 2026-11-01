@@ -206,6 +206,8 @@ export type AbTest = {
 
 export type LandingCopy = {
   headline: string;
+  /** The part of the headline shown in the orange accent. */
+  headlineAccent: string;
   subheadline: string;
   callToAction: string;
   ctaButton: string;
@@ -216,7 +218,10 @@ const KANTAR_SOURCE_URL =
   "https://www.kantar.com/latin-america/inspiracion/consumidor/2023-wp-mx-lonchera-escolar-en-el-regreso-a-clases";
 
 export const LANDING_COPY: LandingCopy = {
-  headline: "Healthy lunches. Happier kids.",
+  // The live homepage headline. Chosen from the "time" test below: the
+  // specific time saving took 8 of 12 votes (Oct 29 to Nov 1, 2026).
+  headline: "Skip the 15-minute morning lunch rush.",
+  headlineAccent: "15-minute morning lunch rush.",
   subheadline:
     "Lunchies plans a week of balanced lunches for your kids, so you can stop deciding at 7am and start the day already sorted.",
   callToAction: "Build your first week of lunches in a few minutes.",
@@ -270,6 +275,8 @@ export const LANDING_COPY: LandingCopy = {
         {
           id: "B",
           label: "General benefit",
+          // Fixed string on purpose: this is the wording people actually voted
+          // on, so it must not follow LANDING_COPY.headline when that changes.
           text: "Healthy lunches. Happier kids.",
           rationale: "Leads with the broad promise, with no numbers in it.",
         },

@@ -219,10 +219,8 @@ function PersonaPreview() {
 }
 
 function LandingPreview() {
-  const headline = LANDING_COPY.headline;
-  const splitAt = headline.indexOf(". ");
-  const lead = splitAt > -1 ? headline.slice(0, splitAt + 1) : headline;
-  const accent = splitAt > -1 ? headline.slice(splitAt + 2) : "";
+  const accent = LANDING_COPY.headlineAccent;
+  const lead = LANDING_COPY.headline.replace(accent, "").trim();
 
   return (
     <Panel label={OVERVIEW_PREVIEW_COPY.mainHeadline}>

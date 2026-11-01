@@ -28,9 +28,11 @@ export type HeroBenefit = {
 
 export type Hero = {
   badge: string;
-  headlineLine1: string;
-  headlineLine2Lead: string;
+  headlineLead: string;
+  /** The part of the headline shown in the orange accent. */
   headlineAccent: string;
+  /** Short line under the headline. */
+  supportingLine: string;
   subheadline: string;
   primaryCta: LinkTarget;
   secondaryCta: LinkTarget;
@@ -49,9 +51,12 @@ export type Hero = {
 
 export const HERO: Hero = {
   badge: "Healthy habits, happier days",
-  headlineLine1: "Healthy lunches",
-  headlineLine2Lead: "for",
-  headlineAccent: "happier kids.",
+  // Chosen from the "time" A/B test on /marketing: the specific time saving
+  // took 8 of 12 votes (Oct 29 to Nov 1, 2026) against the previous headline,
+  // "Healthy lunches. Happier kids.", which now runs as the supporting line.
+  headlineLead: "Skip the",
+  headlineAccent: "15-minute morning lunch rush.",
+  supportingLine: "Healthy lunches for happier kids.",
   subheadline:
     "Personalized, nutritious and convenient lunches based on your child's preferences, allergies and busy schedule.",
   primaryCta: { label: "Create my plan", href: "/core" },

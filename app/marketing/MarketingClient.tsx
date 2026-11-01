@@ -499,13 +499,8 @@ function AbTestBlock({ test }: { test: AbTest }) {
 }
 
 function LandingPanel() {
-  const splitAt = LANDING_COPY.headline.indexOf(". ");
-  const heroLead =
-    splitAt > -1
-      ? LANDING_COPY.headline.slice(0, splitAt + 1)
-      : LANDING_COPY.headline;
-  const heroAccent =
-    splitAt > -1 ? LANDING_COPY.headline.slice(splitAt + 2) : "";
+  const heroAccent = LANDING_COPY.headlineAccent;
+  const heroLead = LANDING_COPY.headline.replace(heroAccent, "").trim();
 
   return (
     <div className="space-y-8">

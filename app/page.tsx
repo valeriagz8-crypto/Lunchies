@@ -32,6 +32,10 @@ function Wave({ className = "", flip = false }: { className?: string; flip?: boo
 }
 
 export default function Home() {
+  // "15-minute" must not break at its hyphen, so the first word of the accent
+  // is kept on one line.
+  const [accentFirstWord, ...accentRest] = HERO.headlineAccent.split(" ");
+
   return (
     <>
       {/* 1. Hero */}
@@ -44,13 +48,18 @@ export default function Home() {
             </span>
 
             <h1 className="font-poppins mt-5 text-4xl font-extrabold leading-[1.05] tracking-tight text-leaf-900 sm:text-5xl lg:text-6xl">
-              {HERO.headlineLine1}
-              <br />
-              {HERO.headlineLine2Lead}{" "}
-              <span className="text-peach-500">{HERO.headlineAccent}</span>
+              {HERO.headlineLead}{" "}
+              <span className="text-peach-500">
+                <span className="whitespace-nowrap">{accentFirstWord}</span>
+                {accentRest.length > 0 && ` ${accentRest.join(" ")}`}
+              </span>
             </h1>
 
-            <p className="mt-5 max-w-md text-base leading-relaxed text-leaf-800 sm:text-lg">
+            <p className="font-poppins mt-4 text-lg font-semibold text-leaf-700">
+              {HERO.supportingLine}
+            </p>
+
+            <p className="mt-3 max-w-md text-base leading-relaxed text-leaf-800 sm:text-lg">
               {HERO.subheadline}
             </p>
 

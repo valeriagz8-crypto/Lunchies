@@ -494,60 +494,59 @@ export default function ChatClient() {
 
   return (
     <div className="font-inter bg-[#FDF7EE]">
-      {/* Hero */}
+      {/* Hero: deliberately short, so the chat is usable without scrolling. */}
       <section className="bg-gradient-to-br from-[#FDF7EE] via-[#FCF0E4] to-leaf-50">
-        <div className="mx-auto grid max-w-6xl items-center gap-10 px-4 py-10 sm:px-6 lg:grid-cols-2 lg:py-14">
-          <div>
-            <span className="text-xs font-bold uppercase tracking-[0.18em] text-leaf-600">
-              {COPY.eyebrow}
-            </span>
-            <h1 className="font-poppins mt-3 text-4xl font-extrabold leading-[1.05] tracking-tight text-leaf-900 sm:text-5xl">
-              {COPY.titleLead}
-              <br />
-              <span className="text-peach-500">{COPY.titleAccent}</span>
-            </h1>
-            <p className="mt-4 max-w-md text-base text-leaf-800 sm:text-lg">
-              {COPY.description}
-            </p>
-
-            <p className="mt-5 flex max-w-lg items-start gap-2 rounded-2xl bg-leaf-50 px-4 py-3 text-sm text-leaf-700">
-              <Info
-                className="mt-0.5 h-4 w-4 shrink-0 text-leaf-600"
-                aria-hidden="true"
-              />
-              {COPY.medicalNote}
-            </p>
-          </div>
-
-          <div className="relative">
-            <div className="relative aspect-[4/3] overflow-hidden rounded-[2rem] bg-leaf-100 shadow-lg">
-              <Image
-                src={CHAT_IMAGES.hero.src}
-                alt={CHAT_IMAGES.hero.alt}
-                fill
-                priority
-                sizes="(max-width: 1024px) 100vw, 40rem"
-                className="object-cover"
-              />
+        <div className="mx-auto max-w-6xl px-4 py-5 sm:px-6 sm:py-6">
+          <div className="grid items-center gap-5 lg:grid-cols-[minmax(0,1fr)_minmax(0,24rem)]">
+            <div className="min-w-0">
+              <span className="text-[11px] font-bold uppercase tracking-[0.18em] text-leaf-600">
+                {COPY.eyebrow}
+              </span>
+              <h1 className="font-poppins mt-1 text-2xl font-extrabold leading-tight tracking-tight text-leaf-900 sm:text-3xl lg:whitespace-nowrap lg:text-4xl">
+                {COPY.titleLead}{" "}
+                <span className="text-peach-500">{COPY.titleAccent}</span>
+              </h1>
+              <p className="mt-2 max-w-xl text-sm text-leaf-800 sm:text-base">
+                {COPY.description}
+              </p>
             </div>
 
-            <ul className="mt-4 flex flex-wrap gap-2 lg:absolute lg:-right-2 lg:top-4 lg:mt-0 lg:w-48 lg:flex-col">
-              {COPY.heroCards.map((card) => (
-                <li
-                  key={card.label}
-                  className="flex items-center gap-2 rounded-2xl bg-white/95 px-3 py-2 text-xs font-semibold text-leaf-800 shadow-md sm:text-sm"
-                >
-                  <span aria-hidden="true">{card.icon}</span>
-                  {card.label}
-                </li>
-              ))}
-            </ul>
+            {/* Photo with the three cards over it */}
+            <div className="relative h-[150px] w-full overflow-hidden rounded-2xl bg-leaf-100 shadow-md sm:h-[190px] lg:h-[240px]">
+              <Image
+                src={CHAT_IMAGES.care.src}
+                alt={CHAT_IMAGES.care.alt}
+                fill
+                priority
+                sizes="(max-width: 1024px) 100vw, 24rem"
+                className="object-cover"
+              />
+              <ul className="absolute right-2 top-2 flex w-[min(60%,11rem)] flex-col gap-1.5">
+                {COPY.heroCards.map((card) => (
+                  <li
+                    key={card.label}
+                    className="flex items-center gap-1.5 rounded-xl bg-white/95 px-2.5 py-1.5 text-[11px] font-semibold leading-tight text-leaf-800 shadow-sm"
+                  >
+                    <span aria-hidden="true">{card.icon}</span>
+                    <span className="min-w-0">{card.label}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
           </div>
+
+          <p className="mt-3 flex items-center gap-2 rounded-xl bg-leaf-50 px-3 py-2 text-xs text-leaf-700">
+            <Info
+              className="h-3.5 w-3.5 shrink-0 text-leaf-600"
+              aria-hidden="true"
+            />
+            <span className="min-w-0">{COPY.medicalNote}</span>
+          </p>
         </div>
       </section>
 
       {/* Chat + sidebar */}
-      <section className="mx-auto grid max-w-6xl gap-6 px-4 pb-14 sm:px-6 lg:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)]">
+      <section className="mx-auto grid max-w-6xl gap-6 px-4 pb-12 pt-1 sm:px-6 lg:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)]">
         {/* Chat panel */}
         <div className="flex min-w-0 flex-col rounded-[2rem] bg-white p-4 shadow-sm sm:p-6">
           <div
@@ -907,8 +906,8 @@ export default function ChatClient() {
             </div>
             <div className="relative h-40 w-full">
               <Image
-                src={CHAT_IMAGES.care.src}
-                alt={CHAT_IMAGES.care.alt}
+                src={CHAT_IMAGES.hero.src}
+                alt={CHAT_IMAGES.hero.alt}
                 fill
                 sizes="(max-width: 1024px) 100vw, 22rem"
                 className="object-cover"

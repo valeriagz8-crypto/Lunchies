@@ -140,6 +140,42 @@ export async function saveRating(
   return { ok: true, data: undefined };
 }
 
+export type ChatSessionPatch = {
+  messages?: ChatMessage[];
+  flaggedForReview?: boolean;
+  reviewReason?: string | null;
+};
+
+/** Updates an existing session as the conversation grows or gets flagged. */
+export async function updateChatSession(
+  id: string,
+  patch: ChatSessionPatch,
+): Promise<SaveResult> {
+  const row: Record<string, unknown> = {};
+  if (patch.messages !== undefined) row.messages = patch.messages;
+  if (patch.flaggedForReview !== undefined) {
+    row.flagged_for_review = patch.flaggedForReview;
+  }
+  if (patch.reviewReason !== undefined) row.review_reason = patch.reviewReason;
+
+  if (Object.keys(row).length === 0) return { ok: true, data: undefined };
+
+  const response = await withTimeout(
+    supabase.from("chat_sessions").update(row).eq("id", id),
+  );
+
+  if (response === TIMED_OUT) {
+    console.error("chat_sessions update timed out");
+    return { ok: false, error: FRIENDLY.timeout };
+  }
+  if (response.error) {
+    console.error("chat_sessions update error:", response.error);
+    return { ok: false, error: FRIENDLY.saveSession };
+  }
+
+  return { ok: true, data: undefined };
+}
+
 /**
  * Stores a request for a person to get in touch. The contact is validated
  * first, so an empty or malformed one never reaches the database.

@@ -1,0 +1,922 @@
+"use client";
+
+import { useCallback, useEffect, useRef, useState } from "react";
+import Image from "next/image";
+import { useSearchParams } from "next/navigation";
+import {
+  Check,
+  Headphones,
+  Info,
+  RefreshCw,
+  Send,
+  ShieldCheck,
+  Sparkles,
+  Target,
+  ThumbsDown,
+  ThumbsUp,
+  User,
+} from "lucide-react";
+import Spark from "@/components/home/Spark";
+import {
+  AGE_GROUPS,
+  ALLERGY_STATUSES,
+  CHAT_ALLERGENS,
+  CHAT_IMAGES,
+  CHAT_PREFERENCES,
+  INTENTS,
+  type AgeGroup,
+  type AllergyStatus,
+  type Intent,
+} from "@/lib/chatData";
+import {
+  answerServiceQuestion,
+  checkGuardrail,
+  getLunchboxIdea,
+  needsHumanReview,
+  type LunchboxResult,
+} from "@/lib/chatLogic";
+import {
+  saveChatSession,
+  saveRating,
+  saveReviewRequest,
+  updateChatSession,
+  validateContact,
+  type ChatMessage,
+  type ChatRating,
+} from "@/lib/chatStorage";
+import { CHAT_PAGE_COPY as COPY } from "./chatCopy";
+
+/* -------------------------------------------------------------------------- */
+/* Conversation model                                                         */
+/* -------------------------------------------------------------------------- */
+
+type Step =
+  | "age"
+  | "allergy"
+  | "allergy-list"
+  | "preference-list"
+  | "intent"
+  | "await-question"
+  | "open";
+
+type Bubble = {
+  id: number;
+  role: "assistant" | "parent";
+  text: string;
+  /** A lunchbox idea rendered as a card instead of plain text. */
+  idea?: LunchboxResult;
+  /** Thumbs are offered under answers, not under questions. */
+  rateable?: boolean;
+  rating?: ChatRating | null;
+  /** Shows the "needs a review" banner under this bubble. */
+  review?: boolean;
+};
+
+let bubbleId = 0;
+const nextId = () => (bubbleId += 1);
+
+function assistant(text: string, extra: Partial<Bubble> = {}): Bubble {
+  return { id: nextId(), role: "assistant", text, ...extra };
+}
+
+function parent(text: string): Bubble {
+  return { id: nextId(), role: "parent", text };
+}
+
+/** The plain transcript stored in Supabase: no names, no contact details. */
+function toTranscript(bubbles: Bubble[]): ChatMessage[] {
+  return bubbles.map((bubble) => ({
+    role: bubble.role,
+    text: bubble.idea
+      ? `${bubble.text} ${ideaToText(bubble.idea)}`
+      : bubble.text,
+  }));
+}
+
+function ideaToText(result: LunchboxResult): string {
+  if (!result.idea) return result.noMatchReason ?? "";
+  const { main, side, fruit, extra } = result.idea;
+  return `Main: ${main}. Side: ${side}. Fruit: ${fruit}. Extra: ${extra}.`;
+}
+
+/* -------------------------------------------------------------------------- */
+/* Small pieces                                                               */
+/* -------------------------------------------------------------------------- */
+
+const FOCUS =
+  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-leaf-600 focus-visible:ring-offset-2";
+
+function QuickReply({
+  label,
+  onClick,
+  selected = false,
+}: {
+  label: string;
+  onClick: () => void;
+  selected?: boolean;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      aria-label={label}
+      className={`rounded-full px-4 py-2 text-sm font-semibold shadow-sm transition-colors ${FOCUS} ${
+        selected
+          ? "bg-leaf-700 text-white"
+          : "bg-white text-leaf-800 hover:bg-leaf-50"
+      }`}
+    >
+      {label}
+    </button>
+  );
+}
+
+function IdeaCard({ result }: { result: LunchboxResult }) {
+  if (!result.idea) {
+    return (
+      <p className="mt-2 text-sm text-leaf-800">{result.noMatchReason}</p>
+    );
+  }
+
+  const rows = [
+    ["Main", result.idea.main],
+    ["Side", result.idea.side],
+    ["Fruit", result.idea.fruit],
+    ["Extra", result.idea.extra],
+  ];
+
+  return (
+    <div className="mt-3 grid gap-4 sm:grid-cols-[minmax(0,1fr)_9rem]">
+      <ul className="space-y-1.5">
+        {rows.map(([label, value]) => (
+          <li key={label} className="flex items-start gap-2 text-sm">
+            <Check
+              className="mt-0.5 h-4 w-4 shrink-0 text-leaf-600"
+              strokeWidth={2.5}
+              aria-hidden="true"
+            />
+            <span className="min-w-0 text-leaf-800">
+              <span className="font-semibold">{label}:</span> {value}
+            </span>
+          </li>
+        ))}
+      </ul>
+
+      <div className="relative hidden h-32 overflow-hidden rounded-2xl bg-leaf-100 sm:block">
+        <Image
+          src={CHAT_IMAGES.hero.src}
+          alt={CHAT_IMAGES.hero.alt}
+          fill
+          sizes="9rem"
+          className="object-cover"
+        />
+      </div>
+
+      <p className="text-xs leading-relaxed text-leaf-600 sm:col-span-2">
+        {result.note}
+      </p>
+    </div>
+  );
+}
+
+/* -------------------------------------------------------------------------- */
+/* Page                                                                       */
+/* -------------------------------------------------------------------------- */
+
+export default function ChatClient() {
+  // /chat?test=1 marks rows as test data so automated checks can delete them.
+  // It only sets the is_test flag; the conversation behaves identically.
+  const searchParams = useSearchParams();
+  const isTest = searchParams.get("test") === "1";
+
+  const [bubbles, setBubbles] = useState<Bubble[]>(() => [
+    assistant(COPY.greeting),
+    assistant(COPY.questions.age),
+  ]);
+  const [step, setStep] = useState<Step>("age");
+
+  const [ageGroup, setAgeGroup] = useState<AgeGroup | null>(null);
+  const [allergyStatus, setAllergyStatus] = useState<AllergyStatus | null>(
+    null,
+  );
+  const [allergies, setAllergies] = useState<string[]>([]);
+  const [preferences, setPreferences] = useState<string[]>([]);
+  const [intent, setIntent] = useState<Intent | null>(null);
+
+  const [draft, setDraft] = useState("");
+  const [saveError, setSaveError] = useState<string | null>(null);
+
+  const [reviewOpen, setReviewOpen] = useState(false);
+  const [contact, setContact] = useState("");
+  const [note, setNote] = useState("");
+  const [reviewError, setReviewError] = useState<string | null>(null);
+  const [reviewSending, setReviewSending] = useState(false);
+  const [reviewSent, setReviewSent] = useState(false);
+
+  const sessionIdRef = useRef<string | null>(null);
+  const reviewReasonRef = useRef<string | null>(null);
+  const savedCountRef = useRef(0);
+  const scrollRef = useRef<HTMLDivElement>(null);
+
+  const push = useCallback((...next: Bubble[]) => {
+    setBubbles((current) => [...current, ...next]);
+  }, []);
+
+  /* ---- persistence ---------------------------------------------------- */
+
+  const persist = useCallback(
+    async (current: Bubble[]) => {
+      const flagged = current.some((bubble) => bubble.review);
+      const transcript = toTranscript(current);
+
+      if (!sessionIdRef.current) {
+        const result = await saveChatSession({
+          ageGroup,
+          allergyStatus,
+          allergies,
+          preferences,
+          intent,
+          messages: transcript,
+          flaggedForReview: flagged,
+          reviewReason: reviewReasonRef.current,
+          isTest,
+        });
+        if (result.ok) {
+          sessionIdRef.current = result.data;
+          setSaveError(null);
+        } else {
+          setSaveError(result.error);
+        }
+        return;
+      }
+
+      const result = await updateChatSession(sessionIdRef.current, {
+        messages: transcript,
+        flaggedForReview: flagged,
+        reviewReason: reviewReasonRef.current,
+      });
+      setSaveError(result.ok ? null : result.error);
+    },
+    [ageGroup, allergyStatus, allergies, preferences, intent, isTest],
+  );
+
+  // The conversation is stored once the assistant has given a real answer,
+  // then kept up to date as it grows.
+  useEffect(() => {
+    const hasAnswer = bubbles.some(
+      (bubble) => bubble.rateable || bubble.review,
+    );
+    if (!hasAnswer || bubbles.length === savedCountRef.current) return;
+
+    savedCountRef.current = bubbles.length;
+    void persist(bubbles);
+  }, [bubbles, persist]);
+
+  // Keep the newest message in view inside the panel, not the whole page.
+  useEffect(() => {
+    const node = scrollRef.current;
+    if (node) node.scrollTop = node.scrollHeight;
+  }, [bubbles, step]);
+
+  /* ---- intake --------------------------------------------------------- */
+
+  function answerIntent(choice: Intent) {
+    setIntent(choice);
+    push(parent(choice));
+
+    if (choice === "Lunchbox ideas") {
+      const result = getLunchboxIdea(ageGroup ?? "7-9", allergies, preferences);
+      const review = needsHumanReview({ allergyStatus, allergies, intent: choice });
+      if (review.needed) reviewReasonRef.current = review.reason;
+
+      push(
+        assistant(COPY.ideaIntro(ageGroup ?? "7-9"), {
+          idea: result,
+          rateable: true,
+          rating: null,
+          review: review.needed,
+        }),
+      );
+      setStep("open");
+      return;
+    }
+
+    if (choice === "Questions about the service") {
+      push(assistant(COPY.askQuestion));
+      setStep("await-question");
+      return;
+    }
+
+    const review = needsHumanReview({ allergyStatus, allergies, intent: choice });
+    reviewReasonRef.current = review.reason;
+    push(assistant(COPY.review.title, { review: true }));
+    setStep("open");
+  }
+
+  function answerAllergy(choice: AllergyStatus) {
+    setAllergyStatus(choice);
+    push(parent(choice));
+
+    if (choice === "Has allergies") {
+      push(assistant(COPY.questions.allergyList));
+      setStep("allergy-list");
+      return;
+    }
+    if (choice === "Preferences") {
+      push(assistant(COPY.questions.preferenceList));
+      setStep("preference-list");
+      return;
+    }
+
+    push(assistant(COPY.questions.intent));
+    setStep("intent");
+  }
+
+  function finishList(kind: "allergy" | "preference") {
+    const chosen = kind === "allergy" ? allergies : preferences;
+    push(parent(chosen.length > 0 ? chosen.join(", ") : "None selected"));
+    push(assistant(COPY.questions.intent));
+    setStep("intent");
+  }
+
+  function toggle(list: string[], value: string, set: (next: string[]) => void) {
+    set(
+      list.includes(value)
+        ? list.filter((item) => item !== value)
+        : [...list, value],
+    );
+  }
+
+  /* ---- typed messages -------------------------------------------------- */
+
+  function handleSend(event: React.FormEvent) {
+    event.preventDefault();
+    const text = draft.trim();
+    if (!text) return;
+    setDraft("");
+
+    const next: Bubble[] = [parent(text)];
+
+    // 1. Guardrail first: medical and dietary-treatment requests are refused.
+    const guardrail = checkGuardrail(text);
+    if (guardrail.triggered && guardrail.response) {
+      next.push(assistant(guardrail.response));
+    }
+
+    // 2. Does this need a person?
+    const review = needsHumanReview({
+      allergyStatus,
+      allergies,
+      intent,
+      freeText: text,
+    });
+
+    // 3. Answer from the fixed service answers, unless the guardrail fired.
+    if (!guardrail.triggered) {
+      const result = answerServiceQuestion(text);
+      const unanswered = !result.matched;
+      const reviewForAnswer = unanswered
+        ? needsHumanReview({
+            allergyStatus,
+            allergies,
+            intent,
+            freeText: text,
+            unanswered: true,
+          })
+        : review;
+
+      if (reviewForAnswer.needed) {
+        reviewReasonRef.current = reviewForAnswer.reason;
+      }
+
+      next.push(
+        assistant(result.answer, {
+          rateable: true,
+          rating: null,
+          review: reviewForAnswer.needed,
+        }),
+      );
+    } else if (review.needed) {
+      reviewReasonRef.current = review.reason;
+      next.push(assistant(COPY.review.title, { review: true }));
+    }
+
+    // A question asked mid-intake is answered, then the pending question is
+    // repeated so the parent does not lose their place.
+    const pending = pendingQuestion();
+    if (pending) next.push(assistant(pending));
+    if (step === "await-question") setStep("open");
+
+    push(...next);
+  }
+
+  function pendingQuestion(): string | null {
+    if (step === "age") return COPY.questions.age;
+    if (step === "allergy") return COPY.questions.allergy;
+    if (step === "allergy-list") return COPY.questions.allergyList;
+    if (step === "preference-list") return COPY.questions.preferenceList;
+    if (step === "intent") return COPY.questions.intent;
+    return null;
+  }
+
+  /* ---- rating ---------------------------------------------------------- */
+
+  async function handleRate(bubbleIdValue: number, rating: ChatRating) {
+    setBubbles((current) =>
+      current.map((bubble) =>
+        bubble.id === bubbleIdValue ? { ...bubble, rating } : bubble,
+      ),
+    );
+
+    if (!sessionIdRef.current) return;
+    const result = await saveRating(sessionIdRef.current, rating);
+    if (!result.ok) setSaveError(result.error);
+  }
+
+  /* ---- review request -------------------------------------------------- */
+
+  async function handleReviewSubmit(event: React.FormEvent) {
+    event.preventDefault();
+    const invalid = validateContact(contact);
+    if (invalid) {
+      setReviewError(invalid);
+      return;
+    }
+
+    setReviewError(null);
+    setReviewSending(true);
+    const result = await saveReviewRequest({
+      sessionId: sessionIdRef.current,
+      contact,
+      note,
+      isTest,
+    });
+    setReviewSending(false);
+
+    if (!result.ok) {
+      setReviewError(result.error);
+      return;
+    }
+
+    setReviewSent(true);
+    setReviewOpen(false);
+    setContact("");
+    setNote("");
+  }
+
+  /* ---- reset ----------------------------------------------------------- */
+
+  function handleReset() {
+    sessionIdRef.current = null;
+    reviewReasonRef.current = null;
+    savedCountRef.current = 0;
+    setBubbles([assistant(COPY.greeting), assistant(COPY.questions.age)]);
+    setStep("age");
+    setAgeGroup(null);
+    setAllergyStatus(null);
+    setAllergies([]);
+    setPreferences([]);
+    setIntent(null);
+    setDraft("");
+    setSaveError(null);
+    setReviewOpen(false);
+    setReviewSent(false);
+    setReviewError(null);
+    setContact("");
+    setNote("");
+  }
+
+  /* ---- render ---------------------------------------------------------- */
+
+  const listStep = step === "allergy-list" || step === "preference-list";
+  const listOptions = step === "allergy-list" ? CHAT_ALLERGENS : CHAT_PREFERENCES;
+  const listSelected = step === "allergy-list" ? allergies : preferences;
+
+  return (
+    <div className="font-inter bg-[#FDF7EE]">
+      {/* Hero */}
+      <section className="bg-gradient-to-br from-[#FDF7EE] via-[#FCF0E4] to-leaf-50">
+        <div className="mx-auto grid max-w-6xl items-center gap-10 px-4 py-10 sm:px-6 lg:grid-cols-2 lg:py-14">
+          <div>
+            <span className="text-xs font-bold uppercase tracking-[0.18em] text-leaf-600">
+              {COPY.eyebrow}
+            </span>
+            <h1 className="font-poppins mt-3 text-4xl font-extrabold leading-[1.05] tracking-tight text-leaf-900 sm:text-5xl">
+              {COPY.titleLead}
+              <br />
+              <span className="text-peach-500">{COPY.titleAccent}</span>
+            </h1>
+            <p className="mt-4 max-w-md text-base text-leaf-800 sm:text-lg">
+              {COPY.description}
+            </p>
+
+            <p className="mt-5 flex max-w-lg items-start gap-2 rounded-2xl bg-leaf-50 px-4 py-3 text-sm text-leaf-700">
+              <Info
+                className="mt-0.5 h-4 w-4 shrink-0 text-leaf-600"
+                aria-hidden="true"
+              />
+              {COPY.medicalNote}
+            </p>
+          </div>
+
+          <div className="relative">
+            <div className="relative aspect-[4/3] overflow-hidden rounded-[2rem] bg-leaf-100 shadow-lg">
+              <Image
+                src={CHAT_IMAGES.hero.src}
+                alt={CHAT_IMAGES.hero.alt}
+                fill
+                priority
+                sizes="(max-width: 1024px) 100vw, 40rem"
+                className="object-cover"
+              />
+            </div>
+
+            <ul className="mt-4 flex flex-wrap gap-2 lg:absolute lg:-right-2 lg:top-4 lg:mt-0 lg:w-48 lg:flex-col">
+              {COPY.heroCards.map((card) => (
+                <li
+                  key={card.label}
+                  className="flex items-center gap-2 rounded-2xl bg-white/95 px-3 py-2 text-xs font-semibold text-leaf-800 shadow-md sm:text-sm"
+                >
+                  <span aria-hidden="true">{card.icon}</span>
+                  {card.label}
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      {/* Chat + sidebar */}
+      <section className="mx-auto grid max-w-6xl gap-6 px-4 pb-14 sm:px-6 lg:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)]">
+        {/* Chat panel */}
+        <div className="flex min-w-0 flex-col rounded-[2rem] bg-white p-4 shadow-sm sm:p-6">
+          <div
+            ref={scrollRef}
+            className="max-h-[32rem] min-h-[22rem] flex-1 space-y-4 overflow-y-auto pr-1"
+            role="log"
+            aria-live="polite"
+            aria-label="Conversation"
+          >
+            {bubbles.map((bubble) => (
+              <div key={bubble.id}>
+                <div
+                  className={`flex items-start gap-2 ${
+                    bubble.role === "parent" ? "justify-end" : ""
+                  }`}
+                >
+                  {bubble.role === "assistant" && (
+                    <span
+                      aria-hidden="true"
+                      className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-leaf-100 text-base"
+                    >
+                      🍎
+                    </span>
+                  )}
+
+                  <div
+                    className={`min-w-0 max-w-[min(100%,34rem)] rounded-2xl px-4 py-3 text-sm ${
+                      bubble.role === "parent"
+                        ? "bg-leaf-100 text-leaf-900"
+                        : "bg-[#F6FAF5] text-leaf-800"
+                    }`}
+                  >
+                    <p className="whitespace-pre-wrap break-words font-medium">
+                      {bubble.text}
+                    </p>
+                    {bubble.idea && <IdeaCard result={bubble.idea} />}
+                  </div>
+
+                  {bubble.role === "parent" && (
+                    <span
+                      aria-hidden="true"
+                      className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-leaf-50 text-leaf-700"
+                    >
+                      <User className="h-4 w-4" />
+                    </span>
+                  )}
+                </div>
+
+                {/* Rating */}
+                {bubble.rateable && (
+                  <div className="ml-11 mt-2 flex flex-wrap items-center gap-2">
+                    {bubble.rating ? (
+                      <p className="text-xs font-medium text-leaf-700">
+                        {COPY.rating.thanks}
+                      </p>
+                    ) : (
+                      <>
+                        <span className="text-xs text-leaf-600">
+                          {COPY.rating.prompt}
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => handleRate(bubble.id, "up")}
+                          aria-label={COPY.rating.up}
+                          className={`rounded-full border border-leaf-200 p-2 text-leaf-700 transition-colors hover:bg-leaf-50 ${FOCUS}`}
+                        >
+                          <ThumbsUp className="h-4 w-4" aria-hidden="true" />
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => handleRate(bubble.id, "down")}
+                          aria-label={COPY.rating.down}
+                          className={`rounded-full border border-leaf-200 p-2 text-leaf-700 transition-colors hover:bg-leaf-50 ${FOCUS}`}
+                        >
+                          <ThumbsDown className="h-4 w-4" aria-hidden="true" />
+                        </button>
+                      </>
+                    )}
+                  </div>
+                )}
+
+                {/* Human review banner */}
+                {bubble.review && (
+                  <div className="ml-11 mt-3 rounded-2xl bg-peach-50 p-4">
+                    <div className="flex flex-wrap items-start justify-between gap-3">
+                      <div className="flex min-w-0 gap-3">
+                        <Headphones
+                          className="mt-0.5 h-5 w-5 shrink-0 text-peach-600"
+                          aria-hidden="true"
+                        />
+                        <div className="min-w-0">
+                          <p className="font-poppins text-sm font-bold text-leaf-900">
+                            {COPY.review.title}
+                          </p>
+                          <p className="mt-1 text-xs leading-relaxed text-leaf-700">
+                            {COPY.review.body}
+                          </p>
+                        </div>
+                      </div>
+
+                      {!reviewSent && !reviewOpen && (
+                        <button
+                          type="button"
+                          onClick={() => setReviewOpen(true)}
+                          aria-label={COPY.review.cta}
+                          className={`shrink-0 rounded-full bg-leaf-700 px-4 py-2 text-xs font-bold text-white shadow-sm transition-colors hover:bg-leaf-800 ${FOCUS}`}
+                        >
+                          {COPY.review.cta}
+                        </button>
+                      )}
+                    </div>
+
+                    {reviewSent && (
+                      <p
+                        role="status"
+                        className="mt-3 rounded-xl bg-white px-3 py-2 text-xs font-medium text-leaf-700"
+                      >
+                        <span aria-hidden="true">✓</span> {COPY.review.sent}
+                      </p>
+                    )}
+                  </div>
+                )}
+              </div>
+            ))}
+
+            {/* Quick replies */}
+            <div className="flex flex-wrap gap-2">
+              {step === "age" &&
+                AGE_GROUPS.map((group) => (
+                  <QuickReply
+                    key={group}
+                    label={group}
+                    onClick={() => {
+                      setAgeGroup(group);
+                      push(parent(group), assistant(COPY.questions.allergy));
+                      setStep("allergy");
+                    }}
+                  />
+                ))}
+
+              {step === "allergy" &&
+                ALLERGY_STATUSES.map((status) => (
+                  <QuickReply
+                    key={status}
+                    label={status}
+                    onClick={() => answerAllergy(status)}
+                  />
+                ))}
+
+              {listStep && (
+                <div className="w-full">
+                  <div className="flex flex-wrap gap-2">
+                    {listOptions.map((option) => (
+                      <QuickReply
+                        key={option}
+                        label={option}
+                        selected={listSelected.includes(option)}
+                        onClick={() =>
+                          step === "allergy-list"
+                            ? toggle(allergies, option, setAllergies)
+                            : toggle(preferences, option, setPreferences)
+                        }
+                      />
+                    ))}
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() =>
+                      finishList(
+                        step === "allergy-list" ? "allergy" : "preference",
+                      )
+                    }
+                    aria-label={COPY.continue}
+                    className={`mt-3 rounded-full bg-leaf-700 px-5 py-2 text-sm font-bold text-white shadow-sm transition-colors hover:bg-leaf-800 ${FOCUS}`}
+                  >
+                    {COPY.continue}
+                  </button>
+                </div>
+              )}
+
+              {step === "intent" &&
+                INTENTS.map((option) => (
+                  <QuickReply
+                    key={option}
+                    label={option}
+                    onClick={() => answerIntent(option)}
+                  />
+                ))}
+            </div>
+
+            {/* Contact form */}
+            {reviewOpen && (
+              <form
+                onSubmit={handleReviewSubmit}
+                noValidate
+                className="rounded-2xl border border-leaf-100 bg-leaf-50 p-4"
+              >
+                <label className="block text-sm">
+                  <span className="font-semibold text-leaf-800">
+                    {COPY.review.contactLabel}
+                  </span>
+                  <input
+                    type="text"
+                    value={contact}
+                    onChange={(event) => setContact(event.target.value)}
+                    placeholder={COPY.review.contactPlaceholder}
+                    className={`mt-1 w-full rounded-xl border border-leaf-200 bg-white px-3 py-2 text-sm text-leaf-800 outline-none ${FOCUS}`}
+                  />
+                </label>
+
+                <label className="mt-3 block text-sm">
+                  <span className="font-semibold text-leaf-800">
+                    {COPY.review.noteLabel}
+                  </span>
+                  <textarea
+                    value={note}
+                    onChange={(event) => setNote(event.target.value)}
+                    placeholder={COPY.review.notePlaceholder}
+                    rows={3}
+                    className={`mt-1 w-full rounded-xl border border-leaf-200 bg-white px-3 py-2 text-sm text-leaf-800 outline-none ${FOCUS}`}
+                  />
+                </label>
+
+                {reviewError && (
+                  <p
+                    role="alert"
+                    className="mt-3 rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-sm font-medium text-red-700"
+                  >
+                    <span aria-hidden="true">⚠️</span> {reviewError}
+                  </p>
+                )}
+
+                <div className="mt-4 flex flex-wrap gap-2">
+                  <button
+                    type="submit"
+                    disabled={reviewSending}
+                    aria-label={COPY.review.submit}
+                    className={`rounded-full bg-leaf-700 px-5 py-2.5 text-sm font-bold text-white shadow-sm transition-colors hover:bg-leaf-800 disabled:opacity-60 ${FOCUS}`}
+                  >
+                    {reviewSending ? COPY.review.sending : COPY.review.submit}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setReviewOpen(false);
+                      setReviewError(null);
+                    }}
+                    aria-label={COPY.review.cancel}
+                    className={`rounded-full border border-leaf-200 px-5 py-2.5 text-sm font-semibold text-leaf-700 transition-colors hover:bg-white ${FOCUS}`}
+                  >
+                    {COPY.review.cancel}
+                  </button>
+                </div>
+              </form>
+            )}
+          </div>
+
+          {saveError && (
+            <p
+              role="status"
+              className="mt-3 rounded-xl bg-peach-50 px-3 py-2 text-xs text-peach-800"
+            >
+              <span aria-hidden="true">⚠️</span> {saveError}
+            </p>
+          )}
+
+          {/* Composer */}
+          <form
+            onSubmit={handleSend}
+            className="mt-4 flex items-center gap-2 rounded-full border border-leaf-100 bg-[#FDF7EE] px-3 py-2"
+          >
+            <label htmlFor="chat-input" className="sr-only">
+              {COPY.composer.placeholder}
+            </label>
+            <input
+              id="chat-input"
+              type="text"
+              value={draft}
+              onChange={(event) => setDraft(event.target.value)}
+              placeholder={COPY.composer.placeholder}
+              className="min-w-0 flex-1 bg-transparent px-2 py-1.5 text-sm text-leaf-900 outline-none"
+            />
+            <button
+              type="submit"
+              aria-label={COPY.composer.send}
+              className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-leaf-700 text-white transition-colors hover:bg-leaf-800 ${FOCUS}`}
+            >
+              <Send className="h-4 w-4" aria-hidden="true" />
+            </button>
+          </form>
+
+          <button
+            type="button"
+            onClick={handleReset}
+            aria-label={COPY.reset}
+            className={`mt-3 inline-flex items-center gap-2 self-start rounded-full border border-leaf-200 px-4 py-2 text-xs font-semibold text-leaf-700 transition-colors hover:bg-leaf-50 ${FOCUS}`}
+          >
+            <RefreshCw className="h-3.5 w-3.5" aria-hidden="true" />
+            {COPY.reset}
+          </button>
+        </div>
+
+        {/* Sidebar */}
+        <aside className="min-w-0 space-y-5">
+          <div className="rounded-[1.75rem] bg-leaf-50 p-6 shadow-sm">
+            <h2 className="font-poppins flex items-center gap-2 text-lg font-extrabold text-leaf-900">
+              <Target className="h-5 w-5 text-leaf-700" aria-hidden="true" />
+              {COPY.sidebar.doHere.title}
+              <Spark />
+            </h2>
+            <ul className="mt-4 space-y-2.5">
+              {COPY.sidebar.doHere.items.map((item) => (
+                <li key={item} className="flex items-start gap-2 text-sm text-leaf-800">
+                  <Check
+                    className="mt-0.5 h-4 w-4 shrink-0 text-leaf-600"
+                    strokeWidth={2.5}
+                    aria-hidden="true"
+                  />
+                  {item}
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          <div className="rounded-[1.75rem] bg-rose-50 p-6 shadow-sm">
+            <h2 className="font-poppins text-lg font-extrabold text-leaf-900">
+              {COPY.sidebar.howItWorks.title}
+            </h2>
+            <ol className="mt-4 space-y-3">
+              {COPY.sidebar.howItWorks.steps.map((item, index) => (
+                <li key={item} className="flex items-start gap-3 text-sm text-leaf-800">
+                  <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-white font-poppins text-xs font-bold text-rose-600">
+                    {index + 1}
+                  </span>
+                  {item}
+                </li>
+              ))}
+            </ol>
+          </div>
+
+          <div className="overflow-hidden rounded-[1.75rem] bg-peach-50 shadow-sm">
+            <div className="p-6">
+              <h2 className="font-poppins flex items-center gap-2 text-lg font-extrabold text-leaf-900">
+                <Sparkles className="h-5 w-5 text-peach-500" aria-hidden="true" />
+                {COPY.sidebar.care.title}
+              </h2>
+              <p className="mt-3 text-sm leading-relaxed text-leaf-800">
+                {COPY.sidebar.care.body}
+              </p>
+              <p className="mt-3 flex items-start gap-2 text-xs text-leaf-600">
+                <ShieldCheck
+                  className="mt-0.5 h-4 w-4 shrink-0 text-leaf-600"
+                  aria-hidden="true"
+                />
+                {COPY.medicalNote}
+              </p>
+            </div>
+            <div className="relative h-40 w-full">
+              <Image
+                src={CHAT_IMAGES.care.src}
+                alt={CHAT_IMAGES.care.alt}
+                fill
+                sizes="(max-width: 1024px) 100vw, 22rem"
+                className="object-cover"
+              />
+            </div>
+          </div>
+        </aside>
+      </section>
+    </div>
+  );
+}

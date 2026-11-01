@@ -570,3 +570,23 @@ export const CHAT_NOTES = {
   notMedicalAdvice:
     "I don't provide medical advice, including dietary treatments or diagnoses.",
 } as const;
+
+/* -------------------------------------------------------------------------- */
+/* Page images                                                                */
+/* -------------------------------------------------------------------------- */
+
+/** Photos used on /chat. Credited in public/images/chat/CREDITS.md. */
+export const CHAT_IMAGES = {
+  hero: {
+    src: "/images/chat/lunchbox-hero.jpg",
+    alt: "A packed lunchbox with sandwiches, apple slices, grapes and berries",
+    width: 1200,
+    height: 800,
+  },
+  care: {
+    src: "/images/chat/veggie-bowl.jpg",
+    alt: "A bowl of quinoa with roasted vegetables, surrounded by fresh produce",
+    width: 1200,
+    height: 800,
+  },
+} as const;

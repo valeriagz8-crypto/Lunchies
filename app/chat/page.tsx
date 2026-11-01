@@ -1,8 +1,14 @@
+import { Suspense } from "react";
+import ChatClient from "./ChatClient";
+
+// The conversation lives in client state and talks to Supabase from the
+// browser, so there is nothing useful to prerender.
+export const dynamic = "force-dynamic";
+
 export default function ChatPage() {
   return (
-    <section className="mx-auto max-w-3xl px-4 py-24 text-center sm:px-6">
-      <h1 className="text-3xl font-bold text-leaf-700 sm:text-4xl">Chat</h1>
-      <p className="mt-4 text-lg text-leaf-800">Coming soon.</p>
-    </section>
+    <Suspense>
+      <ChatClient />
+    </Suspense>
   );
 }

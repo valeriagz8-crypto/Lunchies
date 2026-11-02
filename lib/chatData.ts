@@ -291,6 +291,12 @@ const PLAN_LINE = PLANS.map(
  * first entry wins a tie. Ordering and payment sits first so an explicit
  * schedule or payment question beats the more general delivery entry.
  */
+const PLAN_BULLETS = PLANS.map(
+  (plan) => `${plan.name}: ${plan.bullets.join(", ").toLowerCase()}`,
+).join(". ");
+
+const AGE_RANGE_LABEL = "5 to 12 years old";
+
 export const SERVICE_ANSWERS: ServiceAnswer[] = [
   {
     id: "ordering-and-payment",
@@ -328,6 +334,12 @@ export const SERVICE_ANSWERS: ServiceAnswer[] = [
       "facturacion",
       "contrato",
       "cancelar",
+      "cancelo",
+      "cancela",
+      "cancelacion",
+      "dar de baja",
+      "darme de baja",
+      "baja",
       "reembolso",
       "horario",
       "horarios",
@@ -358,6 +370,151 @@ export const SERVICE_ANSWERS: ServiceAnswer[] = [
     available: true,
     // Only half of this is settled, so a person still picks it up.
     needsHuman: true,
+  },
+  {
+    id: "not-defined-portions",
+    keywords: [
+      "portion",
+      "portions",
+      "serving",
+      "servings",
+      "serving size",
+      "how much food",
+      "how many calories",
+      "calories",
+      "grams",
+      "porcion",
+      "porciones",
+      "cuanta comida",
+      "calorias",
+      "gramos",
+      "cantidad de comida",
+    ],
+    answer:
+      "Portion sizes and calorie counts are not defined yet, so I do not have that information. I can connect you with someone from the Lunchies team.",
+    available: false,
+  },
+  {
+    id: "plan-differences",
+    keywords: [
+      "difference",
+      "differences",
+      "compare",
+      "which plan",
+      "what's in",
+      "what is included in",
+      "basic",
+      "plus",
+      "premium",
+      "diferencia",
+      "diferencias",
+      "comparar",
+      "que plan",
+      "cual plan",
+      "que incluye",
+    ],
+    answer: `${PLAN_BULLETS}. The full comparison is on the Product page.`,
+    available: true,
+  },
+  {
+    id: "nutrition-information",
+    keywords: [
+      "nutrition",
+      "nutritional",
+      "macros",
+      "nutrition information",
+      "nutricion",
+      "nutricional",
+      "macronutrientes",
+      "informacion nutricional",
+    ],
+    answer:
+      "Nutrition information, including macros, comes with the Plus and Premium plans. I do not have the values themselves here, only which plans include them.",
+    available: true,
+  },
+  {
+    id: "ingredients-quality",
+    keywords: [
+      "ingredient",
+      "ingredients",
+      "preservative",
+      "preservatives",
+      "artificial",
+      "organic",
+      "fresh",
+      "local",
+      "ingrediente",
+      "ingredientes",
+      "conservador",
+      "conservadores",
+      "artificiales",
+      "organico",
+      "organicos",
+      "fresco",
+      "frescos",
+      "locales",
+    ],
+    answer:
+      "Every plan uses no artificial preservatives or colors. Plus and Premium use fresh, locally sourced ingredients, and Premium uses organic ingredients where available.",
+    available: true,
+  },
+  {
+    id: "ages-covered",
+    keywords: [
+      "age",
+      "ages",
+      "how old",
+      "old enough",
+      "years old",
+      "toddler",
+      "teenager",
+      "edad",
+      "edades",
+      "que edad",
+      "anos",
+      "adolescente",
+    ],
+    answer: `The planner covers children from ${AGE_RANGE_LABEL}. In this chat I group them as 5-6, 7-9 and 10-12 to pick an idea.`,
+    available: true,
+  },
+  {
+    id: "core-planner",
+    keywords: [
+      "core",
+      "planner",
+      "weekly menu",
+      "menu planner",
+      "shopping list",
+      "5 day",
+      "five day",
+      "week plan",
+      "planeador",
+      "menu semanal",
+      "lista de compras",
+      "lista del super",
+      "plan semanal",
+      "cinco dias",
+    ],
+    answer:
+      "The Core planner builds a 5-day lunch plan, Monday to Friday, filtering out the allergens you mark, and gives you a shopping list to go with it.",
+    available: true,
+  },
+  {
+    id: "multi-child",
+    keywords: [
+      "two children",
+      "more than one child",
+      "multiple children",
+      "siblings",
+      "multi child",
+      "dos hijos",
+      "mas de un hijo",
+      "varios hijos",
+      "hermanos",
+    ],
+    answer:
+      "Multi-child profiles come with the Premium plan. On the other plans you set up one child at a time.",
+    available: true,
   },
   {
     id: "plans-and-prices",
@@ -799,6 +956,21 @@ export function localizedIdea(
 
 /** Spanish answer for each service topic, keyed by the entry id. */
 export const SERVICE_ANSWERS_ES: Record<string, string> = {
+  "not-defined-portions":
+    "Los tamaños de porción y las calorías todavía no están definidos, así que no tengo esa información. Puedo ponerte en contacto con alguien del equipo de Lunchies.",
+  "plan-differences": `${PLANS.map(
+    (plan) => `${plan.name}: ${plan.bullets.join(", ").toLowerCase()}`,
+  ).join(". ")}. La comparación completa está en la página de Producto.`,
+  "nutrition-information":
+    "La información nutricional, incluyendo macros, viene con los planes Plus y Premium. Aquí no tengo los valores, solo qué planes la incluyen.",
+  "ingredients-quality":
+    "Todos los planes son sin conservadores ni colorantes artificiales. Plus y Premium usan ingredientes frescos de origen local, y Premium usa ingredientes orgánicos cuando hay disponibles.",
+  "ages-covered":
+    "El planeador cubre niños de 5 a 12 años. En este chat los agrupo como 5-6, 7-9 y 10-12 para elegir una idea.",
+  "core-planner":
+    "El planeador de Core arma un plan de 5 días, de lunes a viernes, filtrando los alérgenos que marcas, y te da una lista de compras.",
+  "multi-child":
+    "Los perfiles para varios hijos vienen con el plan Premium. En los otros planes configuras un hijo a la vez.",
   "ordering-and-payment":
     "Los pedidos, los pagos, los contratos, los reembolsos y los horarios exactos de entrega todavía no están definidos, así que no tengo esa información. Puedo ponerte en contacto con alguien del equipo de Lunchies.",
   delivery:

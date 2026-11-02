@@ -30,7 +30,25 @@ export default function DocsPage() {
             <strong>Deployment:</strong> Vercel.
           </li>
           <li>
-            <strong>Data Layer:</strong> Supabase (PostgreSQL).
+            <strong>Data Layer:</strong> Supabase (PostgreSQL) with row level
+            security.
+          </li>
+          <li>
+            <strong>Fonts:</strong> Inter, Poppins and Caveat through
+            next/font.
+          </li>
+          <li>
+            <strong>UI libraries:</strong> lucide-react for icons,
+            embla-carousel-react for the homepage carousel.
+          </li>
+          <li>
+            <strong>Tests:</strong> Vitest, run with{" "}
+            <code>npm test</code>.
+          </li>
+          <li>
+            <strong>No external AI API:</strong> every generated output, in
+            /core and in /chat, comes from fixed rules and data in the
+            repository.
           </li>
         </ul>
       </div>
@@ -65,13 +83,26 @@ export default function DocsPage() {
           <li>
             <strong>Week 3 — Product &amp; Pricing (/product,
             /pricing):</strong> Build the /product page with a feature map
-            grid (Free, Freemium, Pro tiers) and 2 customer segment cards,
+            grid (Basic, Plus and Premium plans) and 2 customer segment cards,
             and the /pricing page with a revenue calculator with sliders, a
             monthly/annual toggle, an assumptions table, and saving
             scenarios to the Supabase table <code>pricing_scenarios</code>.
           </li>
           <li>
-            <strong>Week 4 and beyond:</strong> Upcoming.
+            <strong>Week 4 — Marketing Engine (/marketing):</strong> Build
+            the /marketing page as a tabbed dashboard: brand system, target
+            persona, landing page copy, 10 social posts, 3 video scripts, a
+            14-day campaign calendar, live A/B testing and a saved assets
+            library, with copy and export buttons and the kit downloadable
+            as Markdown.
+          </li>
+          <li>
+            <strong>Week 5 — Public Chatbot / Guided Assistant
+            (/chat):</strong> Build the /chat page: a guided assistant for
+            parents that asks three intake questions, answers from fixed
+            rules with no external AI API, refuses medical questions, hands
+            anything it cannot answer to a person, and saves the
+            conversation to Supabase.
           </li>
         </ol>
       </div>
@@ -88,9 +119,8 @@ export default function DocsPage() {
             intake submissions saved from /research.
           </li>
           <li>
-            <strong>pricing_scenarios</strong> — Week 3 (in progress) —
-            will store the revenue calculator scenarios saved from
-            /pricing.
+            <strong>pricing_scenarios</strong> — Week 3 — stores the revenue
+            calculator scenarios saved from /pricing.
           </li>
         </ul>
       </div>

@@ -83,6 +83,8 @@ type Bubble = {
   review?: boolean;
   /** Ingredient ids excluded at the time this bubble was written. */
   excluded?: string[];
+  /** Shows the "things I can answer" quick replies under this bubble. */
+  suggestions?: boolean;
 };
 
 let bubbleId = 0;
@@ -466,6 +468,8 @@ export default function ChatClient() {
           rateable: true,
           rating: null,
           review: showBanner,
+          // A dead end always offers a way forward.
+          suggestions: result.topic === null,
         }),
       );
     } else if (review.needed) {
@@ -541,6 +545,46 @@ export default function ChatClient() {
         rating: null,
         review: review.needed,
         excluded: nextExcluded,
+      }),
+    );
+  }
+
+  /** Runs one of the suggested questions, or shows an idea for "a lunchbox idea". */
+  function handleSuggestion(id: string, query?: string) {
+    if (id === "idea" || !query) {
+      const result = getLunchboxIdea(
+        ageGroup ?? "7-9",
+        allergies,
+        preferences,
+        lang,
+        excluded,
+      );
+      const review = needsHumanReview({ allergyStatus, allergies, intent });
+      if (review.needed) reviewReasonRef.current = review.reason;
+
+      push(
+        assistant(COPY.ideaIntro(ageGroup ?? "7-9"), {
+          lang,
+          idea: result,
+          rateable: true,
+          rating: null,
+          review: review.needed,
+        }),
+      );
+      return;
+    }
+
+    const result = answerServiceQuestion(query, lang);
+    const showBanner = result.offerHuman;
+    if (showBanner) reviewReasonRef.current = SERVICE_REVIEW_REASON;
+
+    push(
+      parent(query, { lang }),
+      assistant(result.answer, {
+        lang,
+        rateable: true,
+        rating: null,
+        review: showBanner,
       }),
     );
   }
@@ -793,6 +837,29 @@ export default function ChatClient() {
                         </button>
                       </>
                     )}
+                  </div>
+                )}
+
+                {/* Things the chat can answer, offered after a dead end */}
+                {bubble.suggestions && (
+                  <div className="ml-11 mt-3">
+                    <p className="text-xs text-leaf-600">
+                      {COPY.fallbackSuggestions.intro}
+                    </p>
+                    <div className="mt-2 flex flex-wrap gap-2">
+                      {COPY.fallbackSuggestions.options.map((option) => (
+                        <QuickReply
+                          key={option.id}
+                          label={option.label}
+                          onClick={() =>
+                            handleSuggestion(
+                              option.id,
+                              "query" in option ? option.query : undefined,
+                            )
+                          }
+                        />
+                      ))}
+                    </div>
                   </div>
                 )}
 

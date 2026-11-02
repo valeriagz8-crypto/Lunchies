@@ -33,6 +33,16 @@ const EN = {
   ideaIntro: (age: string) =>
     `Here's a balanced lunchbox idea for a ${age} year old:`,
   languageLabel: "Language",
+  // Offered under the fallback, so a dead end always has a way forward.
+  fallbackSuggestions: {
+    intro: "Here are some things I can answer:",
+    options: [
+      { id: "prices", label: "Plans and prices", query: "how much does it cost?" },
+      { id: "delivery", label: "Delivery", query: "how is the lunch delivered?" },
+      { id: "idea", label: "A lunchbox idea" },
+      { id: "how", label: "How it works", query: "how does it work?" },
+    ],
+  },
   exclusion: {
     replaced: (ingredient: string) =>
       `Got it, no ${ingredient}. Here's another idea:`,
@@ -120,6 +130,15 @@ const ES: typeof EN = {
   ideaIntro: (age: string) =>
     `Esta es una idea de lonchera balanceada para ${age} años:`,
   languageLabel: "Idioma",
+  fallbackSuggestions: {
+    intro: "Estas son algunas cosas que sí te puedo responder:",
+    options: [
+      { id: "prices", label: "Planes y precios", query: "cuanto cuesta?" },
+      { id: "delivery", label: "Entrega", query: "como entregan la lonchera?" },
+      { id: "idea", label: "Una idea de lonchera" },
+      { id: "how", label: "Cómo funciona", query: "como funciona?" },
+    ],
+  },
   exclusion: {
     replaced: (ingredient: string) =>
       `Va, sin ${ingredient}. Aquí tienes otra idea:`,

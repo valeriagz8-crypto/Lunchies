@@ -33,6 +33,7 @@ import {
   INGREDIENTS,
 } from "@/lib/chatData";
 import { CHAT_PAGE_COPY } from "@/app/chat/chatCopy";
+import { CHILD_AGE_OPTIONS } from "@/lib/lunchMenu";
 import { PLANS } from "@/lib/productData";
 
 /**
@@ -667,6 +668,169 @@ describe("Step 1: phrasings the testers actually used must not hit the fallback"
         expect(ideaHasIngredient(result.idea, ingredient!), text).toBe(false);
       } else {
         expect(result.noMatchReason, text).toBeTruthy();
+      }
+    }
+  });
+});
+
+describe("Step 3: wider question coverage, site facts only", () => {
+  const cases: Array<{
+    topic: string;
+    en: string[];
+    es: string[];
+    expect: RegExp;
+    expectEs: RegExp;
+    available: boolean;
+  }> = [
+    {
+      topic: "plan-differences",
+      en: ["what's the difference between the plans?", "which plan should I pick?"],
+      es: ["cual es la diferencia entre los planes?", "que incluye el plan premium?"],
+      expect: /Basic:[\s\S]*Plus:[\s\S]*Premium:/,
+      expectEs: /Basic:[\s\S]*Plus:[\s\S]*Premium:/,
+      available: true,
+    },
+    {
+      topic: "nutrition-information",
+      en: ["do you give nutrition information?", "are there macros?"],
+      es: ["dan informacion nutricional?", "traen macronutrientes?"],
+      expect: /Plus and Premium/,
+      expectEs: /Plus y Premium/,
+      available: true,
+    },
+    {
+      topic: "ingredients-quality",
+      en: ["what ingredients do you use?", "are they organic?"],
+      es: ["que ingredientes usan?", "son organicos?"],
+      expect: /no artificial preservatives/,
+      expectEs: /sin conservadores/,
+      available: true,
+    },
+    {
+      topic: "ages-covered",
+      en: ["what ages do you cover?", "how old does my child need to be?"],
+      es: ["que edades cubren?", "para que edad es?"],
+      expect: /5 to 12 years old/,
+      expectEs: /5 a 12 anos|5 a 12 años/,
+      available: true,
+    },
+    {
+      topic: "core-planner",
+      en: ["what does the planner do?", "do I get a shopping list?"],
+      es: ["que hace el planeador?", "me dan lista de compras?"],
+      expect: /5-day lunch plan/,
+      expectEs: /plan de 5 dias|plan de 5 días/,
+      available: true,
+    },
+    {
+      topic: "multi-child",
+      en: ["I have two children", "can I add siblings?"],
+      es: ["tengo dos hijos", "puedo agregar hermanos?"],
+      expect: /Premium/,
+      expectEs: /Premium/,
+      available: true,
+    },
+    {
+      topic: "not-defined-portions",
+      en: ["what are the portion sizes?", "how many calories?"],
+      es: ["de que tamano son las porciones?", "cuantas calorias trae?"],
+      expect: /not defined yet/,
+      expectEs: /no están definidos/,
+      available: false,
+    },
+  ];
+
+  it("answers each topic from facts already on the site, in both languages", () => {
+    for (const row of cases) {
+      for (const text of row.en) {
+        const result = answerServiceQuestion(text, "en");
+        expect(result.topic, `EN "${text}"`).toBe(row.topic);
+        expect(result.answer, `EN "${text}"`).toMatch(row.expect);
+        expect(result.matched, `EN "${text}"`).toBe(row.available);
+      }
+      for (const text of row.es) {
+        const result = answerServiceQuestion(text, "es");
+        expect(result.topic, `ES "${text}"`).toBe(row.topic);
+        expect(result.answer, `ES "${text}"`).toMatch(row.expectEs);
+      }
+    }
+  });
+
+  it("the quoted facts match their source files", () => {
+    // Ages come from /core's own option list, not a number typed by hand.
+    expect(CHILD_AGE_OPTIONS[0]).toBe("5 years old");
+    expect(CHILD_AGE_OPTIONS[CHILD_AGE_OPTIONS.length - 1]).toBe("12 years old");
+
+    // Plan bullets are quoted from PLANS.
+    const differences = answerServiceQuestion("what is the difference?", "en");
+    for (const plan of PLANS) {
+      expect(differences.answer).toContain(plan.name);
+      expect(differences.answer.toLowerCase()).toContain(
+        plan.bullets[1].toLowerCase(),
+      );
+    }
+  });
+
+  it("still refuses what the site does not define, with a person offered", () => {
+    for (const text of [
+      "how do I cancel?",
+      "can I get a refund?",
+      "what are the portion sizes?",
+      "como cancelo mi plan?",
+      "cuantas calorias trae?",
+    ]) {
+      const result = answerServiceQuestion(text, text.startsWith("c") && !text.startsWith("can") ? "es" : "en");
+      expect(result.matched, text).toBe(false);
+      expect(result.offerHuman, text).toBe(true);
+    }
+  });
+
+  it("never claims a lunch is safe and never gives medical advice", () => {
+    for (const row of cases) {
+      for (const text of [...row.en, ...row.es]) {
+        for (const lang of ["en", "es"] as const) {
+          const answer = answerServiceQuestion(text, lang).answer;
+          expect(answer, text).not.toMatch(
+            /\bis safe\b|\bsafe for\b|allergy[- ]free|es segura|libre de alergenos/i,
+          );
+          expect(answer, text).not.toMatch(
+            /you should eat|we recommend you|dosage|diagnos/i,
+          );
+        }
+      }
+    }
+  });
+});
+
+describe("Step 4: the fallback offers things the chat can answer", () => {
+  it("keeps the honest message and offers a person", () => {
+    const unknown = answerServiceQuestion("what is the capital of France?", "en");
+    expect(unknown.topic).toBeNull();
+    expect(unknown.answer).toBe(SERVICE_FALLBACK);
+    expect(unknown.offerHuman).toBe(true);
+  });
+
+  it("every suggested button leads to a real answer, in both languages", () => {
+    for (const lang of ["en", "es"] as const) {
+      const suggestions = CHAT_PAGE_COPY[lang].fallbackSuggestions;
+      expect(suggestions.intro.trim().length).toBeGreaterThan(0);
+      expect(suggestions.options.length).toBeGreaterThanOrEqual(3);
+      expect(suggestions.options.length).toBeLessThanOrEqual(4);
+
+      for (const option of suggestions.options) {
+        expect(option.label.trim().length, option.id).toBeGreaterThan(0);
+
+        const query = "query" in option ? option.query : undefined;
+        if (!query) {
+          // The only option without a canned question is the lunchbox idea,
+          // which the page answers directly.
+          expect(option.id).toBe("idea");
+          continue;
+        }
+
+        const result = answerServiceQuestion(query, lang);
+        // A suggested button must never land on the fallback.
+        expect(result.topic, `${lang} ${option.id}`).not.toBeNull();
       }
     }
   });

@@ -886,7 +886,7 @@ export const INGREDIENTS: IngredientEntry[] = [
   { id: "green-beans", label: { en: "green beans", es: "ejotes" }, words: ["green bean", "green beans", "ejote", "ejotes"] },
   { id: "broccoli", label: { en: "broccoli", es: "brócoli" }, words: ["broccoli", "brocoli"] },
   { id: "zucchini", label: { en: "zucchini", es: "calabacita" }, words: ["zucchini", "calabacita", "calabacitas"] },
-  { id: "tomato", label: { en: "tomatoes", es: "jitomate" }, words: ["tomato", "tomatoes", "jitomate", "jitomates"] },
+  { id: "tomato", label: { en: "tomatoes", es: "jitomate" }, words: ["tomato", "tomatoes", "jitomate", "jitomates", "tomate", "tomates"] },
   { id: "peas", label: { en: "peas", es: "chícharos" }, words: ["pea", "peas", "chicharo", "chicharos"] },
   { id: "nopales", label: { en: "nopales", es: "nopales" }, words: ["nopal", "nopales"] },
   { id: "jicama", label: { en: "jicama", es: "jícama" }, words: ["jicama", "jicamas"] },

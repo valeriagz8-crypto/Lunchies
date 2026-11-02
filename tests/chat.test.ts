@@ -631,3 +631,43 @@ describe("Ingredient exclusion", () => {
     expect(detectExclusion("no le gusta el mango").ingredient?.id).toBe("mango");
   });
 });
+
+describe("Step 1: phrasings the testers actually used must not hit the fallback", () => {
+  // Taken verbatim from the external tester sessions on 2026-11-01, plus the
+  // variations asked for. None of these may fall through to "I can't answer".
+  const exclusionPhrasings: Array<[string, string]> = [
+    ["Menús sin jitomate", "tomato"],
+    ["Y si a mi hijo no le gusta el camote", "sweet-potato"],
+    ["menu sin jitomate", "tomato"],
+    ["sin tomate", "tomato"],
+    ["no le gusta el brócoli", "broccoli"],
+    ["my son doesn't like carrots", "carrot"],
+    ["no tomato please", "tomato"],
+    ["no come pollo", "chicken"],
+    ["without chicken", "chicken"],
+  ];
+
+  it("reads each one as an ingredient exclusion with the right ingredient", () => {
+    for (const [text, expectedId] of exclusionPhrasings) {
+      const result = detectExclusion(text);
+      expect(result.isExclusion, `not read as an exclusion: "${text}"`).toBe(true);
+      expect(result.ingredient?.id, `wrong ingredient for: "${text}"`).toBe(
+        expectedId,
+      );
+    }
+  });
+
+  it("finds a replacement idea for each one, never the fallback", () => {
+    for (const [text] of exclusionPhrasings) {
+      const ingredient = findIngredient(text);
+      expect(ingredient, text).not.toBeNull();
+      const result = getLunchboxIdea("7-9", [], [], "es", [ingredient!.id]);
+      // Either a real idea without it, or an honest "no idea left" reason.
+      if (result.idea) {
+        expect(ideaHasIngredient(result.idea, ingredient!), text).toBe(false);
+      } else {
+        expect(result.noMatchReason, text).toBeTruthy();
+      }
+    }
+  });
+});

@@ -374,3 +374,87 @@ export function needsHumanReview(state: ChatState): HumanReviewResult {
 
   return { needed: false, reason: null };
 }
+
+/* -------------------------------------------------------------------------- */
+/* Rewinding an intake answer                                                 */
+/* -------------------------------------------------------------------------- */
+
+/** The three intake questions a parent can go back and change. */
+export type RewindTarget = "age" | "allergy" | "intent";
+
+/** Everything a rewind can clear. Kept plain so it is easy to test. */
+export type RewindableState = {
+  ageGroup: AgeGroup | null;
+  allergyStatus: AllergyStatus | null;
+  allergies: string[];
+  preferences: string[];
+  intent: Intent | null;
+  excluded: string[];
+  flaggedForReview: boolean;
+  reviewReason: string | null;
+  rating: string | null;
+};
+
+export type RewindResult = {
+  state: RewindableState;
+  /** The question to ask again. */
+  step: RewindTarget;
+};
+
+/**
+ * Clears the answer being changed and everything that depended on it.
+ *
+ * Changing the age clears all three answers; changing the allergy answer keeps
+ * the age; changing the intent keeps both. The review flag, its reason and the
+ * rating always go, because they can only have come from the part of the
+ * conversation that is being discarded: the banner and the thumbs live on
+ * messages after the rewind point, and whatever still applies is recomputed
+ * from the next answer.
+ */
+export function rewindTo(
+  state: RewindableState,
+  target: RewindTarget,
+): RewindResult {
+  const cleared: RewindableState = {
+    ...state,
+    excluded: [],
+    flaggedForReview: false,
+    reviewReason: null,
+    rating: null,
+    intent: null,
+  };
+
+  if (target === "intent") {
+    return { state: cleared, step: "intent" };
+  }
+
+  // Changing the allergy answer also drops the allergen and preference picks,
+  // so the parent chooses from scratch even if they were mid-list.
+  const withoutAllergies: RewindableState = {
+    ...cleared,
+    allergyStatus: null,
+    allergies: [],
+    preferences: [],
+  };
+
+  if (target === "allergy") {
+    return { state: withoutAllergies, step: "allergy" };
+  }
+
+  return {
+    state: { ...withoutAllergies, ageGroup: null },
+    step: "age",
+  };
+}
+
+/**
+ * Where the visible conversation should be cut: everything from the changed
+ * answer onwards goes, the question that asked for it stays.
+ */
+export function rewindBubbles<T extends { id: number }>(
+  bubbles: T[],
+  anchorId: number,
+): T[] {
+  const index = bubbles.findIndex((bubble) => bubble.id === anchorId);
+  return index === -1 ? bubbles : bubbles.slice(0, index);
+}

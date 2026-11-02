@@ -187,6 +187,12 @@ export type ChatSessionPatch = {
   messages?: ChatMessage[];
   flaggedForReview?: boolean;
   reviewReason?: string | null;
+  ageGroup?: AgeGroup | null;
+  allergyStatus?: AllergyStatus | null;
+  allergies?: string[];
+  preferences?: string[];
+  intent?: Intent | null;
+  rating?: ChatRating | null;
 };
 
 /** Updates an existing session as the conversation grows or gets flagged. */
@@ -202,6 +208,14 @@ export async function updateChatSession(
     row.flagged_for_review = patch.flaggedForReview;
   }
   if (patch.reviewReason !== undefined) row.review_reason = patch.reviewReason;
+  if (patch.ageGroup !== undefined) row.age_group = patch.ageGroup;
+  if (patch.allergyStatus !== undefined) {
+    row.allergy_status = patch.allergyStatus;
+  }
+  if (patch.allergies !== undefined) row.allergies = patch.allergies;
+  if (patch.preferences !== undefined) row.preferences = patch.preferences;
+  if (patch.intent !== undefined) row.intent = patch.intent;
+  if (patch.rating !== undefined) row.rating = patch.rating;
 
   if (Object.keys(row).length === 0) return { ok: true, data: undefined };
 

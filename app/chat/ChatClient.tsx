@@ -214,13 +214,14 @@ export default function ChatClient() {
   const searchParams = useSearchParams();
   const isTest = searchParams.get("test") === "1";
 
-  // Spanish by default for a Spanish browser, which is most of the audience.
-  const [lang, setLang] = useState<Lang>("es");
+  // Always opens in English. The language changes only when the visitor taps
+  // ES or EN, and the choice is not remembered between visits.
+  const [lang, setLang] = useState<Lang>("en");
   const COPY = CHAT_PAGE_COPY[lang];
 
   const [bubbles, setBubbles] = useState<Bubble[]>(() => [
-    assistant(CHAT_PAGE_COPY.es.greeting, { lang: "es" }),
-    assistant(CHAT_PAGE_COPY.es.questions.age, { lang: "es" }),
+    assistant(CHAT_PAGE_COPY.en.greeting, { lang: "en" }),
+    assistant(CHAT_PAGE_COPY.en.questions.age, { lang: "en" }),
   ]);
   const [step, setStep] = useState<Step>("age");
 
@@ -253,22 +254,6 @@ export default function ChatClient() {
     setBubbles((current) => [...current, ...next]);
   }, []);
 
-  const startedRef = useRef(false);
-
-  useEffect(() => {
-    if (startedRef.current) return;
-    startedRef.current = true;
-
-    const browser = navigator.language?.toLowerCase() ?? "";
-    const detected: Lang = browser.startsWith("es") ? "es" : "en";
-    if (detected === "es") return; // already the default
-
-    setLang(detected);
-    setBubbles([
-      assistant(CHAT_PAGE_COPY[detected].greeting, { lang: detected }),
-      assistant(CHAT_PAGE_COPY[detected].questions.age, { lang: detected }),
-    ]);
-  }, []);
 
   /* ---- persistence ---------------------------------------------------- */
 

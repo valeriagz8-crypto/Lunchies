@@ -33,6 +33,8 @@ const EN = {
   ideaIntro: (age: string) =>
     `Here's a balanced lunchbox idea for a ${age} year old:`,
   languageLabel: "Language",
+  change: "Change",
+  changeLabel: (answer: string) => `Change your answer: ${answer}`,
   // Offered under the fallback, so a dead end always has a way forward.
   fallbackSuggestions: {
     intro: "Here are some things I can answer:",
@@ -130,6 +132,8 @@ const ES: typeof EN = {
   ideaIntro: (age: string) =>
     `Esta es una idea de lonchera balanceada para ${age} años:`,
   languageLabel: "Idioma",
+  change: "Cambiar",
+  changeLabel: (answer: string) => `Cambiar tu respuesta: ${answer}`,
   fallbackSuggestions: {
     intro: "Estas son algunas cosas que sí te puedo responder:",
     options: [

@@ -42,7 +42,10 @@ import {
   getLunchboxIdea,
   ideaHasIngredient,
   needsHumanReview,
+  rewindBubbles,
+  rewindTo,
   type LunchboxResult,
+  type RewindTarget,
 } from "@/lib/chatLogic";
 import {
   saveChatSession,
@@ -85,6 +88,8 @@ type Bubble = {
   excluded?: string[];
   /** Shows the "things I can answer" quick replies under this bubble. */
   suggestions?: boolean;
+  /** Set on intake answers, so they can be changed later. */
+  intake?: RewindTarget;
 };
 
 let bubbleId = 0;
@@ -251,6 +256,8 @@ export default function ChatClient() {
   const reviewReasonRef = useRef<string | null>(null);
   const savedCountRef = useRef(0);
   const scrollRef = useRef<HTMLDivElement>(null);
+  const quickRepliesRef = useRef<HTMLDivElement>(null);
+  const [focusQuestion, setFocusQuestion] = useState(false);
 
   const push = useCallback((...next: Bubble[]) => {
     setBubbles((current) => [...current, ...next]);
@@ -260,17 +267,32 @@ export default function ChatClient() {
   /* ---- persistence ---------------------------------------------------- */
 
   const persist = useCallback(
-    async (current: Bubble[]) => {
+    async (
+      current: Bubble[],
+      /** Used by the rewind, where state has not re-rendered yet. */
+      overrides?: Partial<{
+        ageGroup: AgeGroup | null;
+        allergyStatus: AllergyStatus | null;
+        allergies: string[];
+        preferences: string[];
+        intent: Intent | null;
+        rating: ChatRating | null;
+      }>,
+    ) => {
       const flagged = current.some((bubble) => bubble.review);
       const transcript = toTranscript(current, lang);
+      const fields = {
+        ageGroup,
+        allergyStatus,
+        allergies,
+        preferences,
+        intent,
+        ...overrides,
+      };
 
       if (!sessionIdRef.current) {
         const result = await saveChatSession({
-          ageGroup,
-          allergyStatus,
-          allergies,
-          preferences,
-          intent,
+          ...fields,
           messages: transcript,
           flaggedForReview: flagged,
           reviewReason: reviewReasonRef.current,
@@ -288,9 +310,13 @@ export default function ChatClient() {
       const result = await updateChatSession(
         sessionIdRef.current,
         {
+          ...fields,
           messages: transcript,
           flaggedForReview: flagged,
           reviewReason: reviewReasonRef.current,
+          ...(overrides && "rating" in overrides
+            ? { rating: overrides.rating }
+            : {}),
         },
         lang,
       );
@@ -317,11 +343,19 @@ export default function ChatClient() {
     if (node) node.scrollTop = node.scrollHeight;
   }, [bubbles, step]);
 
+  // After a rewind, put the keyboard on the question being asked again.
+  useEffect(() => {
+    if (!focusQuestion) return;
+    setFocusQuestion(false);
+    const first = quickRepliesRef.current?.querySelector("button");
+    if (first instanceof HTMLElement) first.focus();
+  }, [focusQuestion, step]);
+
   /* ---- intake --------------------------------------------------------- */
 
   function answerIntent(choice: Intent) {
     setIntent(choice);
-    push(parent(INTENT_LABELS[lang][choice], { lang }));
+    push(parent(INTENT_LABELS[lang][choice], { lang, intake: "intent" }));
 
     if (choice === "Lunchbox ideas") {
       const result = getLunchboxIdea(
@@ -361,7 +395,7 @@ export default function ChatClient() {
 
   function answerAllergy(choice: AllergyStatus) {
     setAllergyStatus(choice);
-    push(parent(ALLERGY_STATUS_LABELS[lang][choice], { lang }));
+    push(parent(ALLERGY_STATUS_LABELS[lang][choice], { lang, intake: "allergy" }));
 
     if (choice === "Has allergies") {
       push(assistant(COPY.questions.allergyList, { lang }));
@@ -388,7 +422,7 @@ export default function ChatClient() {
           ? "Ninguna"
           : "None selected";
 
-    push(parent(shown, { lang }));
+    push(parent(shown, { lang, intake: "allergy" }));
     push(assistant(COPY.questions.intent, { lang }));
     setStep("intent");
   }
@@ -547,6 +581,55 @@ export default function ChatClient() {
         excluded: nextExcluded,
       }),
     );
+  }
+
+  /**
+   * Takes the conversation back to one of the intake questions: the answer and
+   * everything after it leave the screen and the state, and the stored row is
+   * updated to match rather than a new one being created.
+   */
+  function handleChange(anchorId: number, target: RewindTarget) {
+    const trimmed = rewindBubbles(bubbles, anchorId);
+    const { state: next, step: nextStep } = rewindTo(
+      {
+        ageGroup,
+        allergyStatus,
+        allergies,
+        preferences,
+        intent,
+        excluded,
+        flaggedForReview: trimmed.some((bubble) => bubble.review),
+        reviewReason: reviewReasonRef.current,
+        rating: null,
+      },
+      target,
+    );
+
+    setBubbles(trimmed);
+    setAgeGroup(next.ageGroup);
+    setAllergyStatus(next.allergyStatus);
+    setAllergies(next.allergies);
+    setPreferences(next.preferences);
+    setIntent(next.intent);
+    setExcluded(next.excluded);
+    setStep(nextStep);
+    setDraft("");
+
+    reviewReasonRef.current = next.reviewReason;
+    savedCountRef.current = trimmed.length;
+    setFocusQuestion(true);
+
+    // Keep the same row, and make it match what is now on screen.
+    if (sessionIdRef.current) {
+      void persist(trimmed, {
+        ageGroup: next.ageGroup,
+        allergyStatus: next.allergyStatus,
+        allergies: next.allergies,
+        preferences: next.preferences,
+        intent: next.intent,
+        rating: null,
+      });
+    }
   }
 
   /** Runs one of the suggested questions, or shows an idea for "a lunchbox idea". */
@@ -807,6 +890,20 @@ export default function ChatClient() {
                   )}
                 </div>
 
+                {/* Change: only on the three intake answers */}
+                {bubble.intake && (
+                  <div className="mr-11 mt-1 flex justify-end">
+                    <button
+                      type="button"
+                      onClick={() => handleChange(bubble.id, bubble.intake!)}
+                      aria-label={COPY.changeLabel(bubble.text)}
+                      className={`rounded-full px-2 py-0.5 text-xs font-medium text-leaf-600 underline underline-offset-2 transition-colors hover:text-peach-600 ${FOCUS}`}
+                    >
+                      {COPY.change}
+                    </button>
+                  </div>
+                )}
+
                 {/* Rating */}
                 {bubble.rateable && (
                   <div className="ml-11 mt-2 flex flex-wrap items-center gap-2">
@@ -908,7 +1005,7 @@ export default function ChatClient() {
             ))}
 
             {/* Quick replies */}
-            <div className="flex flex-wrap gap-2">
+            <div ref={quickRepliesRef} className="flex flex-wrap gap-2">
               {step === "age" &&
                 AGE_GROUPS.map((group) => (
                   <QuickReply
@@ -917,7 +1014,7 @@ export default function ChatClient() {
                     onClick={() => {
                       setAgeGroup(group);
                       push(
-                        parent(group, { lang }),
+                        parent(group, { lang, intake: "age" }),
                         assistant(COPY.questions.allergy, { lang }),
                       );
                       setStep("allergy");

@@ -166,6 +166,175 @@ export default function DocsPage() {
             <strong>pricing_scenarios</strong> — Week 3 — stores the revenue
             calculator scenarios saved from /pricing.
           </li>
+          <li>
+            <strong>ab_events</strong> — Week 4 — one row per view or click
+            in the A/B tests on /marketing (test_name, variant, event_type).
+          </li>
+          <li>
+            <strong>marketing_assets</strong> — Week 4 — the saved assets
+            library on /marketing (title, asset_type, content).
+          </li>
+          <li>
+            <strong>chat_sessions</strong> — Week 5 — one row per
+            conversation on /chat: age_group, allergy_status, allergies,
+            preferences, intent, messages (jsonb, which also carries the
+            language of each message), flagged_for_review, review_reason,
+            rating and is_test. It holds no names and no contact details.
+          </li>
+          <li>
+            <strong>review_requests</strong> — Week 5 — a parent&apos;s
+            request for a person to get in touch: session_id, contact, note
+            and is_test. This is the only personal data in the project.
+          </li>
+        </ul>
+
+        <h3 className="mt-6 text-base font-bold text-leaf-700">
+          Row level security
+        </h3>
+        <ul className="mt-2 list-disc space-y-2 pl-5 text-leaf-800">
+          <li>
+            <strong>chat_sessions:</strong> the anonymous role can insert,
+            read and update, so a conversation can be saved, rated and
+            corrected from the browser. It can delete only rows marked{" "}
+            <code>is_test</code>, which is how the automated tests clean up
+            after themselves.
+          </li>
+          <li>
+            <strong>review_requests:</strong> the anonymous role can only
+            insert. There is no anonymous read policy, so a contact left by
+            one parent can never be read back by anyone in the browser, not
+            even by the page that wrote it. Deletes are again limited to{" "}
+            <code>is_test</code> rows.
+          </li>
+        </ul>
+      </div>
+
+      <div className="mt-10 rounded-2xl border border-leaf-100 bg-leaf-50 p-6 text-left shadow-sm sm:p-8">
+        <h2 className="text-xl font-bold text-leaf-700">
+          Week 5 — the /chat assistant
+        </h2>
+        <p className="mt-3 text-leaf-800">
+          A public guided assistant for parents of school-age children, live
+          at <Link href="/chat" className="font-semibold underline">/chat</Link>.
+          It runs on fixed rules and the data in this repository: there is no
+          external AI API, so the same question always produces the same
+          answer.
+        </p>
+
+        <h3 className="mt-6 text-base font-bold text-leaf-700">
+          What it does
+        </h3>
+        <ul className="mt-2 list-disc space-y-2 pl-5 text-leaf-800">
+          <li>
+            Asks three intake questions, one at a time, with quick-reply
+            buttons: the child&apos;s age group (5-6, 7-9 or 10-12),
+            whether there are allergies or food preferences, and what the
+            parent needs today.
+          </li>
+          <li>
+            Answers with a lunchbox idea, an answer about the service, or a
+            handover to a person, depending on that third answer.
+          </li>
+          <li>
+            Swaps the idea when a parent says their child does not like an
+            ingredient, in either language, and remembers it for the rest of
+            the conversation.
+          </li>
+          <li>
+            Offers a <strong>Change</strong> link on each intake answer,
+            which rewinds the conversation to that question and clears
+            whatever depended on it.
+          </li>
+          <li>
+            Has an ES and EN toggle. It always opens in English, and the
+            choice is not remembered between visits. Messages already sent
+            keep the language they were written in.
+          </li>
+          <li>
+            Takes a thumbs up or down on each answer, and saves the
+            conversation to Supabase.
+          </li>
+          <li>
+            When it cannot answer, it says so and offers quick replies for
+            things it can answer, alongside the option to talk to a person.
+          </li>
+        </ul>
+
+        <h3 className="mt-6 text-base font-bold text-leaf-700">
+          Guardrail and human checkpoint
+        </h3>
+        <ul className="mt-2 list-disc space-y-2 pl-5 text-leaf-800">
+          <li>
+            Medical and dietary-treatment questions, in English or Spanish,
+            are refused with a pointer to a pediatrician or a registered
+            nutritionist. The chat gives no medical advice of its own.
+          </li>
+          <li>
+            A conversation is marked for review when the parent reports
+            allergies, writes an allergy or reaction word, asks to talk to a
+            person, or asks something the chat cannot answer. The banner
+            offers a short form where an email or phone number can be left,
+            which is validated before it is stored.
+          </li>
+        </ul>
+
+        <h3 className="mt-6 text-base font-bold text-leaf-700">
+          Honesty rules
+        </h3>
+        <ul className="mt-2 list-disc space-y-2 pl-5 text-leaf-800">
+          <li>
+            Service answers only repeat facts that already exist on this
+            site: the plans and their prices, what each plan includes, the
+            ages covered, what the /core planner produces, how allergens are
+            filtered, and ingredient quality. Nothing about the business is
+            invented.
+          </li>
+          <li>
+            A lunchbox is never described as safe for an allergy. When
+            allergies are present the answer says plainly that a Lunchies
+            team member has to confirm it.
+          </li>
+          <li>
+            Topics that are not defined yet get an honest answer saying so,
+            plus the option to talk to a person: delivery days, times and
+            zones, ordering, payment, contracts, refunds, cancellation,
+            portion sizes and calorie values.
+          </li>
+        </ul>
+
+        <h3 className="mt-6 text-base font-bold text-leaf-700">
+          Testing
+        </h3>
+        <ul className="mt-2 list-disc space-y-2 pl-5 text-leaf-800">
+          <li>
+            48 automated tests pass across three files, run with{" "}
+            <code>npm test</code>.
+          </li>
+          <li>
+            Three software tests cover the chat end to end: a session saved
+            to Supabase, updated, rated and read back; the medical guardrail
+            refusing requests in both languages; and the human checkpoint
+            together with contact validation and a real insert into{" "}
+            <code>review_requests</code>. Every row they write is marked{" "}
+            <code>is_test</code> and deleted afterwards.
+          </li>
+          <li>
+            External user tests were run with 4 people. Their conversations
+            are stored in <code>chat_sessions</code> and were used to decide
+            what to build next. No names, contact details or conversation
+            text appear in these docs.
+          </li>
+        </ul>
+
+        <h3 className="mt-6 text-base font-bold text-leaf-700">
+          Out of scope for Week 5
+        </h3>
+        <ul className="mt-2 list-disc space-y-2 pl-5 text-leaf-800">
+          <li>WhatsApp and any other messaging platform.</li>
+          <li>Orders and payments inside the chat.</li>
+          <li>User accounts and login.</li>
+          <li>Medical or nutritional advice.</li>
+          <li>Voice input and voice replies.</li>
         </ul>
       </div>
 

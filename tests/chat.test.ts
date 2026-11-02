@@ -7,6 +7,9 @@ import {
   getLunchboxIdea,
   ideaHasIngredient,
   needsHumanReview,
+  rewindBubbles,
+  rewindTo,
+  type RewindableState,
 } from "@/lib/chatLogic";
 import {
   saveChatSession,
@@ -833,5 +836,112 @@ describe("Step 4: the fallback offers things the chat can answer", () => {
         expect(result.topic, `${lang} ${option.id}`).not.toBeNull();
       }
     }
+  });
+});
+
+describe("Step 7: changing an intake answer", () => {
+  // A conversation where all three questions were answered, an idea was shown,
+  // it was rated, and the allergy answer flagged it for review.
+  const answered: RewindableState = {
+    ageGroup: "7-9",
+    allergyStatus: "Has allergies",
+    allergies: ["Dairy", "Gluten"],
+    preferences: [],
+    intent: "Lunchbox ideas",
+    excluded: ["sweet-potato"],
+    flaggedForReview: true,
+    reviewReason: "The parent reported allergies.",
+    rating: "up",
+  };
+
+  it("changing the age clears every later answer", () => {
+    const { state, step } = rewindTo(answered, "age");
+    expect(step).toBe("age");
+    expect(state.ageGroup).toBeNull();
+    expect(state.allergyStatus).toBeNull();
+    expect(state.allergies).toEqual([]);
+    expect(state.preferences).toEqual([]);
+    expect(state.intent).toBeNull();
+    expect(state.excluded).toEqual([]);
+  });
+
+  it("changing the allergy answer keeps the age and clears the rest", () => {
+    const { state, step } = rewindTo(answered, "allergy");
+    expect(step).toBe("allergy");
+    expect(state.ageGroup).toBe("7-9");
+    // Mid-list picks go too, so the parent chooses from scratch.
+    expect(state.allergyStatus).toBeNull();
+    expect(state.allergies).toEqual([]);
+    expect(state.preferences).toEqual([]);
+    expect(state.intent).toBeNull();
+  });
+
+  it("changing the intent keeps the age and the allergy answers", () => {
+    const withPreferences: RewindableState = {
+      ...answered,
+      allergyStatus: "Preferences",
+      allergies: [],
+      preferences: ["Vegetarian"],
+    };
+    const { state, step } = rewindTo(withPreferences, "intent");
+    expect(step).toBe("intent");
+    expect(state.ageGroup).toBe("7-9");
+    expect(state.allergyStatus).toBe("Preferences");
+    expect(state.preferences).toEqual(["Vegetarian"]);
+    expect(state.intent).toBeNull();
+  });
+
+  it("every rewind clears the review flag, its reason and the rating", () => {
+    for (const target of ["age", "allergy", "intent"] as const) {
+      const { state } = rewindTo(answered, target);
+      expect(state.flaggedForReview, target).toBe(false);
+      expect(state.reviewReason, target).toBeNull();
+      expect(state.rating, target).toBeNull();
+      // Ingredient exclusions came from the discarded part as well.
+      expect(state.excluded, target).toEqual([]);
+    }
+  });
+
+  it("drops the changed answer and everything after it from the transcript", () => {
+    const bubbles = [
+      { id: 1, text: "greeting" },
+      { id: 2, text: "1. age?" },
+      { id: 3, text: "7-9" },
+      { id: 4, text: "2. allergies?" },
+      { id: 5, text: "Has allergies" },
+      { id: 6, text: "idea" },
+    ];
+
+    // Changing the age keeps the greeting and the question, drops the answer on.
+    expect(rewindBubbles(bubbles, 3).map((b) => b.id)).toEqual([1, 2]);
+    // Changing the allergy answer keeps everything up to its question.
+    expect(rewindBubbles(bubbles, 5).map((b) => b.id)).toEqual([1, 2, 3, 4]);
+    // An id that is not there leaves the conversation alone.
+    expect(rewindBubbles(bubbles, 99)).toHaveLength(bubbles.length);
+  });
+
+  it("what is stored matches what is left on screen", () => {
+    const bubbles = [
+      { id: 1, text: "greeting" },
+      { id: 2, text: "1. age?" },
+      { id: 3, text: "7-9", intake: "age" as const },
+      { id: 4, text: "2. allergies?" },
+      { id: 5, text: "Has allergies", intake: "allergy" as const },
+      { id: 6, text: "idea", review: true },
+    ];
+
+    const trimmed = rewindBubbles(bubbles, 5);
+    const { state } = rewindTo(
+      { ...answered, flaggedForReview: trimmed.some((b) => "review" in b && b.review) },
+      "allergy",
+    );
+
+    // Nothing flagged survives, because the flagged message was discarded.
+    expect(trimmed.some((b) => "review" in b && b.review)).toBe(false);
+    expect(state.flaggedForReview).toBe(false);
+    // The answer still visible is the one still in state.
+    expect(trimmed.filter((b) => "intake" in b).map((b) => b.text)).toEqual(["7-9"]);
+    expect(state.ageGroup).toBe("7-9");
+    expect(state.allergyStatus).toBeNull();
   });
 });

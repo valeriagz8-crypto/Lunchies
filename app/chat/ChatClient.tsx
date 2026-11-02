@@ -38,7 +38,9 @@ import {
 import {
   answerServiceQuestion,
   checkGuardrail,
+  detectExclusion,
   getLunchboxIdea,
+  ideaHasIngredient,
   needsHumanReview,
   type LunchboxResult,
 } from "@/lib/chatLogic";
@@ -79,6 +81,8 @@ type Bubble = {
   rating?: ChatRating | null;
   /** Shows the "needs a review" banner under this bubble. */
   review?: boolean;
+  /** Ingredient ids excluded at the time this bubble was written. */
+  excluded?: string[];
 };
 
 let bubbleId = 0;
@@ -104,6 +108,7 @@ function toTranscript(bubbles: Bubble[], lang: Lang): ChatMessage[] {
       ? `${bubble.text} ${ideaToText(bubble.idea)}`
       : bubble.text,
     lang: bubble.lang ?? lang,
+    ...(bubble.excluded?.length ? { excluded: bubble.excluded } : {}),
   }));
 }
 
@@ -227,6 +232,8 @@ export default function ChatClient() {
   const [preferences, setPreferences] = useState<string[]>([]);
   const [intent, setIntent] = useState<Intent | null>(null);
 
+  // Ingredient ids the child has turned down, kept for the whole chat.
+  const [excluded, setExcluded] = useState<string[]>([]);
   const [draft, setDraft] = useState("");
   const [saveError, setSaveError] = useState<string | null>(null);
 
@@ -335,6 +342,7 @@ export default function ChatClient() {
         allergies,
         preferences,
         lang,
+        excluded,
       );
       const review = needsHumanReview({ allergyStatus, allergies, intent: choice });
       if (review.needed) reviewReasonRef.current = review.reason;
@@ -423,7 +431,19 @@ export default function ChatClient() {
       next.push(assistant(guardrail.response, { lang }));
     }
 
-    // 2. Does this need a person?
+    // 2. "He doesn't like sweet potato": swap the idea rather than fall back.
+    const shownIdea = bubbles.some((bubble) => bubble.idea);
+    const exclusion = guardrail.triggered
+      ? { isExclusion: false, ingredient: null }
+      : detectExclusion(text);
+
+    if (shownIdea && exclusion.isExclusion && exclusion.ingredient) {
+      handleExclusion(text, exclusion.ingredient, next);
+      push(...next);
+      return;
+    }
+
+    // 3. Does this need a person?
     const review = needsHumanReview({
       allergyStatus,
       allergies,
@@ -431,7 +451,7 @@ export default function ChatClient() {
       freeText: text,
     });
 
-    // 3. Answer from the fixed service answers, unless the guardrail fired.
+    // 4. Answer from the fixed service answers, unless the guardrail fired.
     if (!guardrail.triggered) {
       const result = answerServiceQuestion(text, lang);
       const reviewForAnswer = !result.matched
@@ -475,6 +495,69 @@ export default function ChatClient() {
     if (step === "await-question") setStep("open");
 
     push(...next);
+  }
+
+  /**
+   * Swaps the idea for one without the ingredient. Only one swap per
+   * conversation: a second request, or nothing left to suggest, goes to a
+   * person instead of guessing.
+   */
+  function handleExclusion(
+    text: string,
+    ingredient: NonNullable<ReturnType<typeof detectExclusion>["ingredient"]>,
+    next: Bubble[],
+  ) {
+    const alreadySwapped = excluded.length > 0;
+    if (alreadySwapped) {
+      reviewReasonRef.current = `The parent asked for more than one change (${[...excluded, ingredient.id].join(", ")}).`;
+      next.push(
+        assistant(COPY.exclusion.tooMany, { lang, review: true }),
+      );
+      return;
+    }
+
+    const currentIdea = [...bubbles].reverse().find((bubble) => bubble.idea)
+      ?.idea?.idea;
+    const wasInIdea = currentIdea
+      ? ideaHasIngredient(currentIdea, ingredient)
+      : false;
+
+    const nextExcluded = [...excluded, ingredient.id];
+    setExcluded(nextExcluded);
+
+    const result = getLunchboxIdea(
+      ageGroup ?? "7-9",
+      allergies,
+      preferences,
+      lang,
+      nextExcluded,
+    );
+
+    if (!result.idea) {
+      reviewReasonRef.current = `No idea left after excluding ${nextExcluded.join(", ")}.`;
+      next.push(assistant(COPY.exclusion.noneLeft, { lang, review: true }));
+      return;
+    }
+
+    const label = ingredient.label[lang];
+    const intro = wasInIdea
+      ? COPY.exclusion.replaced(label)
+      : COPY.exclusion.notInIdea(label);
+
+    // Allergies still need a person, exactly as on the first idea.
+    const review = needsHumanReview({ allergyStatus, allergies, intent });
+    if (review.needed) reviewReasonRef.current = review.reason;
+
+    next.push(
+      assistant(intro, {
+        lang,
+        idea: result,
+        rateable: true,
+        rating: null,
+        review: review.needed,
+        excluded: nextExcluded,
+      }),
+    );
   }
 
   function pendingQuestion(): string | null {
@@ -545,6 +628,7 @@ export default function ChatClient() {
     setAllergies([]);
     setPreferences([]);
     setIntent(null);
+    setExcluded([]);
     setDraft("");
     setSaveError(null);
     setReviewOpen(false);
@@ -591,17 +675,6 @@ export default function ChatClient() {
                 sizes="(max-width: 1024px) 100vw, 24rem"
                 className="object-cover"
               />
-              <ul className="absolute right-2 top-2 flex w-[min(60%,11rem)] flex-col gap-1.5">
-                {COPY.heroCards.map((card) => (
-                  <li
-                    key={card.label}
-                    className="flex items-center gap-1.5 rounded-xl bg-white/95 px-2.5 py-1.5 text-[11px] font-semibold leading-tight text-leaf-800 shadow-sm"
-                  >
-                    <span aria-hidden="true">{card.icon}</span>
-                    <span className="min-w-0">{card.label}</span>
-                  </li>
-                ))}
-              </ul>
             </div>
           </div>
 

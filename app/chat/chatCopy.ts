@@ -33,6 +33,16 @@ const EN = {
   ideaIntro: (age: string) =>
     `Here's a balanced lunchbox idea for a ${age} year old:`,
   languageLabel: "Language",
+  exclusion: {
+    replaced: (ingredient: string) =>
+      `Got it, no ${ingredient}. Here's another idea:`,
+    notInIdea: (ingredient: string) =>
+      `There's no ${ingredient} in that idea, but here's a different one anyway:`,
+    tooMany:
+      "I can only swap one thing in a conversation. Someone from the Lunchies team can help you with the rest.",
+    noneLeft:
+      "I don't have an idea that works with all of that. Someone from the Lunchies team can put something together for you.",
+  },
   rating: {
     prompt: "Was this helpful?",
     up: "Yes, this was helpful",
@@ -110,6 +120,16 @@ const ES: typeof EN = {
   ideaIntro: (age: string) =>
     `Esta es una idea de lonchera balanceada para ${age} años:`,
   languageLabel: "Idioma",
+  exclusion: {
+    replaced: (ingredient: string) =>
+      `Va, sin ${ingredient}. Aquí tienes otra idea:`,
+    notInIdea: (ingredient: string) =>
+      `Esa idea no lleva ${ingredient}, pero aquí va otra de todos modos:`,
+    tooMany:
+      "Solo puedo cambiar una cosa por conversación. Alguien del equipo de Lunchies puede ayudarte con lo demás.",
+    noneLeft:
+      "No tengo una idea que funcione con todo eso. Alguien del equipo de Lunchies puede armarte algo.",
+  },
   rating: {
     prompt: "¿Te sirvió?",
     up: "Sí, me sirvió",

@@ -11,6 +11,9 @@
 
 import {
   CHAT_NOTES_BY_LANG,
+  EXCLUSION_MARKERS,
+  IDEA_ES,
+  INGREDIENTS,
   HUMAN_CHECKPOINT_KEYWORDS,
   LUNCHBOX_IDEAS,
   MEDICAL_KEYWORDS,
@@ -23,6 +26,7 @@ import {
   type AllergyStatus,
   type Intent,
   type Lang,
+  type IngredientEntry,
   type LunchboxIdea,
 } from "./chatData";
 
@@ -56,6 +60,83 @@ function containsKeyword(text: string, keywords: string[]): string | null {
 }
 
 /* -------------------------------------------------------------------------- */
+/* Ingredients                                                                */
+/* -------------------------------------------------------------------------- */
+
+/** Everything an idea is made of, in both languages, for searching. */
+function ideaHaystack(idea: LunchboxIdea): string {
+  const spanish = IDEA_ES[idea.id];
+  return normalize(
+    [
+      idea.main,
+      idea.side,
+      idea.fruit,
+      idea.extra,
+      spanish?.main,
+      spanish?.side,
+      spanish?.fruit,
+      spanish?.extra,
+    ]
+      .filter(Boolean)
+      .join(" "),
+  );
+}
+
+/** True when the idea contains the ingredient, in either language. */
+export function ideaHasIngredient(
+  idea: LunchboxIdea,
+  entry: IngredientEntry,
+): boolean {
+  const haystack = ideaHaystack(idea);
+  return entry.words.some((word) => matchesWholeWord(haystack, word));
+}
+
+/** The ingredient named in a message, if any. Longest match wins. */
+export function findIngredient(text: string): IngredientEntry | null {
+  const haystack = normalize(text);
+  if (!haystack) return null;
+
+  let best: IngredientEntry | null = null;
+  let bestLength = 0;
+
+  for (const entry of INGREDIENTS) {
+    for (const word of entry.words) {
+      if (word.length > bestLength && matchesWholeWord(haystack, word)) {
+        best = entry;
+        bestLength = word.length;
+      }
+    }
+  }
+  return best;
+}
+
+export type ExclusionRequest = {
+  /** True when the parent asked to leave something out. */
+  isExclusion: boolean;
+  ingredient: IngredientEntry | null;
+};
+
+/**
+ * Reads "no le gusta el camote", "sin camote", "he doesn't like sweet potato".
+ * An exclusion needs both a marker phrase and a known ingredient, so an
+ * ordinary question is never mistaken for one.
+ */
+export function detectExclusion(text: string): ExclusionRequest {
+  const haystack = normalize(text);
+  const ingredient = findIngredient(text);
+  if (!ingredient) return { isExclusion: false, ingredient: null };
+
+  const marked = EXCLUSION_MARKERS.some((marker) =>
+    marker.endsWith(" ")
+      ? haystack.includes(normalize(marker) + " ") ||
+        haystack.startsWith(normalize(marker))
+      : haystack.includes(normalize(marker)),
+  );
+
+  return { isExclusion: marked, ingredient };
+}
+
+/* -------------------------------------------------------------------------- */
 /* Lunchbox ideas                                                             */
 /* -------------------------------------------------------------------------- */
 
@@ -79,7 +160,12 @@ export function getLunchboxIdea(
   allergies: string[] = [],
   preferences: string[] = [],
   lang: Lang = "en",
+  /** Ingredient ids the child does not want, collected during the chat. */
+  excluded: string[] = [],
 ): LunchboxResult {
+  const excludedEntries = INGREDIENTS.filter((entry) =>
+    excluded.includes(entry.id),
+  );
   const notes = CHAT_NOTES_BY_LANG[lang];
   const hasAllergies = allergies.length > 0;
   const note = hasAllergies
@@ -99,6 +185,10 @@ export function getLunchboxIdea(
     }
     if (vegetarian && !idea.vegetarian) return false;
     if ((noRedMeat || vegetarian) && idea.redMeat) return false;
+    // Anything the child has turned down stays out for the rest of the chat.
+    if (excludedEntries.some((entry) => ideaHasIngredient(idea, entry))) {
+      return false;
+    }
     return true;
   });
 

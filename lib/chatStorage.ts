@@ -24,6 +24,8 @@ export type ChatMessage = {
    * so the schema does not need a column for it.
    */
   lang?: Lang;
+  /** Ingredient ids the parent asked to leave out, when relevant. */
+  excluded?: string[];
 };
 
 export type ChatSessionInput = {

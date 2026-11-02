@@ -2,7 +2,10 @@ import { afterAll, describe, expect, it } from "vitest";
 import {
   answerServiceQuestion,
   checkGuardrail,
+  detectExclusion,
+  findIngredient,
   getLunchboxIdea,
+  ideaHasIngredient,
   needsHumanReview,
 } from "@/lib/chatLogic";
 import {
@@ -27,6 +30,7 @@ import {
   SERVICE_ANSWERS,
   SERVICE_ANSWERS_ES,
   SERVICE_FALLBACK,
+  INGREDIENTS,
 } from "@/lib/chatData";
 import { CHAT_PAGE_COPY } from "@/app/chat/chatCopy";
 import { PLANS } from "@/lib/productData";
@@ -542,5 +546,88 @@ describe("Spanish support", () => {
       freeText: "cuanto cuesta el plan basico?",
     });
     expect(ordinary.needed).toBe(false);
+  });
+});
+
+describe("Ingredient exclusion", () => {
+  const sweetPotato = INGREDIENTS.find((entry) => entry.id === "sweet-potato")!;
+
+  it("reads an exclusion in English and Spanish, for camote and sweet potato", () => {
+    const phrasings = [
+      "my child doesn't like sweet potato",
+      "he doesn't like sweet potato",
+      "without sweet potato please",
+      "no le gusta el camote",
+      "sin camote",
+      "mi hija no quiere camote",
+    ];
+
+    for (const text of phrasings) {
+      const result = detectExclusion(text);
+      expect(result.isExclusion, text).toBe(true);
+      expect(result.ingredient?.id, text).toBe("sweet-potato");
+    }
+
+    // An ordinary question is never read as an exclusion.
+    for (const text of [
+      "what is the price of the Plus plan?",
+      "do you have sweet potato in the menu?",
+      "cuanto cuesta el plan basico?",
+    ]) {
+      expect(detectExclusion(text).isExclusion, text).toBe(false);
+    }
+  });
+
+  it("returns a new idea without the excluded ingredient or any selected allergen", () => {
+    // 7-9 is the age group whose first idea carries sweet potato.
+    const first = getLunchboxIdea("7-9", [], [], "en");
+    expect(ideaHasIngredient(first.idea!, sweetPotato)).toBe(true);
+
+    for (const lang of ["en", "es"] as const) {
+      const swapped = getLunchboxIdea("7-9", ["Dairy"], [], lang, [
+        "sweet-potato",
+      ]);
+      expect(swapped.idea).not.toBeNull();
+      expect(ideaHasIngredient(swapped.idea!, sweetPotato)).toBe(false);
+      expect(swapped.idea!.allergens).not.toContain("Dairy");
+      // The allergy wording is unchanged by the swap.
+      expect(swapped.needsHumanConfirmation).toBe(true);
+      expect(swapped.note).toMatch(
+        lang === "es" ? /necesita confirmar/ : /team member needs to confirm/,
+      );
+      expect(swapped.note).not.toMatch(
+        /\bis safe\b|\bsafe for\b|allergy[- ]free|es segura/i,
+      );
+    }
+  });
+
+  it("matches the excluded ingredient whichever language it was typed in", () => {
+    // Typed in Spanish, filtered against the English food names and back.
+    expect(findIngredient("no le gusta el camote")?.id).toBe("sweet-potato");
+    expect(findIngredient("he doesn't like chicken")?.id).toBe("chicken");
+    expect(findIngredient("sin pollo")?.id).toBe("chicken");
+    expect(findIngredient("without zanahorias")?.id).toBe("carrot");
+
+    const esExcluded = getLunchboxIdea("7-9", [], [], "es", ["sweet-potato"]);
+    expect(ideaHasIngredient(esExcluded.idea!, sweetPotato)).toBe(false);
+  });
+
+  it("runs out of ideas rather than ignoring an exclusion", () => {
+    // Excluding everything the 5-6 ideas are built from leaves nothing, which
+    // is what sends the parent to a person instead of a wrong suggestion.
+    const everything = INGREDIENTS.map((entry) => entry.id);
+    const impossible = getLunchboxIdea("5-6", [], [], "en", everything);
+    expect(impossible.idea).toBeNull();
+    expect(impossible.noMatchReason).toBeTruthy();
+  });
+
+  it("still finds an ingredient that is not in the current idea", () => {
+    // "mango" is only in one 7-9 idea, so a 5-6 parent naming it still gets
+    // a valid idea back rather than an error.
+    const mango = INGREDIENTS.find((entry) => entry.id === "mango")!;
+    const result = getLunchboxIdea("5-6", [], [], "en", ["mango"]);
+    expect(result.idea).not.toBeNull();
+    expect(ideaHasIngredient(result.idea!, mango)).toBe(false);
+    expect(detectExclusion("no le gusta el mango").ingredient?.id).toBe("mango");
   });
 });

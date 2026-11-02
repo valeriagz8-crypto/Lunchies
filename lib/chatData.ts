@@ -841,3 +841,105 @@ export const CHAT_NOTES_BY_LANG: Record<Lang, ChatNotes> = {
       "No doy consejos médicos, ni tratamientos alimenticios ni diagnósticos.",
   },
 };
+
+/* -------------------------------------------------------------------------- */
+/* Ingredients, for "my child doesn't like X"                                 */
+/* -------------------------------------------------------------------------- */
+
+export type IngredientEntry = {
+  id: string;
+  /** Shown back to the parent. */
+  label: Record<Lang, string>;
+  /** Words to look for, in both languages. Accents and plurals are handled. */
+  words: string[];
+};
+
+/**
+ * Vocabulary drawn from the food names used by LUNCHBOX_IDEAS and IDEA_ES.
+ * Both languages are always searched, because a parent may type Spanish while
+ * the interface is in English.
+ */
+export const INGREDIENTS: IngredientEntry[] = [
+  { id: "turkey", label: { en: "turkey", es: "pavo" }, words: ["turkey", "pavo"] },
+  { id: "cheese", label: { en: "cheese", es: "queso" }, words: ["cheese", "queso"] },
+  { id: "chicken", label: { en: "chicken", es: "pollo" }, words: ["chicken", "pollo"] },
+  { id: "beef", label: { en: "beef", es: "carne de res" }, words: ["beef", "res", "picadillo"] },
+  { id: "tofu", label: { en: "tofu", es: "tofu" }, words: ["tofu"] },
+  { id: "egg", label: { en: "egg", es: "huevo" }, words: ["egg", "huevo"] },
+  { id: "yogurt", label: { en: "yogurt", es: "yogurt" }, words: ["yogurt", "yoghurt"] },
+  { id: "rice", label: { en: "rice", es: "arroz" }, words: ["rice", "arroz"] },
+  { id: "quinoa", label: { en: "quinoa", es: "quinoa" }, words: ["quinoa"] },
+  { id: "lentils", label: { en: "lentils", es: "lentejas" }, words: ["lentil", "lentils", "lenteja", "lentejas"] },
+  { id: "beans", label: { en: "beans", es: "frijoles" }, words: ["bean", "beans", "frijol", "frijoles"] },
+  { id: "tortilla", label: { en: "tortilla", es: "tortilla" }, words: ["tortilla", "tortillas"] },
+  { id: "bread", label: { en: "bread", es: "pan" }, words: ["bread", "pan", "bolillo"] },
+  { id: "sandwich", label: { en: "sandwich", es: "sándwich" }, words: ["sandwich", "sandwiches"] },
+  { id: "wrap", label: { en: "wrap", es: "wrap" }, words: ["wrap", "wraps"] },
+  { id: "quesadilla", label: { en: "quesadilla", es: "quesadilla" }, words: ["quesadilla", "quesadillas"] },
+  { id: "torta", label: { en: "torta", es: "torta" }, words: ["torta", "tortas"] },
+  { id: "taco", label: { en: "taco", es: "taco" }, words: ["taco", "tacos"] },
+  { id: "soup", label: { en: "soup", es: "sopa" }, words: ["soup", "sopa"] },
+  { id: "sweet-potato", label: { en: "sweet potato", es: "camote" }, words: ["sweet potato", "sweet potatoes", "camote", "camotes"] },
+  { id: "potato", label: { en: "potato", es: "papa" }, words: ["potato", "potatoes", "papa", "papas"] },
+  { id: "carrot", label: { en: "carrot", es: "zanahoria" }, words: ["carrot", "carrots", "zanahoria", "zanahorias"] },
+  { id: "cucumber", label: { en: "cucumber", es: "pepino" }, words: ["cucumber", "cucumbers", "pepino", "pepinos"] },
+  { id: "green-beans", label: { en: "green beans", es: "ejotes" }, words: ["green bean", "green beans", "ejote", "ejotes"] },
+  { id: "broccoli", label: { en: "broccoli", es: "brócoli" }, words: ["broccoli", "brocoli"] },
+  { id: "zucchini", label: { en: "zucchini", es: "calabacita" }, words: ["zucchini", "calabacita", "calabacitas"] },
+  { id: "tomato", label: { en: "tomatoes", es: "jitomate" }, words: ["tomato", "tomatoes", "jitomate", "jitomates"] },
+  { id: "peas", label: { en: "peas", es: "chícharos" }, words: ["pea", "peas", "chicharo", "chicharos"] },
+  { id: "nopales", label: { en: "nopales", es: "nopales" }, words: ["nopal", "nopales"] },
+  { id: "jicama", label: { en: "jicama", es: "jícama" }, words: ["jicama", "jicamas"] },
+  { id: "avocado", label: { en: "avocado", es: "aguacate" }, words: ["avocado", "avocados", "aguacate", "aguacates"] },
+  { id: "apple", label: { en: "apple", es: "manzana" }, words: ["apple", "apples", "manzana", "manzanas"] },
+  { id: "banana", label: { en: "banana", es: "plátano" }, words: ["banana", "bananas", "platano", "platanos"] },
+  { id: "grapes", label: { en: "grapes", es: "uvas" }, words: ["grape", "grapes", "uva", "uvas"] },
+  { id: "strawberries", label: { en: "strawberries", es: "fresas" }, words: ["strawberry", "strawberries", "fresa", "fresas"] },
+  { id: "orange", label: { en: "orange", es: "naranja" }, words: ["orange", "oranges", "naranja", "naranjas"] },
+  { id: "melon", label: { en: "melon", es: "melón" }, words: ["melon", "melones"] },
+  { id: "mango", label: { en: "mango", es: "mango" }, words: ["mango", "mangos"] },
+  { id: "pineapple", label: { en: "pineapple", es: "piña" }, words: ["pineapple", "pina", "pinas"] },
+  { id: "popcorn", label: { en: "popcorn", es: "palomitas" }, words: ["popcorn", "palomita", "palomitas"] },
+  { id: "crackers", label: { en: "crackers", es: "galletas" }, words: ["cracker", "crackers", "galleta", "galletas"] },
+  { id: "tortilla-chips", label: { en: "tortilla chips", es: "totopos" }, words: ["tortilla chip", "tortilla chips", "totopo", "totopos"] },
+  { id: "pumpkin-seeds", label: { en: "pumpkin seeds", es: "pepitas" }, words: ["pumpkin seed", "pumpkin seeds", "pepita", "pepitas"] },
+  { id: "sunflower-seeds", label: { en: "sunflower seeds", es: "semillas de girasol" }, words: ["sunflower seed", "sunflower seeds", "semillas de girasol", "girasol"] },
+];
+
+/** Phrases that mean "leave this out", in both languages. */
+export const EXCLUSION_MARKERS = [
+  // English
+  "doesn't like",
+  "does not like",
+  "don't like",
+  "do not like",
+  "dislikes",
+  "hates",
+  "won't eat",
+  "will not eat",
+  "doesn't want",
+  "does not want",
+  "no more",
+  "without",
+  "no ",
+  "not a fan of",
+  "can't stand",
+  // Spanish
+  "no le gusta",
+  "no le gustan",
+  "no le agrada",
+  "no quiere",
+  "no come",
+  "odia",
+  "detesta",
+  "sin ",
+  // "tampoco le gusta el pollo" is how a second exclusion actually gets typed.
+  "tampoco",
+  "ya no",
+  "otra idea",
+  "another idea",
+  "something else",
+  "quita",
+  "quitale",
+  "cambia",
+];

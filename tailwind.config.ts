@@ -20,6 +20,13 @@ const config: Config = {
           800: "#224f33",
           900: "#1d422c",
         },
+        // Warm cream page background used by the redesigned project pages.
+        cream: {
+          50: "#fdf8f3",
+          100: "#fbf2e8",
+          200: "#f6e7d5",
+          300: "#efd9bf",
+        },
         peach: {
           50: "#fff8f1",
           100: "#ffedd9",
@@ -32,6 +39,11 @@ const config: Config = {
           800: "#9b3f14",
           900: "#7d3513",
         },
+      },
+      boxShadow: {
+        // Soft, wide, low-contrast shadow used by every redesigned card.
+        soft: "0 12px 32px -18px rgba(34, 79, 51, 0.35)",
+        "soft-lg": "0 24px 56px -28px rgba(34, 79, 51, 0.42)",
       },
       keyframes: {
         rise: {

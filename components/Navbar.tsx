@@ -26,7 +26,7 @@ export default function Navbar() {
         <Link href="/" className="text-lg font-bold text-leaf-700">
           Lunchies 🍎
         </Link>
-        <ul className="hidden items-center gap-6 text-sm font-medium text-leaf-800 lg:flex">
+        <ul className="hidden items-center gap-1 text-sm font-medium text-leaf-800 lg:flex">
           {links.map((link) => {
             const isActive = pathname === link.href;
             return (
@@ -36,8 +36,8 @@ export default function Navbar() {
                   aria-current={isActive ? "page" : undefined}
                   className={
                     isActive
-                      ? "text-peach-500"
-                      : "transition-colors hover:text-peach-500"
+                      ? "block rounded-full bg-leaf-100 px-3 py-1.5 font-semibold text-leaf-700"
+                      : "block rounded-full px-3 py-1.5 transition-colors hover:bg-leaf-50 hover:text-leaf-700"
                   }
                 >
                   {link.label}
@@ -49,7 +49,7 @@ export default function Navbar() {
         <div className="hidden lg:block">
           <Link
             href="/core"
-            className="rounded-full bg-leaf-600 px-5 py-2 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-leaf-700"
+            className="rounded-full bg-leaf-600 px-5 py-2.5 text-sm font-semibold text-white shadow-soft transition-colors hover:bg-leaf-700"
           >
             Get started
           </Link>
@@ -91,8 +91,8 @@ export default function Navbar() {
                   onClick={() => setIsOpen(false)}
                   className={
                     isActive
-                      ? "block rounded-md px-3 py-2 text-peach-500"
-                      : "block rounded-md px-3 py-2 transition-colors hover:text-peach-500"
+                      ? "block rounded-full bg-leaf-100 px-3 py-2 font-semibold text-leaf-700"
+                      : "block rounded-full px-3 py-2 transition-colors hover:bg-leaf-50 hover:text-leaf-700"
                   }
                 >
                   {link.label}
@@ -104,7 +104,7 @@ export default function Navbar() {
             <Link
               href="/core"
               onClick={() => setIsOpen(false)}
-              className="block rounded-full bg-leaf-600 px-5 py-2 text-center text-sm font-semibold text-white shadow-sm transition-colors hover:bg-leaf-700"
+              className="block rounded-full bg-leaf-600 px-5 py-2.5 text-center text-sm font-semibold text-white shadow-soft transition-colors hover:bg-leaf-700"
             >
               Get started
             </Link>

@@ -1,6 +1,7 @@
 "use client";
 
 import { Fragment, useEffect, useMemo, useRef, useState } from "react";
+import { BarChart3, CalendarDays } from "lucide-react";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
 import { PLANS } from "@/lib/productData";
@@ -19,6 +20,27 @@ import {
   type PlanKey,
   type ScenarioKey,
 } from "@/lib/pricingAssumptions";
+import {
+  Card,
+  CardHead,
+  HeroArt,
+  HeroLabel,
+  IconBadge,
+  PageHero,
+  PageShell,
+  Sparkle,
+  StepArrow,
+  StepItem,
+  StepStrip,
+  TableWrap,
+} from "@/components/ui/pieces";
+import {
+  BTN_SECONDARY,
+  CARD_SUBTITLE,
+  FIELD,
+  TINT,
+  type TintName,
+} from "@/components/ui/theme";
 
 type CustomersByPlan = Record<PlanKey, number>;
 type BillingPeriod = "monthly" | "annual";
@@ -62,6 +84,16 @@ const SCENARIO_HEADER_BG: Record<ScenarioKey, string> = {
   base: "bg-yellow-100",
   optimistic: "bg-blue-100",
 };
+
+/** Softer wash behind each scenario column in the assumptions table. */
+const SCENARIO_COLUMN_BG: Record<ScenarioKey, string> = {
+  conservative: "bg-leaf-50/70",
+  base: "bg-yellow-50/70",
+  optimistic: "bg-blue-50/70",
+};
+
+/** Pastel tint per summary tile beside the revenue panel. */
+const SUMMARY_TINTS: TintName[] = ["green", "cream", "pink"];
 
 const STEPS = [
   "Choose period and scenario",
@@ -276,80 +308,57 @@ export default function PricingClient() {
   ];
 
   return (
-    <section className="mx-auto max-w-5xl px-4 py-16 sm:px-6">
+    <PageShell>
       {/* Hero */}
-      <div className="grid items-center gap-8 md:grid-cols-2">
-        <div>
-          <div className="flex items-center gap-3">
-            <span
-              className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-peach-100 text-3xl"
-              aria-hidden="true"
-            >
-              📊
-            </span>
-            <span className="text-sm font-bold uppercase tracking-wide text-peach-500">
-              Pricing
-            </span>
-          </div>
-          <h1 className="mt-3 text-3xl font-extrabold tracking-tight text-gray-800 sm:text-4xl">
+      <PageHero
+        label={
+          <HeroLabel badge={<IconBadge tint="peach" size="lg">📊</IconBadge>}>
+            Pricing
+          </HeroLabel>
+        }
+        title={
+          <>
             Estimate your <span className="text-peach-500">impact.</span>
-          </h1>
-          <p className="mt-4 max-w-md text-lg text-gray-600">
-            Play with different scenarios and see the potential revenue for
-            Lunchies.
-          </p>
+          </>
+        }
+        subtitle="Play with different scenarios and see the potential revenue for Lunchies."
+        actions={
           <Link
             href="/product"
-            className="mt-2 inline-block text-sm font-semibold text-peach-600 transition-colors hover:text-peach-700"
+            className="mt-4 inline-block rounded-full bg-peach-50 px-4 py-2 text-sm font-bold text-peach-600 transition-colors hover:bg-peach-100"
           >
             See what each plan includes →
           </Link>
-        </div>
-        <div className="flex justify-center md:justify-end">
-          <span className="text-6xl leading-none" aria-hidden="true">
-            🥗
-          </span>
-        </div>
-      </div>
+        }
+        art={<HeroArt tone="cream">🥗</HeroArt>}
+      />
 
       {/* Step bar */}
-      <div className="mt-8 flex flex-wrap items-center justify-center gap-x-2 gap-y-3 rounded-full border border-leaf-100 bg-leaf-50 px-4 py-3 text-center text-xs font-medium text-leaf-700 sm:text-sm">
+      <StepStrip className="mt-10">
         {STEPS.map((step, index) => (
           <Fragment key={step}>
-            {index > 0 && (
-              <span aria-hidden="true" className="text-leaf-400">
-                →
-              </span>
-            )}
-            <span className="flex items-center gap-1.5">
-              <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-leaf-600 text-[10px] font-bold text-white">
-                {index + 1}
-              </span>
-              {step}
-            </span>
+            {index > 0 && <StepArrow>→</StepArrow>}
+            <StepItem index={index + 1}>{step}</StepItem>
           </Fragment>
         ))}
-      </div>
+      </StepStrip>
 
-      <div className="mt-12 space-y-8">
+      <div className="mt-10 space-y-6">
         {/* Section 1 + 2: Billing period + Scenario */}
         <div className="grid gap-5 md:grid-cols-2">
-          <div className="rounded-2xl border border-leaf-100 bg-leaf-50 p-6 shadow-sm">
-            <div className="flex items-center gap-3">
-              <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-leaf-600 text-sm font-bold text-white">
-                1
-              </span>
-              <h2 className="text-lg font-semibold text-leaf-700">
-                Billing period
-              </h2>
-            </div>
-            <div className="mt-4 flex flex-wrap gap-2">
+          <Card tint="green" className="p-6 sm:p-8">
+            <CardHead
+              step="1"
+              badge={<IconBadge tint="green" icon={CalendarDays} />}
+              title="Billing period"
+            />
+            <div className="mt-6 flex flex-wrap gap-2">
               {(["monthly", "annual"] as BillingPeriod[]).map((period) => (
                 <button
                   key={period}
                   type="button"
                   onClick={() => setBillingPeriod(period)}
-                  className={`rounded-full border px-4 py-1.5 text-sm font-medium capitalize transition-colors ${
+                  className={`rounded-full border px-6 py-2.5 text-sm font-semibold capitalize shadow-sm transition-colors ${
                     billingPeriod === period
                       ? "border-leaf-600 bg-leaf-600 text-white"
                       : "border-leaf-200 bg-white text-leaf-700 hover:bg-leaf-50"
@@ -359,54 +368,56 @@ export default function PricingClient() {
                 </button>
               ))}
             </div>
-          </div>
-          <div className="rounded-2xl border border-leaf-100 bg-white p-6 shadow-sm">
-            <div className="flex items-center gap-3">
-              <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-leaf-600 text-sm font-bold text-white">
-                2
-              </span>
-              <h2 className="flex items-center gap-1.5 text-lg font-semibold text-leaf-700">
-                Scenario
-                <span ref={scenarioInfoRef} className="relative inline-flex">
-                  <button
-                    type="button"
-                    aria-expanded={scenarioInfoOpen}
-                    aria-label="What do the scenarios mean?"
-                    onClick={() => setScenarioInfoOpen((open) => !open)}
-                    onMouseEnter={() => setScenarioInfoOpen(true)}
-                    onFocus={() => setScenarioInfoOpen(true)}
-                    className="flex h-5 w-5 items-center justify-center rounded-full text-sm text-leaf-400 transition-colors hover:text-leaf-600"
-                  >
-                    ⓘ
-                  </button>
-                  {scenarioInfoOpen && (
-                    <div
-                      role="dialog"
+          </Card>
+          <Card tint="plain" className="p-6 sm:p-8">
+            <CardHead
+              step="2"
+              badge={<IconBadge tint="blue" icon={BarChart3} />}
+              titleClassName="flex items-center gap-1.5"
+              title={
+                <>
+                  Scenario
+                  <span ref={scenarioInfoRef} className="relative inline-flex">
+                    <button
+                      type="button"
+                      aria-expanded={scenarioInfoOpen}
                       aria-label="What do the scenarios mean?"
-                      className="absolute left-0 top-full z-10 mt-2 w-[min(16rem,calc(100vw-2rem))] rounded-xl border border-leaf-100 bg-white p-4 text-left text-xs font-normal text-leaf-700 shadow-sm"
+                      onClick={() => setScenarioInfoOpen((open) => !open)}
+                      onMouseEnter={() => setScenarioInfoOpen(true)}
+                      onFocus={() => setScenarioInfoOpen(true)}
+                      className="flex h-5 w-5 items-center justify-center rounded-full text-sm text-leaf-400 transition-colors hover:text-leaf-600"
                     >
-                      <p>
-                        <strong>Conservative:</strong> fewer customers than
-                        expected ({SCENARIO_MULTIPLIERS.conservative}x).
-                      </p>
-                      <p className="mt-1">
-                        <strong>Base:</strong> the expected case (
-                        {SCENARIO_MULTIPLIERS.base}x).
-                      </p>
-                      <p className="mt-1">
-                        <strong>Optimistic:</strong> faster growth than
-                        expected ({SCENARIO_MULTIPLIERS.optimistic}x).
-                      </p>
-                      <p className="mt-2 text-leaf-500">
-                        Revenue = customers × weekly price × {WEEKS_PER_MONTH}{" "}
-                        weeks × scenario multiplier.
-                      </p>
-                    </div>
-                  )}
-                </span>
-              </h2>
-            </div>
-            <div className="mt-4 grid grid-cols-1 gap-2 sm:grid-cols-3">
+                      ⓘ
+                    </button>
+                    {scenarioInfoOpen && (
+                      <div
+                        role="dialog"
+                        aria-label="What do the scenarios mean?"
+                        className="absolute left-0 top-full z-10 mt-2 w-[min(16rem,calc(100vw-2rem))] rounded-2xl border border-leaf-100 bg-white p-4 text-left text-xs font-normal text-leaf-700 shadow-soft-lg"
+                      >
+                        <p>
+                          <strong>Conservative:</strong> fewer customers than
+                          expected ({SCENARIO_MULTIPLIERS.conservative}x).
+                        </p>
+                        <p className="mt-1">
+                          <strong>Base:</strong> the expected case (
+                          {SCENARIO_MULTIPLIERS.base}x).
+                        </p>
+                        <p className="mt-1">
+                          <strong>Optimistic:</strong> faster growth than
+                          expected ({SCENARIO_MULTIPLIERS.optimistic}x).
+                        </p>
+                        <p className="mt-2 text-leaf-500">
+                          Revenue = customers × weekly price ×{" "}
+                          {WEEKS_PER_MONTH} weeks × scenario multiplier.
+                        </p>
+                      </div>
+                    )}
+                  </span>
+                </>
+              }
+            />
+            <div className="mt-6 grid grid-cols-1 gap-2.5 sm:grid-cols-3">
               {SCENARIOS.map((key) => {
                 const scenarioResult = calculateRevenue(customers, key);
                 const scenarioPeriodValue =
@@ -419,17 +430,17 @@ export default function PricingClient() {
                     key={key}
                     type="button"
                     onClick={() => setScenario(key)}
-                    className={`rounded-xl border px-3 py-2 text-left transition-colors ${
+                    className={`rounded-2xl border px-4 py-3 text-left shadow-sm transition-colors ${
                       isActive
                         ? "border-leaf-600 bg-leaf-600 text-white"
-                        : "border-leaf-200 bg-white text-leaf-700 hover:bg-leaf-50"
+                        : "border-leaf-100 bg-leaf-50 text-leaf-700 hover:bg-leaf-100"
                     }`}
                   >
-                    <span className="block text-sm font-medium">
+                    <span className="block font-poppins text-sm font-bold">
                       {SCENARIO_LABELS[key]}
                     </span>
                     <span
-                      className={`block text-xs ${
+                      className={`block text-xs font-semibold ${
                         isActive ? "text-white/90" : "text-leaf-500"
                       }`}
                     >
@@ -439,46 +450,43 @@ export default function PricingClient() {
                 );
               })}
             </div>
-            <p className="mt-2 text-xs text-leaf-600">
+            <p className="mt-3 text-xs font-medium text-leaf-600">
               {SCENARIO_DESCRIPTIONS[scenario]}
             </p>
-          </div>
+          </Card>
         </div>
 
         {/* Section 3: Number of customers per plan */}
-        <div className="rounded-2xl border border-leaf-100 bg-leaf-50 p-6 shadow-sm">
-          <div className="flex flex-wrap items-center justify-between gap-3">
-            <div className="flex items-center gap-3">
-              <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-leaf-600 text-sm font-bold text-white">
-                3
-              </span>
-              <h2 className="flex items-center gap-2 text-lg font-semibold text-leaf-700">
-                <span aria-hidden="true">👨‍👩‍👧</span> Number of customers per
-                plan
-              </h2>
-            </div>
-            <button
-              type="button"
-              onClick={resetToDefaults}
-              className="rounded-full border border-leaf-200 px-4 py-1.5 text-xs font-semibold text-leaf-700 transition-colors hover:bg-white"
-            >
-              Reset to defaults
-            </button>
-          </div>
-          <p className="mt-2 text-sm text-leaf-600">
+        <Card tint="green" className="p-6 sm:p-8">
+          <CardHead
+            step="3"
+            badge={<IconBadge tint="green">👨‍👩‍👧</IconBadge>}
+            title="Number of customers per plan"
+            action={
+              <button
+                type="button"
+                onClick={resetToDefaults}
+                className="shrink-0 rounded-full border border-leaf-200 bg-white px-4 py-2 text-xs font-bold text-leaf-700 shadow-sm transition-colors hover:bg-leaf-50"
+              >
+                Reset to defaults
+              </button>
+            }
+          />
+          {/* Kept outside CardHead so it stays after the button, as before. */}
+          <p className={CARD_SUBTITLE}>
             Adjust the number of active customers in each plan.
           </p>
-          <div className="mt-5 space-y-5">
+          <div className="mt-6 space-y-4">
             {PLANS.map((plan) => (
               <div
                 key={plan.id}
-                className="flex flex-wrap items-center gap-3 sm:flex-nowrap sm:gap-4"
+                className="flex flex-wrap items-center gap-3 rounded-2xl bg-white/70 p-3 shadow-sm sm:flex-nowrap sm:gap-4 sm:p-4"
               >
                 <div className="flex w-full items-center gap-3 sm:contents">
-                  <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-leaf-100 text-xl">
+                  <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-leaf-100 text-xl">
                     {PLAN_EMOJI[plan.id]}
                   </span>
-                  <span className="text-sm font-medium text-leaf-800 sm:w-40 sm:shrink-0">
+                  <span className="text-sm font-semibold text-leaf-800 sm:w-40 sm:shrink-0">
                     {plan.name} (${WEEKLY_PRICES[plan.id]} / week)
                   </span>
                 </div>
@@ -492,7 +500,7 @@ export default function PricingClient() {
                     onChange={(event) =>
                       updateCustomers(plan.id, Number(event.target.value))
                     }
-                    className="min-w-0 flex-1 accent-leaf-600"
+                    className="h-2 min-w-0 flex-1 cursor-pointer appearance-none rounded-full bg-leaf-100 accent-leaf-600"
                   />
                   <input
                     type="number"
@@ -502,103 +510,113 @@ export default function PricingClient() {
                     onChange={(event) =>
                       handleCustomerTextChange(plan.id, event.target.value)
                     }
-                    className="w-20 shrink-0 rounded-lg border border-leaf-200 bg-white px-3 py-2 text-right text-sm text-leaf-900 focus:border-leaf-500 focus:outline-none"
+                    className="w-20 shrink-0 rounded-2xl border border-leaf-100 bg-white px-3 py-2 text-right text-sm font-semibold text-leaf-900 shadow-sm focus:border-leaf-400 focus:outline-none focus:ring-2 focus:ring-leaf-100"
                   />
-                  <span className="shrink-0 text-xs text-leaf-600">
+                  <span className="shrink-0 text-xs font-medium text-leaf-600">
                     customers
                   </span>
                 </div>
               </div>
             ))}
           </div>
-        </div>
+        </Card>
 
         {/* Section 4: Estimated revenue */}
-        <div className="rounded-2xl border border-leaf-100 bg-white p-6 shadow-sm">
-          <div className="flex items-center gap-3">
-            <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-leaf-600 text-sm font-bold text-white">
-              4
-            </span>
-            <h2 className="flex items-center gap-2 text-lg font-semibold text-leaf-700">
-              <span aria-hidden="true">💰</span> Estimated revenue{" "}
-              <span className="text-sm font-normal text-leaf-500">
-                ({SCENARIO_LABELS[scenario]} scenario)
-              </span>
-            </h2>
-          </div>
-          <p className="mt-2 text-sm text-leaf-600">
-            Based on the selected number of customers and scenario.
-          </p>
-          <div
-            className={`mt-5 rounded-xl border p-6 text-center ${
-              billingPeriod === "monthly"
-                ? "border-leaf-100 bg-leaf-50"
-                : "border-red-100 bg-red-50"
-            }`}
-          >
-            <span className="text-3xl" aria-hidden="true">
-              {billingPeriod === "monthly" ? "💰" : "📊"}
-            </span>
-            <p
-              className={`mt-2 text-sm font-medium ${
-                billingPeriod === "monthly" ? "text-leaf-600" : "text-red-700"
-              }`}
-            >
-              {billingPeriod === "monthly" ? "Monthly revenue" : "Annual revenue"}
-            </p>
-            <p
-              className={`mt-1 text-3xl font-extrabold ${
-                billingPeriod === "monthly" ? "text-leaf-700" : "text-red-600"
-              }`}
-            >
-              {formatMXN(periodRevenue)}
-            </p>
-            <p className="mt-2 text-xs text-leaf-500">
-              Equivalent: {formatMXN(otherPeriodRevenue)} per {otherPeriodLabel}
-            </p>
-          </div>
-          <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-3">
-            {summaryTiles.map((tile) => (
-              <div
-                key={tile.label}
-                className="rounded-xl border border-leaf-100 bg-leaf-50 p-3 text-center"
-              >
-                <span className="text-xl" aria-hidden="true">
-                  {tile.icon}
+        <Card tint="plain" className="p-6 sm:p-8">
+          <CardHead
+            step="4"
+            badge={<IconBadge tint="cream">💰</IconBadge>}
+            titleClassName="flex flex-wrap items-center gap-2"
+            title={
+              <>
+                Estimated revenue{" "}
+                <span className="text-sm font-semibold text-leaf-500">
+                  ({SCENARIO_LABELS[scenario]} scenario)
                 </span>
-                <p className="mt-1 text-sm font-extrabold text-leaf-800">
-                  {tile.value}
-                </p>
-                <p className="text-xs text-leaf-600">{tile.label}</p>
-              </div>
-            ))}
+              </>
+            }
+            subtitle="Based on the selected number of customers and scenario."
+          />
+          <div className="mt-6 grid gap-4 lg:grid-cols-[1.4fr_1fr]">
+            <div
+              className={`relative overflow-hidden rounded-3xl border p-8 text-center shadow-sm ${
+                billingPeriod === "monthly"
+                  ? "border-leaf-100 bg-leaf-50"
+                  : "border-rose-100 bg-rose-50"
+              }`}
+            >
+              <Sparkle
+                className="absolute right-5 top-5 h-6 w-8 opacity-70"
+                color="peach"
+              />
+              <span className="text-3xl" aria-hidden="true">
+                {billingPeriod === "monthly" ? "💰" : "📊"}
+              </span>
+              <p
+                className={`mt-2 text-sm font-bold ${
+                  billingPeriod === "monthly"
+                    ? "text-leaf-600"
+                    : "text-rose-700"
+                }`}
+              >
+                {billingPeriod === "monthly"
+                  ? "Monthly revenue"
+                  : "Annual revenue"}
+              </p>
+              <p
+                className={`mt-1 font-poppins text-3xl font-extrabold sm:text-4xl ${
+                  billingPeriod === "monthly"
+                    ? "text-leaf-700"
+                    : "text-rose-600"
+                }`}
+              >
+                {formatMXN(periodRevenue)}
+              </p>
+              <p className="mx-auto mt-3 inline-block rounded-full bg-white/80 px-4 py-1.5 text-xs font-medium text-leaf-600 shadow-sm">
+                Equivalent: {formatMXN(otherPeriodRevenue)} per{" "}
+                {otherPeriodLabel}
+              </p>
+            </div>
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-3 lg:grid-cols-1">
+              {summaryTiles.map((tile, index) => (
+                <div
+                  key={tile.label}
+                  className={`flex flex-col items-center gap-0.5 rounded-2xl border p-4 text-center shadow-sm sm:p-3 lg:flex-row lg:gap-3 lg:text-left ${
+                    TINT[SUMMARY_TINTS[index % SUMMARY_TINTS.length]].card
+                  }`}
+                >
+                  <span className="text-xl" aria-hidden="true">
+                    {tile.icon}
+                  </span>
+                  <p className="font-poppins text-sm font-extrabold text-leaf-900">
+                    {tile.value}
+                  </p>
+                  <p className="text-xs text-leaf-600">{tile.label}</p>
+                </div>
+              ))}
+            </div>
           </div>
-        </div>
+        </Card>
 
         {/* Section 5: Key assumptions */}
-        <div className="rounded-2xl border border-leaf-100 bg-leaf-50 p-6 shadow-sm">
-          <div className="flex items-center gap-3">
-            <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-leaf-600 text-sm font-bold text-white">
-              5
-            </span>
-            <h2 className="flex items-center gap-2 text-lg font-semibold text-leaf-700">
-              <span aria-hidden="true">📐</span> Key assumptions
-            </h2>
-          </div>
-          <p className="mt-2 text-sm text-leaf-600">
-            These inputs are used to calculate the revenue.
-          </p>
-          <div className="mt-5 overflow-x-auto">
-            <table className="w-full min-w-[420px] text-left text-sm">
+        <Card tint="green" className="p-6 sm:p-8">
+          <CardHead
+            step="5"
+            badge={<IconBadge tint="green">📐</IconBadge>}
+            title="Key assumptions"
+            subtitle="These inputs are used to calculate the revenue."
+          />
+          <TableWrap className="mt-6">
+            <table className="w-full min-w-[420px] border-separate border-spacing-0 text-left text-sm">
               <thead>
                 <tr>
-                  <th className="py-2 pr-4 font-medium text-leaf-600">
+                  <th className="py-3 pr-4 align-bottom font-bold text-leaf-700">
                     Assumption
                   </th>
                   {SCENARIOS.map((key) => (
                     <th
                       key={key}
-                      className={`rounded-t-lg px-3 py-2 text-center font-semibold text-gray-800 ${SCENARIO_HEADER_BG[key]}`}
+                      className={`rounded-t-2xl px-3 py-3 text-center font-poppins font-extrabold text-leaf-900 ${SCENARIO_HEADER_BG[key]}`}
                     >
                       {SCENARIO_LABELS[key]}
                     </th>
@@ -607,52 +625,62 @@ export default function PricingClient() {
               </thead>
               <tbody>
                 {PLANS.map((plan) => (
-                  <tr
-                    key={plan.id}
-                    className="border-b border-leaf-50 text-leaf-800"
-                  >
-                    <td className="py-2.5 pr-4">
+                  <tr key={plan.id} className="text-leaf-800">
+                    <td className="border-b border-leaf-100 py-3 pr-4 font-medium">
                       Weekly price — {plan.name}
                     </td>
                     {SCENARIOS.map((key) => (
-                      <td key={key} className="py-2.5 pr-4 text-center">
+                      <td
+                        key={key}
+                        className={`border-b border-white/70 px-3 py-3 text-center font-semibold ${SCENARIO_COLUMN_BG[key]}`}
+                      >
                         {formatWeekly(WEEKLY_PRICES[plan.id])}
                       </td>
                     ))}
                   </tr>
                 ))}
-                <tr className="border-b border-leaf-50 text-leaf-800">
-                  <td className="py-2.5 pr-4">Weeks per month</td>
+                <tr className="text-leaf-800">
+                  <td className="border-b border-leaf-100 py-3 pr-4 font-medium">
+                    Weeks per month
+                  </td>
                   {SCENARIOS.map((key) => (
-                    <td key={key} className="py-2.5 pr-4 text-center">
+                    <td
+                      key={key}
+                      className={`border-b border-white/70 px-3 py-3 text-center font-semibold ${SCENARIO_COLUMN_BG[key]}`}
+                    >
                       {WEEKS_PER_MONTH}
                     </td>
                   ))}
                 </tr>
                 <tr className="text-leaf-800">
-                  <td className="py-2.5 pr-4">Scenario multiplier</td>
+                  <td className="py-3 pr-4 font-medium">Scenario multiplier</td>
                   {SCENARIOS.map((key) => (
-                    <td key={key} className="py-2.5 pr-4 text-center">
+                    <td
+                      key={key}
+                      className={`rounded-b-2xl px-3 py-3 text-center font-semibold ${SCENARIO_COLUMN_BG[key]}`}
+                    >
                       {SCENARIO_MULTIPLIERS[key]}x
                     </td>
                   ))}
                 </tr>
               </tbody>
             </table>
-          </div>
-          <p className="mt-4 text-xs italic text-leaf-600">
+          </TableWrap>
+          <p className="mt-5 text-xs italic text-leaf-600">
             Prices, customer counts and multipliers are founder assumptions,
             anchored to the sources below.
           </p>
-          <div className="mt-3">
-            <p className="text-xs font-semibold text-leaf-700">Sources</p>
-            <ul className="mt-1 space-y-1 text-xs text-leaf-600">
+          <div className="mt-4 rounded-2xl bg-white/70 p-5 shadow-sm">
+            <p className="font-poppins text-xs font-bold tracking-wider text-leaf-700">
+              Sources
+            </p>
+            <ul className="mt-2 space-y-1.5 text-xs text-leaf-600">
               <li>
                 <a
                   href="https://www.alcontacto.com.mx/2025/08/31/cuanto-cuesta-hoy-mandar-un-lunch-saludable-a-los-ninos-en-mexico/"
                   target="_blank"
                   rel="noreferrer noopener"
-                  className="underline hover:text-leaf-700"
+                  className="font-semibold text-leaf-700 underline decoration-leaf-300 underline-offset-2 hover:text-peach-600"
                 >
                   Al Contacto, Aug 2025 (Profeco and SNIIM data)
                 </a>{" "}
@@ -663,7 +691,7 @@ export default function PricingClient() {
                   href="https://www.record.com.mx/historia/cuanto-cuesta-el-regreso-a-clases-esto-es-lo-que-gastan-las-familias-mexicanas-en-transporte-y-comida-2026081902365258129"
                   target="_blank"
                   rel="noreferrer noopener"
-                  className="underline hover:text-leaf-700"
+                  className="font-semibold text-leaf-700 underline decoration-leaf-300 underline-offset-2 hover:text-peach-600"
                 >
                   ANPEC via Récord, Aug 2026
                 </a>{" "}
@@ -674,7 +702,7 @@ export default function PricingClient() {
                   href="https://www.manyar.com.mx/plan-infantil/"
                   target="_blank"
                   rel="noreferrer noopener"
-                  className="underline hover:text-leaf-700"
+                  className="font-semibold text-leaf-700 underline decoration-leaf-300 underline-offset-2 hover:text-peach-600"
                 >
                   manyar.com.mx/plan-infantil, Oct 2026
                 </a>{" "}
@@ -685,7 +713,7 @@ export default function PricingClient() {
                   href="https://lunchybox.app/"
                   target="_blank"
                   rel="noreferrer noopener"
-                  className="underline hover:text-leaf-700"
+                  className="font-semibold text-leaf-700 underline decoration-leaf-300 underline-offset-2 hover:text-peach-600"
                 >
                   lunchybox.app, Oct 2026
                 </a>{" "}
@@ -693,34 +721,33 @@ export default function PricingClient() {
               </li>
             </ul>
           </div>
-        </div>
+        </Card>
 
         {/* Section 6 + 7: Save this scenario + Saved scenarios */}
-        <div className="grid gap-6 lg:grid-cols-2">
-          <div className="rounded-2xl border border-leaf-100 bg-white p-6 shadow-sm">
-            <div className="flex items-center gap-3">
-              <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-leaf-600 text-sm font-bold text-white">
-                6
-              </span>
-              <h2 className="flex items-center gap-2 text-lg font-semibold text-leaf-700">
-                <span aria-hidden="true">🔖</span> Save this scenario
-              </h2>
-            </div>
-            <p className="mt-2 text-sm text-leaf-600">
-              Keep a record of your inputs and results to compare different
-              scenarios.
-            </p>
-            <div className="mt-4 space-y-3">
+        <div className="grid gap-5 lg:grid-cols-2">
+          <Card tint="plain" className="p-6 sm:p-8">
+            <CardHead
+              step="6"
+              badge={<IconBadge tint="peach">🔖</IconBadge>}
+              title="Save this scenario"
+              subtitle={
+                <>
+                  Keep a record of your inputs and results to compare different
+                  scenarios.
+                </>
+              }
+            />
+            <div className="mt-5 space-y-3">
               <div>
                 <input
                   type="text"
                   value={scenarioName}
                   onChange={(event) => setScenarioName(event.target.value)}
                   placeholder="Scenario name (e.g. Base case - CDMX)"
-                  className="w-full rounded-lg border border-leaf-200 bg-white px-3 py-2 text-sm text-leaf-900 focus:border-leaf-500 focus:outline-none"
+                  className={FIELD}
                 />
                 {nameError && (
-                  <p className="mt-1 text-xs font-medium text-red-600">
+                  <p className="mt-2 text-xs font-semibold text-rose-600">
                     Please enter a name for this scenario.
                   </p>
                 )}
@@ -730,14 +757,14 @@ export default function PricingClient() {
                   type="button"
                   onClick={handleSave}
                   disabled={saving}
-                  className="rounded-full bg-peach-500 px-6 py-2.5 font-semibold text-white shadow-sm transition-colors hover:bg-peach-600 disabled:cursor-not-allowed disabled:opacity-60"
+                  className={BTN_SECONDARY}
                 >
                   {saving ? "Saving..." : "Save scenario"}
                 </button>
                 {saveMessage && (
                   <span
-                    className={`text-sm font-medium ${
-                      saveError ? "text-red-600" : "text-leaf-700"
+                    className={`text-sm font-semibold ${
+                      saveError ? "text-rose-600" : "text-leaf-700"
                     }`}
                   >
                     {saveMessage}
@@ -745,31 +772,29 @@ export default function PricingClient() {
                 )}
               </div>
             </div>
-          </div>
+          </Card>
 
-          <div className="rounded-2xl border border-leaf-100 bg-leaf-50 p-6 shadow-sm">
-            <div className="flex flex-wrap items-center justify-between gap-3">
-              <div className="flex items-center gap-3">
-                <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-leaf-600 text-sm font-bold text-white">
-                  7
-                </span>
-                <h2 className="flex items-center gap-2 text-lg font-semibold text-leaf-700">
-                  <span aria-hidden="true">📋</span> Saved scenarios
-                </h2>
-              </div>
-              {!loadingSaved &&
+          <Card tint="green" className="p-6 sm:p-8">
+            <CardHead
+              step="7"
+              badge={<IconBadge tint="green">📋</IconBadge>}
+              title="Saved scenarios"
+              action={
+                !loadingSaved &&
                 !loadError &&
-                savedScenarios.length > SAVED_SCENARIOS_PREVIEW_COUNT && (
+                savedScenarios.length > SAVED_SCENARIOS_PREVIEW_COUNT ? (
                   <button
                     type="button"
                     onClick={() => setShowAllSaved((prev) => !prev)}
-                    className="text-sm font-semibold text-peach-600 transition-colors hover:text-peach-700"
+                    className="shrink-0 rounded-full bg-peach-50 px-4 py-2 text-sm font-bold text-peach-600 transition-colors hover:bg-peach-100"
                   >
                     {showAllSaved ? "Show less" : "View all →"}
                   </button>
-                )}
-            </div>
-            <p className="mt-2 text-sm text-leaf-600">
+                ) : undefined
+              }
+            />
+            {/* Kept outside CardHead so it stays after the button, as before. */}
+            <p className={CARD_SUBTITLE}>
               View and compare your previous scenario analyses.
             </p>
             <div className="mt-5 space-y-3">
@@ -780,7 +805,7 @@ export default function PricingClient() {
               )}
               {!loadingSaved && loadError && (
                 <div>
-                  <p className="text-sm text-red-600">{loadError}</p>
+                  <p className="text-sm text-rose-600">{loadError}</p>
                   {loadErrorDetail && (
                     <p className="mt-1 text-xs text-leaf-600">
                       {loadErrorDetail}
@@ -804,18 +829,18 @@ export default function PricingClient() {
                   return (
                     <div
                       key={row.id}
-                      className="flex items-center gap-3 rounded-xl border border-leaf-100 bg-white p-3"
+                      className="flex items-center gap-3 rounded-2xl border border-leaf-100 bg-white p-4 shadow-sm transition-shadow hover:shadow-soft"
                     >
-                      <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-leaf-100 text-sm">
+                      <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-leaf-100 text-base">
                         📄
                       </span>
                       <div className="min-w-0 flex-1">
-                        <p className="truncate text-sm font-semibold text-leaf-800">
+                        <p className="truncate font-poppins text-sm font-bold text-leaf-900">
                           {row.name}
                         </p>
-                        <p className="text-sm font-semibold text-leaf-700">
+                        <p className="text-sm font-bold text-leaf-700">
                           {formatMXN(rowValue)}{" "}
-                          <span className="text-xs font-normal text-leaf-500">
+                          <span className="text-xs font-medium text-leaf-500">
                             (
                             {row.billing_period === "monthly"
                               ? "Monthly"
@@ -824,16 +849,16 @@ export default function PricingClient() {
                           </span>
                         </p>
                       </div>
-                      <p className="shrink-0 text-xs text-leaf-600">
+                      <p className="shrink-0 text-xs font-medium text-leaf-600">
                         {new Date(row.created_at).toLocaleDateString()}
                       </p>
                     </div>
                   );
                 })}
             </div>
-          </div>
+          </Card>
         </div>
       </div>
-    </section>
+    </PageShell>
   );
 }

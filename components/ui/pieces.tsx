@@ -191,6 +191,7 @@ export function CardHead({
   subtitle,
   action,
   className = "",
+  titleClassName = "",
 }: {
   step?: ReactNode;
   stepTone?: "leaf" | "peach";
@@ -199,6 +200,8 @@ export function CardHead({
   subtitle?: ReactNode;
   action?: ReactNode;
   className?: string;
+  /** Extra classes on the <h2>, for headings that hold more than a title. */
+  titleClassName?: string;
 }) {
   return (
     <div
@@ -208,7 +211,7 @@ export function CardHead({
         {step !== undefined && <StepPill tone={stepTone}>{step}</StepPill>}
         {badge}
         <div className="min-w-0">
-          <h2 className={CARD_TITLE}>{title}</h2>
+          <h2 className={`${CARD_TITLE} ${titleClassName}`}>{title}</h2>
           {subtitle !== undefined && <p className={CARD_SUBTITLE}>{subtitle}</p>}
         </div>
       </div>

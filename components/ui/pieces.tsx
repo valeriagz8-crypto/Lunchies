@@ -22,13 +22,16 @@ import {
 export function PageShell({
   children,
   className = "",
+  width = "max-w-5xl",
 }: {
   children: ReactNode;
   className?: string;
+  /** Content width. Long-form pages read better a little narrower. */
+  width?: string;
 }) {
   return (
     <div className={`${PAGE_BG} ${className}`}>
-      <div className="mx-auto max-w-5xl px-4 py-12 sm:px-6 sm:py-16">
+      <div className={`mx-auto ${width} px-4 py-12 sm:px-6 sm:py-16`}>
         {children}
       </div>
     </div>

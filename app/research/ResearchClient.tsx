@@ -14,6 +14,31 @@ import {
   type CompetitorType,
 } from "@/lib/researchData";
 import RiskMap from "@/components/RiskMap";
+import {
+  Card,
+  CardHead,
+  HeroArt,
+  HeroLabel,
+  IconBadge,
+  PageHero,
+  PageShell,
+  StatTile,
+  StepArrow,
+  StepItem,
+  StepStrip,
+  TableWrap,
+  TagPill,
+} from "@/components/ui/pieces";
+import {
+  BTN_GHOST,
+  BTN_PRIMARY,
+  BTN_SECONDARY,
+  FIELD,
+  CARD_SUBTITLE,
+  FIELD_LABEL,
+  TINT,
+  type TintName,
+} from "@/components/ui/theme";
 
 type SavedNote = {
   id: string;
@@ -123,6 +148,12 @@ const KPI_CARDS = [
   },
 ];
 
+/** Pastel tint per KPI card, left to right, matching the redesign. */
+const KPI_TINTS: TintName[] = ["green", "cream", "pink", "blue"];
+
+/** Pastel tint per global example card, cycled so the grid stays varied. */
+const EXAMPLE_TINTS: TintName[] = ["green", "cream", "blue", "pink", "peach"];
+
 function buildResearchInsight(topic: string, tags: string[]): string {
   const directCompetitors = COMPETITORS.filter((c) => c.type === "Direct");
   const directLows = directCompetitors.map((c) => getPriceBounds(c.price)[0]);
@@ -225,13 +256,13 @@ function SelectWithOther({
 
   return (
     <div>
-      <label className="block text-sm font-medium text-leaf-800">
+      <label className={FIELD_LABEL}>
         {label}
       </label>
       <select
         value={isOther ? "Other" : value}
         onChange={(e) => handleSelectChange(e.target.value)}
-        className="mt-2 w-full rounded-lg border border-leaf-200 bg-white px-3 py-2 text-sm text-leaf-900 focus:border-leaf-500 focus:outline-none"
+        className={`${FIELD} mt-2`}
       >
         <option value="" disabled>
           Select an option
@@ -248,7 +279,7 @@ function SelectWithOther({
           value={value}
           onChange={(e) => onChange(e.target.value)}
           placeholder={otherPlaceholder}
-          className="mt-2 w-full rounded-lg border border-leaf-200 bg-white px-3 py-2 text-sm text-leaf-900 focus:border-leaf-500 focus:outline-none"
+          className={`${FIELD} mt-2`}
         />
       )}
     </div>
@@ -395,114 +426,80 @@ export default function ResearchClient() {
   }
 
   return (
-    <section className="mx-auto max-w-5xl px-4 py-16 sm:px-6">
-      <div className="grid items-center gap-8 md:grid-cols-2">
-        <div>
-          <div className="flex items-center gap-3">
-            <span
-              className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-peach-100 text-3xl"
-              aria-hidden="true"
-            >
-              🔍
-            </span>
-            <span className="text-sm font-bold uppercase tracking-wide text-peach-500">
-              Research
-            </span>
-          </div>
-          <h1 className="mt-3 whitespace-nowrap text-3xl font-extrabold tracking-tight text-gray-800 sm:text-4xl">
+    <PageShell>
+      <PageHero
+        label={
+          <HeroLabel badge={<IconBadge tint="peach" size="lg">🔍</IconBadge>}>
+            Research
+          </HeroLabel>
+        }
+        title={
+          <>
             Research &amp; <span className="text-peach-500">Benchmarking</span>
-          </h1>
-          <p className="mt-4 max-w-md text-lg text-gray-600">
+          </>
+        }
+        subtitle={
+          <>
             This page shows why Lunchies matters: real proof that parents
             need this, who else is trying to solve it, and where we can do
             better.
-          </p>
-        </div>
-        <div className="flex justify-center md:justify-end">
-          <span className="text-6xl leading-none" aria-hidden="true">
-            🔎
-          </span>
-        </div>
-      </div>
+          </>
+        }
+        art={<HeroArt tone="leaf">🔎</HeroArt>}
+      />
 
       {/* KPI widget */}
-      <div className="mt-8 grid grid-cols-2 gap-3 sm:grid-cols-4">
-        {KPI_CARDS.map((kpi) => (
-          <div
+      <div className="mt-10 grid grid-cols-2 gap-3 sm:grid-cols-4 sm:gap-4">
+        {KPI_CARDS.map((kpi, index) => (
+          <StatTile
             key={kpi.label}
-            className="rounded-2xl border border-leaf-100 bg-leaf-50 p-4 text-center shadow-sm"
-          >
-            <span className="text-2xl" aria-hidden="true">
-              {kpi.icon}
-            </span>
-            <p className="mt-1 text-xl font-extrabold text-leaf-800">
-              {kpi.value}
-            </p>
-            <p className="text-xs text-leaf-600">{kpi.label}</p>
-          </div>
+            tint={KPI_TINTS[index % KPI_TINTS.length]}
+            icon={kpi.icon}
+            value={kpi.value}
+            label={kpi.label}
+          />
         ))}
       </div>
 
       {/* Reading guide */}
-      <div className="mt-8 flex flex-wrap items-center justify-center gap-x-2 gap-y-3 rounded-full border border-leaf-100 bg-leaf-50 px-4 py-3 text-center text-xs font-medium text-leaf-700 sm:text-sm">
-        <span className="flex items-center gap-1.5">
-          <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-leaf-600 text-[10px] font-bold text-white">
-            1
-          </span>
+      <StepStrip className="mt-6">
+        <StepItem index={1}>
           See if the problem is real{" "}
           <span className="text-leaf-500">(Mexico stat)</span>
-        </span>
-        <span aria-hidden="true" className="text-leaf-400">
-          →
-        </span>
-        <span className="flex items-center gap-1.5">
-          <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-leaf-600 text-[10px] font-bold text-white">
-            2
-          </span>
+        </StepItem>
+        <StepArrow>→</StepArrow>
+        <StepItem index={2}>
           See who else is solving it{" "}
           <span className="text-leaf-500">
             (global examples + competitors)
           </span>
-        </span>
-        <span aria-hidden="true" className="text-leaf-400">
-          →
-        </span>
-        <span className="flex items-center gap-1.5">
-          <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-leaf-600 text-[10px] font-bold text-white">
-            3
-          </span>
+        </StepItem>
+        <StepArrow>→</StepArrow>
+        <StepItem index={3}>
           See how risky each one is{" "}
           <span className="text-leaf-500">(risk map)</span>
-        </span>
-        <span aria-hidden="true" className="text-leaf-400">
-          →
-        </span>
-        <span className="flex items-center gap-1.5">
-          <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-leaf-600 text-[10px] font-bold text-white">
-            4
-          </span>
-          Save what you learned
-        </span>
-      </div>
+        </StepItem>
+        <StepArrow>→</StepArrow>
+        <StepItem index={4}>Save what you learned</StepItem>
+      </StepStrip>
 
-      <div className="mt-12 space-y-8">
+      <div className="mt-10 space-y-6">
         {/* Section 1: Intake form */}
-        <div className="rounded-2xl border border-leaf-100 bg-leaf-50 p-6 shadow-sm">
-          <div className="flex items-center gap-3">
-            <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-leaf-600 text-sm font-bold text-white">
-              1
-            </span>
-            <h2 className="flex items-center gap-2 text-lg font-semibold text-leaf-700">
-              <span aria-hidden="true">📝</span> Research intake
-            </h2>
-          </div>
-          <p className="mt-2 text-sm text-leaf-600">
-            Use this form to write down exactly what you&apos;re trying to
-            find out before you start researching — like a mini research
-            plan.
-          </p>
+        <Card tint="green" className="p-6 sm:p-8">
+          <CardHead
+            step="1"
+            badge={<IconBadge tint="green">📝</IconBadge>}
+            title="Research intake"
+            subtitle={
+              <>
+                Use this form to write down exactly what you&apos;re trying to
+                find out before you start researching — like a mini research
+                plan.
+              </>
+            }
+          />
 
-          <div className="mt-5 grid gap-5 sm:grid-cols-2">
+          <div className="mt-6 grid gap-5 sm:grid-cols-2">
             <SelectWithOther
               key={`topic-${formResetKey}`}
               label="Research topic"
@@ -540,10 +537,10 @@ export default function ResearchClient() {
           </div>
 
           <div className="mt-6">
-            <span className="block text-sm font-medium text-leaf-800">
+            <span className={FIELD_LABEL}>
               What do you want to learn?
             </span>
-            <div className="mt-2 flex flex-wrap gap-2">
+            <div className="mt-3 flex flex-wrap gap-2">
               {LEARNING_TAGS.map((tag) => {
                 const active = tags.includes(tag);
                 return (
@@ -551,7 +548,7 @@ export default function ResearchClient() {
                     key={tag}
                     type="button"
                     onClick={() => setTags((prev) => toggleTag(prev, tag))}
-                    className={`rounded-full border px-4 py-1.5 text-sm font-medium transition-colors ${
+                    className={`rounded-full border px-4 py-2 text-sm font-semibold shadow-sm transition-colors ${
                       active
                         ? "border-leaf-600 bg-leaf-600 text-white"
                         : "border-leaf-200 bg-white text-leaf-700 hover:bg-leaf-50"
@@ -564,90 +561,89 @@ export default function ResearchClient() {
             </div>
           </div>
 
-          <div className="mt-7 flex flex-wrap items-center gap-3">
+          <div className="mt-8 flex flex-wrap items-center gap-3">
             <button
               type="button"
               onClick={handleStartResearch}
-              className="rounded-full bg-leaf-600 px-8 py-3 font-semibold text-white shadow-sm transition-colors hover:bg-leaf-700"
+              className={`${BTN_PRIMARY} px-9 text-base`}
             >
               Start research
             </button>
             <button
               type="button"
               onClick={handleResetForm}
-              className="rounded-full border border-leaf-200 px-5 py-2.5 text-sm font-semibold text-leaf-700 transition-colors hover:bg-leaf-50"
+              className={BTN_GHOST}
             >
               Reset form
             </button>
           </div>
-          <p className="mt-3 text-xs text-leaf-600">
+          <p className="mt-4 rounded-2xl bg-white/80 px-4 py-3 text-xs text-leaf-600 shadow-sm">
             This won&apos;t fetch new data — it just organizes your research
             focus so the sections below make more sense.
           </p>
-        </div>
+        </Card>
 
         {/* Section 2: Global examples */}
-        <div className="rounded-2xl border border-leaf-100 bg-white p-6 shadow-sm">
-          <div className="flex items-center justify-between gap-3">
-            <div className="flex items-center gap-3">
-              <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-leaf-600 text-sm font-bold text-white">
-                2
-              </span>
-              <h2 className="flex items-center gap-2 text-lg font-semibold text-leaf-700">
-                <span aria-hidden="true">🌍</span> Global examples
-              </h2>
-            </div>
-            <a
-              href="#competitors"
-              className="shrink-0 text-sm font-semibold text-peach-600 transition-colors hover:text-peach-700"
-            >
-              See more examples →
-            </a>
-          </div>
-          <p className="mt-2 text-sm text-leaf-600">
+        <Card tint="plain" className="p-6 sm:p-8">
+          <CardHead
+            step="2"
+            badge={<IconBadge tint="blue">🌍</IconBadge>}
+            title="Global examples"
+            action={
+              <a
+                href="#competitors"
+                className="shrink-0 rounded-full bg-peach-50 px-4 py-2 text-sm font-bold text-peach-600 transition-colors hover:bg-peach-100"
+              >
+                See more examples →
+              </a>
+            }
+          />
+          {/* Kept outside CardHead so it stays after the link, as before. */}
+          <p className={CARD_SUBTITLE}>
             These are companies in other countries already doing something
             similar to Lunchies. We study them to see what works well and
             what we could do differently.
           </p>
 
-          <div className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {GLOBAL_EXAMPLES.map((example) => (
-              <div
-                key={example.name}
-                className="rounded-xl border border-leaf-100 bg-leaf-50 p-4"
-              >
-                <div className="flex items-center justify-between">
-                  <h3 className="font-semibold text-leaf-800">
-                    {example.name}
-                  </h3>
-                  <span className="flex items-center gap-1 rounded-full bg-white px-2 py-0.5 text-xs font-semibold text-leaf-600">
-                    <span aria-hidden="true">
-                      {COUNTRY_FLAGS[example.country]}
+          <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {GLOBAL_EXAMPLES.map((example, index) => {
+              const tint = TINT[EXAMPLE_TINTS[index % EXAMPLE_TINTS.length]];
+              return (
+                <div
+                  key={example.name}
+                  className={`rounded-2xl border p-5 shadow-sm ${tint.card}`}
+                >
+                  <div className="flex items-center justify-between gap-2">
+                    <h3 className="font-poppins font-bold text-leaf-900">
+                      {example.name}
+                    </h3>
+                    <span className="flex shrink-0 items-center gap-1 rounded-full bg-white px-2.5 py-1 text-xs font-bold text-leaf-600 shadow-sm">
+                      <span aria-hidden="true">
+                        {COUNTRY_FLAGS[example.country]}
+                      </span>
+                      {example.country}
                     </span>
-                    {example.country}
-                  </span>
+                  </div>
+                  <p className="mt-2.5 text-sm text-leaf-700">
+                    {example.description}
+                  </p>
                 </div>
-                <p className="mt-2 text-sm text-leaf-700">
-                  {example.description}
-                </p>
-              </div>
-            ))}
+              );
+            })}
           </div>
-        </div>
+        </Card>
 
         {/* Section 3: Mexico context */}
-        <div className="rounded-2xl border border-peach-100 bg-peach-50 p-6 shadow-sm">
-          <div className="flex items-center gap-3">
-            <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-peach-500 text-sm font-bold text-white">
-              3
-            </span>
-            <h2 className="flex items-center gap-2 text-lg font-semibold text-peach-700">
-              <span aria-hidden="true">🇲🇽</span> Mexico
-            </h2>
-          </div>
+        <Card tint="peach" className="p-6 sm:p-8">
+          <CardHead
+            step="3"
+            stepTone="peach"
+            badge={<IconBadge tint="peach">🇲🇽</IconBadge>}
+            title="Mexico"
+          />
 
-          <div className="mt-5 flex flex-col items-start gap-2 sm:flex-row sm:items-center sm:gap-5">
-            <span className="text-4xl font-extrabold text-peach-600">
+          <div className="mt-6 flex flex-col items-start gap-3 rounded-2xl bg-white/70 p-5 shadow-sm sm:flex-row sm:items-center sm:gap-6">
+            <span className="font-poppins text-5xl font-extrabold text-peach-600 sm:text-6xl">
               {MEXICO_STAT.value}
             </span>
             <p className="text-sm text-peach-800">{MEXICO_STAT.label}</p>
@@ -655,41 +651,37 @@ export default function ResearchClient() {
           <p className="mt-3 text-xs text-peach-600">
             Fuente: {MEXICO_STAT.source}
           </p>
-        </div>
+        </Card>
 
         {researchSummary && (
-          <div className="flex items-start gap-2 rounded-xl border border-peach-200 bg-peach-50 px-4 py-3 text-sm text-peach-800">
+          <div className="flex items-start gap-3 rounded-3xl border border-peach-200 bg-peach-50 px-5 py-4 text-sm text-peach-800 shadow-soft">
             <span aria-hidden="true">🧭</span>
             <span>{researchSummary}</span>
           </div>
         )}
 
         {researchInsight && (
-          <div className="flex items-start gap-2 rounded-xl border border-leaf-200 bg-leaf-50 px-4 py-3 text-sm text-leaf-800">
+          <div className="flex items-start gap-3 rounded-3xl border border-leaf-200 bg-leaf-50 px-5 py-4 text-sm text-leaf-800 shadow-soft">
             <span aria-hidden="true">✨</span>
             <span>{researchInsight}</span>
           </div>
         )}
 
         {/* Section 4: Competitors table */}
-        <div
-          id="competitors"
-          className="scroll-mt-20 rounded-2xl border border-leaf-100 bg-white p-6 shadow-sm"
-        >
-          <div className="flex items-center gap-3">
-            <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-leaf-600 text-sm font-bold text-white">
-              4
-            </span>
-            <h2 className="flex items-center gap-2 text-lg font-semibold text-leaf-700">
-              <span aria-hidden="true">📊</span> Competitors & substitutes
-            </h2>
-          </div>
-          <p className="mt-2 text-sm text-leaf-600">
-            Companies and alternatives that parents in Mexico already use
-            today, compared side by side to find where Lunchies can stand
-            out.
-          </p>
-          <p className="mt-1 text-sm text-leaf-500">
+        <Card id="competitors" tint="plain" className="scroll-mt-20 p-6 sm:p-8">
+          <CardHead
+            step="4"
+            badge={<IconBadge tint="peach">📊</IconBadge>}
+            title="Competitors & substitutes"
+            subtitle={
+              <>
+                Companies and alternatives that parents in Mexico already use
+                today, compared side by side to find where Lunchies can stand
+                out.
+              </>
+            }
+          />
+          <p className="mt-3 rounded-2xl bg-cream-100 px-4 py-3 text-sm text-leaf-600">
             Not everyone competing with Lunchies looks the same. Some offer
             almost the exact same thing (we call these Direct competitors).
             Others solve the same problem in a different way, like a
@@ -698,20 +690,20 @@ export default function ResearchClient() {
             school cafeteria (Substitutes).
           </p>
 
-          <div className="mt-5 flex flex-col gap-3 sm:flex-row sm:items-center">
+          <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center">
             <input
               type="text"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Search by name..."
-              className="w-full rounded-lg border border-leaf-200 bg-white px-3 py-2 text-sm text-leaf-900 focus:border-leaf-500 focus:outline-none sm:max-w-xs"
+              className={`${FIELD} sm:max-w-xs`}
             />
             <select
               value={typeFilter}
               onChange={(e) =>
                 setTypeFilter(e.target.value as CompetitorType | "All")
               }
-              className="rounded-lg border border-leaf-200 bg-white px-3 py-2 text-sm text-leaf-900 focus:border-leaf-500 focus:outline-none"
+              className={`${FIELD} sm:w-auto`}
             >
               <option value="All">All types</option>
               <option value="Direct">Direct</option>
@@ -721,7 +713,7 @@ export default function ResearchClient() {
             <select
               value={countryFilter}
               onChange={(e) => setCountryFilter(e.target.value)}
-              className="rounded-lg border border-leaf-200 bg-white px-3 py-2 text-sm text-leaf-900 focus:border-leaf-500 focus:outline-none"
+              className={`${FIELD} sm:w-auto`}
             >
               {countryOptions.map((country) => (
                 <option key={country} value={country}>
@@ -732,19 +724,19 @@ export default function ResearchClient() {
             <button
               type="button"
               onClick={handleResetFilters}
-              className="rounded-lg border border-leaf-200 px-3 py-2 text-sm font-semibold text-leaf-700 transition-colors hover:bg-leaf-50"
+              className={`${BTN_GHOST} shrink-0`}
             >
               Reset filters
             </button>
           </div>
 
-          <div className="mt-4 overflow-x-auto">
-            <table className="w-full min-w-[720px] text-left text-sm">
+          <TableWrap className="mt-5">
+            <table className="w-full min-w-[720px] border-separate border-spacing-0 text-left text-sm">
               <thead>
-                <tr className="border-b border-leaf-100 text-leaf-600">
+                <tr className="text-leaf-700">
                   <th
                     onClick={() => handleSortClick("name")}
-                    className="cursor-pointer select-none py-2 pr-4 font-medium hover:text-leaf-800"
+                    className="cursor-pointer select-none rounded-l-2xl bg-leaf-100/70 px-4 py-3 font-bold transition-colors hover:bg-leaf-100"
                   >
                     Name{" "}
                     {sortColumn === "name" && (
@@ -753,11 +745,13 @@ export default function ResearchClient() {
                       </span>
                     )}
                   </th>
-                  <th className="py-2 pr-4 font-medium">Type</th>
-                  <th className="py-2 pr-4 font-medium">Country</th>
+                  <th className="bg-leaf-100/70 px-4 py-3 font-bold">Type</th>
+                  <th className="bg-leaf-100/70 px-4 py-3 font-bold">
+                    Country
+                  </th>
                   <th
                     onClick={() => handleSortClick("price")}
-                    className="cursor-pointer select-none py-2 pr-4 font-medium hover:text-leaf-800"
+                    className="cursor-pointer select-none bg-leaf-100/70 px-4 py-3 font-bold transition-colors hover:bg-leaf-100"
                   >
                     Price (weekly){" "}
                     {sortColumn === "price" && (
@@ -766,14 +760,18 @@ export default function ResearchClient() {
                       </span>
                     )}
                   </th>
-                  <th className="py-2 pr-4 font-medium">Strength</th>
-                  <th className="py-2 pr-4 font-medium">Weakness</th>
+                  <th className="bg-leaf-100/70 px-4 py-3 font-bold">
+                    Strength
+                  </th>
+                  <th className="rounded-r-2xl bg-leaf-100/70 px-4 py-3 font-bold">
+                    Weakness
+                  </th>
                 </tr>
               </thead>
               <tbody>
                 {filteredCompetitors.length === 0 && (
                   <tr>
-                    <td colSpan={6} className="py-4 text-leaf-600">
+                    <td colSpan={6} className="px-4 py-5 text-leaf-600">
                       No competitors match your search — try a different
                       name, type, or country.
                     </td>
@@ -783,37 +781,39 @@ export default function ResearchClient() {
                   const highlighted = isRelevantRow(c, appliedTags);
                   const cellBorder = highlighted
                     ? "border-y-2 border-peach-400"
-                    : "";
+                    : "border-b border-leaf-100";
                   return (
                     <tr
                       key={c.name}
-                      className="border-b border-leaf-50 align-top text-leaf-800"
+                      className="align-middle text-leaf-800 transition-colors hover:bg-leaf-50/60"
                     >
                       <td
-                        className={`py-3 pr-4 font-medium ${cellBorder} ${
-                          highlighted ? "border-l-2 border-peach-400 pl-2" : ""
+                        className={`px-4 py-4 font-semibold ${cellBorder} ${
+                          highlighted ? "border-l-2 border-peach-400" : ""
                         }`}
                       >
                         <span aria-hidden="true">{COMPETITOR_EMOJIS[c.name]}</span>{" "}
                         {c.name}
                       </td>
-                      <td className={`py-3 pr-4 ${cellBorder}`}>
-                        <span
-                          className="rounded-full px-2.5 py-1 text-xs font-semibold text-white"
+                      <td className={`px-4 py-4 ${cellBorder}`}>
+                        <TagPill
+                          className="text-white shadow-sm"
                           style={{ backgroundColor: TYPE_COLORS[c.type] }}
                         >
                           {c.type}
-                        </span>
+                        </TagPill>
                       </td>
-                      <td className={`py-3 pr-4 ${cellBorder}`}>
+                      <td className={`px-4 py-4 ${cellBorder}`}>
                         {c.country}
                       </td>
-                      <td className={`py-3 pr-4 ${cellBorder}`}>{c.price}</td>
-                      <td className={`py-3 pr-4 ${cellBorder}`}>
+                      <td className={`px-4 py-4 font-semibold ${cellBorder}`}>
+                        {c.price}
+                      </td>
+                      <td className={`px-4 py-4 ${cellBorder}`}>
                         {c.strength}
                       </td>
                       <td
-                        className={`py-3 pr-4 ${cellBorder} ${
+                        className={`px-4 py-4 ${cellBorder} ${
                           highlighted ? "border-r-2 border-peach-400" : ""
                         }`}
                       >
@@ -824,78 +824,69 @@ export default function ResearchClient() {
                 })}
               </tbody>
             </table>
-          </div>
-        </div>
+          </TableWrap>
+        </Card>
 
         {/* Section 5: Risk map */}
-        <div className="rounded-2xl border border-leaf-100 bg-leaf-50 p-6 shadow-sm">
-          <div className="flex items-center gap-3">
-            <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-leaf-600 text-sm font-bold text-white">
-              5
-            </span>
-            <h2 className="flex items-center gap-2 text-lg font-semibold text-leaf-700">
-              <span aria-hidden="true">🗺️</span> Risk map
-            </h2>
-          </div>
-          <p className="mt-2 text-sm text-leaf-600">
-            This chart helps us see, at a glance, which competitors we should
-            worry about most. Competitors on the right are used by a lot of
-            people already (crowded market). Competitors near the top are the
-            ones most similar and dangerous to Lunchies. The bottom-left is
-            the safest zone — and that&apos;s where Lunchies sits today.
-          </p>
-          <div className="mt-5">
+        <Card tint="green" className="p-6 sm:p-8">
+          <CardHead
+            step="5"
+            badge={<IconBadge tint="green">🗺️</IconBadge>}
+            title="Risk map"
+            subtitle={
+              <>
+                This chart helps us see, at a glance, which competitors we
+                should worry about most. Competitors on the right are used by
+                a lot of people already (crowded market). Competitors near the
+                top are the ones most similar and dangerous to Lunchies. The
+                bottom-left is the safest zone — and that&apos;s where
+                Lunchies sits today.
+              </>
+            }
+          />
+          <div className="mt-6 rounded-2xl bg-white/70 p-4 shadow-sm sm:p-6">
             <RiskMap competitors={COMPETITORS} />
           </div>
-        </div>
+        </Card>
 
         {/* Section 6: The gap */}
-        <div className="rounded-2xl border border-peach-100 bg-peach-50 p-6 shadow-sm">
-          <div className="flex items-center gap-3">
-            <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-peach-500 text-sm font-bold text-white">
-              6
-            </span>
-            <span
-              className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-peach-100 text-2xl"
-              aria-hidden="true"
-            >
-              🎯
-            </span>
-            <h2 className="text-lg font-semibold text-peach-700">
-              So, what&apos;s the gap?
-            </h2>
-          </div>
-          <p className="mt-3 text-sm text-peach-800">
+        <Card tint="peach" className="p-6 sm:p-8">
+          <CardHead
+            step="6"
+            stepTone="peach"
+            badge={<IconBadge tint="peach">🎯</IconBadge>}
+            title="So, what's the gap?"
+          />
+          <p className="mt-5 rounded-2xl bg-white/70 p-5 text-sm text-peach-800 shadow-sm">
             Parents in Mexico really do struggle with this — over a third of
             school-age kids already face weight-related health issues.
             Several companies compete on price or convenience, but none
             combine personalization, allergy-safety, and affordability the
             way Lunchies does. That&apos;s the gap Lunchies is built to fill.
           </p>
-        </div>
+        </Card>
 
         {/* Section 7: Save research */}
-        <div className="rounded-2xl border border-leaf-100 bg-white p-6 shadow-sm">
-          <div className="flex items-center gap-3">
-            <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-leaf-600 text-sm font-bold text-white">
-              7
-            </span>
-            <h2 className="flex items-center gap-2 text-lg font-semibold text-leaf-700">
-              <span aria-hidden="true">💾</span> Save your research
-            </h2>
-          </div>
-          <p className="mt-2 text-sm text-leaf-600">
-            Once you&apos;ve reviewed everything above, save a short summary
-            of what you learned so you (or your team) can find it again
-            later.
-          </p>
+        <Card tint="plain" className="p-6 sm:p-8">
+          <CardHead
+            step="7"
+            badge={<IconBadge tint="green">💾</IconBadge>}
+            title="Save your research"
+            subtitle={
+              <>
+                Once you&apos;ve reviewed everything above, save a short
+                summary of what you learned so you (or your team) can find it
+                again later.
+              </>
+            }
+          />
 
-          <div className="mt-4 flex flex-wrap items-center gap-3">
+          <div className="mt-5 flex flex-wrap items-center gap-3">
             <button
               type="button"
               onClick={handleSave}
               disabled={!canSave || saving}
-              className="rounded-full bg-peach-500 px-6 py-2.5 font-semibold text-white shadow-sm transition-colors hover:bg-peach-600 disabled:cursor-not-allowed disabled:opacity-60"
+              className={BTN_SECONDARY}
             >
               {saving ? "Saving..." : "Save research summary"}
             </button>
@@ -905,37 +896,45 @@ export default function ResearchClient() {
               </span>
             )}
             {saveMessage && (
-              <span className="text-sm font-medium text-leaf-700">
+              <span className="text-sm font-semibold text-leaf-700">
                 {saveMessage}
               </span>
             )}
           </div>
 
-          <h3 className="mt-8 text-sm font-semibold text-leaf-700">
+          <h3 className="mt-8 font-poppins text-sm font-bold text-leaf-800">
             Previously saved research
           </h3>
-          <div className="mt-3 overflow-x-auto">
-            <table className="w-full min-w-[640px] text-left text-sm">
+          <TableWrap className="mt-4">
+            <table className="w-full min-w-[640px] border-separate border-spacing-0 text-left text-sm">
               <thead>
-                <tr className="border-b border-leaf-100 text-leaf-600">
-                  <th className="py-2 pr-4 font-medium">Date</th>
-                  <th className="py-2 pr-4 font-medium">Topic</th>
-                  <th className="py-2 pr-4 font-medium">Target user</th>
-                  <th className="py-2 pr-4 font-medium">Location</th>
-                  <th className="py-2 pr-4 font-medium">Tags</th>
+                <tr className="text-leaf-700">
+                  <th className="rounded-l-2xl bg-leaf-100/70 px-4 py-3 font-bold">
+                    Date
+                  </th>
+                  <th className="bg-leaf-100/70 px-4 py-3 font-bold">Topic</th>
+                  <th className="bg-leaf-100/70 px-4 py-3 font-bold">
+                    Target user
+                  </th>
+                  <th className="bg-leaf-100/70 px-4 py-3 font-bold">
+                    Location
+                  </th>
+                  <th className="rounded-r-2xl bg-leaf-100/70 px-4 py-3 font-bold">
+                    Tags
+                  </th>
                 </tr>
               </thead>
               <tbody>
                 {loadingSaved && (
                   <tr>
-                    <td colSpan={5} className="py-4 text-leaf-600">
+                    <td colSpan={5} className="px-4 py-5 text-leaf-600">
                       Loading saved research...
                     </td>
                   </tr>
                 )}
                 {!loadingSaved && savedNotes.length === 0 && (
                   <tr>
-                    <td colSpan={5} className="py-4 text-leaf-600">
+                    <td colSpan={5} className="px-4 py-5 text-leaf-600">
                       No saved research yet — fill out the form above and
                       click Save research summary.
                     </td>
@@ -945,15 +944,21 @@ export default function ResearchClient() {
                   savedNotes.map((note) => (
                     <tr
                       key={note.id}
-                      className="border-b border-leaf-50 align-top text-leaf-800"
+                      className="align-middle text-leaf-800 transition-colors hover:bg-leaf-50/60"
                     >
-                      <td className="py-3 pr-4">
+                      <td className="border-b border-leaf-100 px-4 py-4">
                         {new Date(note.created_at).toLocaleDateString()}
                       </td>
-                      <td className="py-3 pr-4">{note.topic}</td>
-                      <td className="py-3 pr-4">{note.target_user}</td>
-                      <td className="py-3 pr-4">{note.location}</td>
-                      <td className="py-3 pr-4">
+                      <td className="border-b border-leaf-100 px-4 py-4 font-semibold">
+                        {note.topic}
+                      </td>
+                      <td className="border-b border-leaf-100 px-4 py-4">
+                        {note.target_user}
+                      </td>
+                      <td className="border-b border-leaf-100 px-4 py-4">
+                        {note.location}
+                      </td>
+                      <td className="border-b border-leaf-100 px-4 py-4">
                         {note.tags && note.tags.length > 0
                           ? note.tags.join(", ")
                           : "None"}
@@ -962,9 +967,9 @@ export default function ResearchClient() {
                   ))}
               </tbody>
             </table>
-          </div>
-        </div>
+          </TableWrap>
+        </Card>
       </div>
-    </section>
+    </PageShell>
   );
 }

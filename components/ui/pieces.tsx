@@ -332,11 +332,11 @@ export function StepItem({
   children: ReactNode;
 }) {
   return (
-    <span className="flex items-center gap-2">
+    // The children sit directly in the flex row, exactly as they did before
+    // the redesign, so each one keeps its own line box.
+    <span className="flex items-center gap-1.5">
       <StepPill size="sm">{index}</StepPill>
-      {/* Plain span, not a flex box: the pages put inline spans in here and
-          they have to keep flowing on the same line. */}
-      <span>{children}</span>
+      {children}
     </span>
   );
 }

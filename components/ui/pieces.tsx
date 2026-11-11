@@ -334,7 +334,9 @@ export function StepItem({
   return (
     <span className="flex items-center gap-2">
       <StepPill size="sm">{index}</StepPill>
-      <span className="flex flex-wrap items-center gap-1">{children}</span>
+      {/* Plain span, not a flex box: the pages put inline spans in here and
+          they have to keep flowing on the same line. */}
+      <span>{children}</span>
     </span>
   );
 }

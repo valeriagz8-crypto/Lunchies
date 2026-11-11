@@ -2,6 +2,22 @@ import { Fragment } from "react";
 import Link from "next/link";
 import { FEATURES, PLANS, SEGMENTS, type PlanId } from "@/lib/productData";
 import { formatWeekly } from "@/lib/pricing";
+import {
+  Card,
+  CardHead,
+  HeroArt,
+  HeroLabel,
+  IconBadge,
+  PageHero,
+  PageShell,
+  Sparkle,
+  StatTile,
+  StepArrow,
+  StepItem,
+  StepStrip,
+  TableWrap,
+} from "@/components/ui/pieces";
+import { CARD_SUBTITLE, TINT, type TintName } from "@/components/ui/theme";
 
 function includesPlan(plans: PlanId[], plan: PlanId): boolean {
   return plans.includes(plan);
@@ -17,6 +33,9 @@ const PLAN_STYLE: Record<
     text: string;
     button: string;
     emoji: string;
+    /** Column tint behind that plan's cells in the feature map. */
+    columnBg: string;
+    badge: string;
   }
 > = {
   basic: {
@@ -27,6 +46,8 @@ const PLAN_STYLE: Record<
     text: "text-leaf-700",
     button: "bg-leaf-600 hover:bg-leaf-700",
     emoji: "🌱",
+    columnBg: "bg-leaf-50/70",
+    badge: "bg-leaf-100 text-leaf-700",
   },
   plus: {
     headerBg: "bg-peach-100",
@@ -36,6 +57,8 @@ const PLAN_STYLE: Record<
     text: "text-peach-600",
     button: "bg-peach-500 hover:bg-peach-600",
     emoji: "👨‍🍳",
+    columnBg: "bg-peach-50/70",
+    badge: "bg-peach-100 text-peach-700",
   },
   premium: {
     headerBg: "bg-blue-100",
@@ -45,10 +68,15 @@ const PLAN_STYLE: Record<
     text: "text-blue-600",
     button: "bg-blue-600 hover:bg-blue-700",
     emoji: "👑",
+    columnBg: "bg-sky-50/70",
+    badge: "bg-sky-100 text-sky-700",
   },
 };
 
 const SEGMENT_EMOJI = ["👩", "🏠"];
+
+/** Pastel tint per segment card, matching the mockup's green / pink pair. */
+const SEGMENT_TINTS: TintName[] = ["green", "pink"];
 
 const BEST_FOR: Record<PlanId, string> = {
   basic: "Families who want simple, healthy planning",
@@ -62,6 +90,9 @@ const STEPS = [
   "See who it's for",
   "Estimate revenue",
 ];
+
+/** Pastel tint per stat tile, left to right. */
+const STAT_TINTS: TintName[] = ["green", "cream", "pink", "blue"];
 
 export default function ProductPage() {
   const minWeeklyPrice = Math.min(...PLANS.map((plan) => plan.weeklyPrice));
@@ -79,97 +110,66 @@ export default function ProductPage() {
   ];
 
   return (
-    <section className="mx-auto max-w-5xl px-4 py-16 sm:px-6">
+    <PageShell>
       {/* Hero */}
-      <div className="grid items-center gap-8 md:grid-cols-2">
-        <div>
-          <div className="flex items-center gap-3">
-            <span
-              className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-peach-100 text-3xl"
-              aria-hidden="true"
-            >
-              🛍️
-            </span>
-            <span className="text-sm font-bold uppercase tracking-wide text-peach-500">
-              Product
-            </span>
-          </div>
-          <h1 className="mt-3 text-3xl font-extrabold tracking-tight text-gray-800 sm:text-4xl">
+      <PageHero
+        label={
+          <HeroLabel badge={<IconBadge tint="peach" size="lg">🛍️</IconBadge>}>
+            Product
+          </HeroLabel>
+        }
+        title={
+          <>
             A smarter way to plan{" "}
             <span className="text-peach-500">healthy lunches.</span>
-          </h1>
-          <p className="mt-4 max-w-md text-lg text-gray-600">
-            See what Lunchies offers, our plans and who it&apos;s for.
-          </p>
-        </div>
-        <div className="flex justify-center md:justify-end">
-          <span className="text-6xl leading-none" aria-hidden="true">
-            🍱
-          </span>
-        </div>
-      </div>
+          </>
+        }
+        subtitle="See what Lunchies offers, our plans and who it's for."
+        art={<HeroArt tone="peach">🍱</HeroArt>}
+      />
 
       {/* Stat tiles */}
-      <div className="mt-8 grid grid-cols-2 gap-3 sm:grid-cols-4">
-        {STAT_TILES.map((tile) => (
-          <div
+      <div className="mt-10 grid grid-cols-2 gap-3 sm:grid-cols-4 sm:gap-4">
+        {STAT_TILES.map((tile, index) => (
+          <StatTile
             key={tile.label}
-            className="rounded-2xl border border-leaf-100 bg-leaf-50 p-4 text-center shadow-sm"
-          >
-            <span className="text-2xl" aria-hidden="true">
-              {tile.icon}
-            </span>
-            <p className="mt-1 text-xl font-extrabold text-leaf-800">
-              {tile.value}
-            </p>
-            <p className="text-xs text-leaf-600">{tile.label}</p>
-          </div>
+            tint={STAT_TINTS[index % STAT_TINTS.length]}
+            icon={tile.icon}
+            value={tile.value}
+            label={tile.label}
+          />
         ))}
       </div>
 
       {/* Step bar */}
-      <div className="mt-8 flex flex-wrap items-center justify-center gap-x-2 gap-y-3 rounded-full border border-leaf-100 bg-leaf-50 px-4 py-3 text-center text-xs font-medium text-leaf-700 sm:text-sm">
+      <StepStrip className="mt-6">
         {STEPS.map((step, index) => (
           <Fragment key={step}>
-            {index > 0 && (
-              <span aria-hidden="true" className="text-leaf-400">
-                →
-              </span>
-            )}
-            <span className="flex items-center gap-1.5">
-              <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-leaf-600 text-[10px] font-bold text-white">
-                {index + 1}
-              </span>
-              {step}
-            </span>
+            {index > 0 && <StepArrow>→</StepArrow>}
+            <StepItem index={index + 1}>{step}</StepItem>
           </Fragment>
         ))}
-      </div>
+      </StepStrip>
 
-      <div className="mt-12 space-y-8">
+      <div className="mt-10 space-y-6">
         {/* Section 1: Feature map */}
-        <div className="rounded-2xl border border-leaf-100 bg-leaf-50 p-6 shadow-sm">
-          <div className="flex items-center gap-3">
-            <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-leaf-600 text-sm font-bold text-white">
-              1
-            </span>
-            <h2 className="flex items-center gap-2 text-lg font-semibold text-leaf-700">
-              <span aria-hidden="true">✨</span> Product feature map
-            </h2>
-          </div>
-          <p className="mt-2 text-sm text-leaf-600">
-            Compare what&apos;s included in each plan.
-          </p>
-          <p className="mt-1 text-xs text-gray-500">
+        <Card tint="green" className="p-6 sm:p-8">
+          <CardHead
+            step="1"
+            badge={<IconBadge tint="green">✨</IconBadge>}
+            title="Product feature map"
+            subtitle="Compare what's included in each plan."
+          />
+          <p className="mt-2 text-xs text-leaf-500">
             This is the planned product. Today, the live feature is the
             personalized 5-day lunch plan on Core.
           </p>
 
-          <div className="mt-5 overflow-x-auto">
-            <table className="w-full table-fixed text-left text-xs sm:table-auto sm:min-w-[560px] sm:text-sm">
+          <TableWrap className="mt-6">
+            <table className="w-full table-fixed border-separate border-spacing-0 text-left text-xs sm:table-auto sm:min-w-[560px] sm:text-sm">
               <thead>
                 <tr>
-                  <th className="w-2/5 py-2 pr-2 font-medium text-leaf-600 sm:w-auto sm:pr-4">
+                  <th className="w-2/5 py-3 pr-2 align-bottom font-bold text-leaf-700 sm:w-auto sm:pr-4">
                     Feature
                   </th>
                   {PLANS.map((plan) => {
@@ -177,10 +177,12 @@ export default function ProductPage() {
                     return (
                       <th
                         key={plan.id}
-                        className={`w-1/5 rounded-t-lg px-1.5 py-2 text-center sm:w-auto sm:px-4 sm:py-3 ${style.headerBg} ${style.headerText}`}
+                        className={`w-1/5 rounded-t-2xl px-1.5 py-3 text-center sm:w-auto sm:px-4 sm:py-4 ${style.headerBg} ${style.headerText}`}
                       >
-                        <div className="font-bold">{plan.name}</div>
-                        <div className="text-[10px] font-normal sm:text-xs">
+                        <div className="font-poppins text-sm font-extrabold sm:text-base">
+                          {plan.name}
+                        </div>
+                        <div className="text-[10px] font-semibold opacity-80 sm:text-xs">
                           {formatWeekly(plan.weeklyPrice)}
                         </div>
                       </th>
@@ -189,88 +191,96 @@ export default function ProductPage() {
                 </tr>
               </thead>
               <tbody>
-                {FEATURES.map((feature) => (
-                  <tr
-                    key={feature.name}
-                    className="border-b border-leaf-50 text-leaf-800"
-                  >
-                    <td className="py-2.5 pr-2 sm:pr-4">{feature.name}</td>
-                    {PLANS.map((plan) => (
+                {FEATURES.map((feature, rowIndex) => {
+                  const isLast = rowIndex === FEATURES.length - 1;
+                  return (
+                    <tr key={feature.name} className="text-leaf-800">
                       <td
-                        key={plan.id}
-                        className="py-2.5 pr-1 text-center sm:pr-4"
+                        className={`py-3 pr-2 font-medium sm:pr-4 ${
+                          isLast ? "" : "border-b border-leaf-100"
+                        }`}
                       >
-                        {includesPlan(feature.plans, plan.id) ? (
-                          <span
-                            className="mx-auto flex h-5 w-5 items-center justify-center rounded-full bg-leaf-600 text-xs text-white"
-                            aria-label="Included"
-                          >
-                            ✓
-                          </span>
-                        ) : (
-                          <span
-                            className="text-gray-400"
-                            aria-label="Not included"
-                          >
-                            —
-                          </span>
-                        )}
+                        {feature.name}
                       </td>
-                    ))}
-                  </tr>
-                ))}
+                      {PLANS.map((plan) => {
+                        const style = PLAN_STYLE[plan.id];
+                        return (
+                          <td
+                            key={plan.id}
+                            className={`px-1.5 py-3 text-center sm:px-4 ${style.columnBg} ${
+                              isLast
+                                ? "rounded-b-2xl"
+                                : "border-b border-white/80"
+                            }`}
+                          >
+                            {includesPlan(feature.plans, plan.id) ? (
+                              <span
+                                className="mx-auto flex h-6 w-6 items-center justify-center rounded-full bg-leaf-600 text-xs font-bold text-white shadow-sm"
+                                aria-label="Included"
+                              >
+                                ✓
+                              </span>
+                            ) : (
+                              <span
+                                className="text-leaf-300"
+                                aria-label="Not included"
+                              >
+                                —
+                              </span>
+                            )}
+                          </td>
+                        );
+                      })}
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
-          </div>
-        </div>
+          </TableWrap>
+        </Card>
 
         {/* Section 2: Our plans */}
-        <div className="rounded-2xl border border-leaf-100 bg-white p-6 shadow-sm">
-          <div className="flex items-center gap-3">
-            <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-leaf-600 text-sm font-bold text-white">
-              2
-            </span>
-            <h2 className="flex items-center gap-2 text-lg font-semibold text-leaf-700">
-              <span aria-hidden="true">🏷️</span> Our plans
-            </h2>
-          </div>
-          <p className="mt-2 text-sm text-leaf-600">
-            Choose the plan that fits your family&apos;s needs.
-          </p>
+        <Card tint="plain" className="p-6 sm:p-8">
+          <CardHead
+            step="2"
+            badge={<IconBadge tint="peach">🏷️</IconBadge>}
+            title="Our plans"
+            subtitle="Choose the plan that fits your family's needs."
+          />
 
-          <div className="mt-5 grid gap-5 md:grid-cols-3">
+          <div className="mt-6 grid gap-5 md:grid-cols-3">
             {PLANS.map((plan) => {
               const style = PLAN_STYLE[plan.id];
               return (
                 <div
                   key={plan.id}
-                  className={`flex flex-col rounded-2xl border p-5 ${style.cardBg} ${style.cardBorder}`}
+                  className={`flex flex-col rounded-3xl border p-6 shadow-soft ${style.cardBg} ${style.cardBorder}`}
                 >
-                  <span className="flex h-12 w-12 items-center justify-center rounded-full bg-white text-2xl shadow-sm">
+                  <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white text-2xl shadow-sm">
                     {style.emoji}
                   </span>
-                  <h3 className="mt-4 text-lg font-bold text-gray-800">
+                  <h3 className="mt-4 font-poppins text-lg font-extrabold text-leaf-900">
                     {plan.name}
                   </h3>
                   <p className="mt-1 flex items-baseline gap-1">
-                    <span className="text-3xl font-extrabold text-gray-800">
+                    <span className="font-poppins text-3xl font-extrabold text-leaf-900">
                       ${plan.weeklyPrice}
                     </span>
-                    <span className="text-sm font-medium text-gray-500">
+                    <span className="text-sm font-semibold text-leaf-500">
                       / week
                     </span>
                   </p>
-                  <p className="text-xs text-gray-500">
+                  <p className="text-xs text-leaf-500">
                     about ${Math.round(plan.weeklyPrice / 5)} per day
                   </p>
-                  <p className={`mt-2 text-sm font-medium ${style.text}`}>
+                  <p className={`mt-3 text-sm font-semibold ${style.text}`}>
                     {plan.tagline}
                   </p>
-                  <p className="mt-2 text-xs text-leaf-600">
-                    <span className="font-semibold">Best for:</span>{" "}
+                  <p className="mt-3 rounded-2xl bg-white/70 px-3 py-2 text-xs text-leaf-700">
+                    <span className="font-bold">Best for:</span>{" "}
                     {BEST_FOR[plan.id]}
                   </p>
-                  <ul className="mt-4 flex-1 space-y-2 text-sm text-leaf-800">
+                  <ul className="mt-5 flex-1 space-y-2.5 text-sm text-leaf-800">
                     {plan.bullets.map((bullet) => (
                       <li key={bullet} className="flex items-start gap-2">
                         <span className={`${style.text} font-bold`}>✓</span>
@@ -280,7 +290,7 @@ export default function ProductPage() {
                   </ul>
                   <Link
                     href="/core"
-                    className={`mt-6 rounded-full py-2.5 text-center text-sm font-bold text-white shadow-sm transition-colors ${style.button}`}
+                    className={`mt-6 rounded-full py-3 text-center text-sm font-bold text-white shadow-soft transition-colors ${style.button}`}
                   >
                     Get {plan.name}
                   </Link>
@@ -288,68 +298,70 @@ export default function ProductPage() {
               );
             })}
           </div>
-        </div>
+        </Card>
 
         {/* Section 3: Customer segments */}
-        <div className="rounded-2xl border border-leaf-100 bg-leaf-50 p-6 shadow-sm">
-          <div className="flex items-center gap-3">
-            <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-leaf-600 text-sm font-bold text-white">
-              3
-            </span>
-            <h2 className="flex items-center gap-2 text-lg font-semibold text-leaf-700">
-              <span aria-hidden="true">👥</span> Our customer segments
-            </h2>
-          </div>
-          <p className="mt-2 text-sm text-leaf-600">
-            We focus on two main groups of families.
-          </p>
+        <Card tint="green" className="p-6 sm:p-8">
+          <CardHead
+            step="3"
+            badge={<IconBadge tint="green">👥</IconBadge>}
+            title="Our customer segments"
+            subtitle="We focus on two main groups of families."
+          />
 
-          <div className="mt-5 grid gap-5 sm:grid-cols-2">
-            {SEGMENTS.map((segment, index) => (
-              <div
-                key={segment.name}
-                className="rounded-xl border border-leaf-100 bg-white p-5"
-              >
-                <span className="flex h-11 w-11 items-center justify-center rounded-full bg-leaf-100 text-xl">
-                  {SEGMENT_EMOJI[index] ?? "👥"}
-                </span>
-                <h3 className="mt-3 font-semibold text-leaf-800">
-                  {segment.name}
-                </h3>
-                <p className="mt-1 text-sm text-leaf-700">
-                  {segment.description}
-                </p>
-                <div className="mt-4 flex items-start justify-between gap-3 border-t border-leaf-100 pt-4">
-                  <span className="shrink-0 text-sm font-medium text-leaf-800">
-                    Key needs
+          <div className="mt-6 grid gap-5 sm:grid-cols-2">
+            {SEGMENTS.map((segment, index) => {
+              const tint = TINT[SEGMENT_TINTS[index % SEGMENT_TINTS.length]];
+              return (
+                <div
+                  key={segment.name}
+                  className={`rounded-3xl border p-6 shadow-sm ${tint.card}`}
+                >
+                  <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white text-2xl shadow-sm">
+                    {SEGMENT_EMOJI[index] ?? "👥"}
                   </span>
-                  <div className="grid grid-cols-2 gap-x-3 gap-y-2 text-sm text-leaf-800">
-                    {segment.needs.map((need) => (
-                      <div key={need} className="flex items-start gap-1.5">
-                        <span className="font-bold text-leaf-600">✓</span>
-                        <span>{need}</span>
-                      </div>
-                    ))}
+                  <h3 className="mt-4 font-poppins text-base font-extrabold text-leaf-900">
+                    {segment.name}
+                  </h3>
+                  <p className="mt-1.5 text-sm text-leaf-700">
+                    {segment.description}
+                  </p>
+                  <div className={`mt-5 border-t pt-4 ${tint.rule}`}>
+                    <span className="inline-flex rounded-full bg-white px-3 py-1 text-xs font-bold text-leaf-700 shadow-sm">
+                      Key needs
+                    </span>
+                    <div className="mt-3 grid gap-2 text-sm text-leaf-800 sm:grid-cols-1">
+                      {segment.needs.map((need) => (
+                        <div key={need} className="flex items-start gap-2">
+                          <span className="font-bold text-leaf-600">✓</span>
+                          <span>{need}</span>
+                        </div>
+                      ))}
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
-        </div>
+        </Card>
 
         {/* CTA */}
-        <div className="flex flex-col items-center gap-3 rounded-2xl border border-peach-100 bg-peach-50 p-6 text-center shadow-sm sm:flex-row sm:justify-between sm:text-left">
-          <p className="text-sm font-semibold text-peach-700">
+        <div className="relative flex flex-col items-center gap-4 overflow-hidden rounded-3xl border border-peach-100 bg-peach-50 p-6 text-center shadow-soft sm:flex-row sm:justify-between sm:p-8 sm:text-left">
+          <Sparkle
+            className="absolute right-4 top-4 h-6 w-8 opacity-70"
+            color="peach"
+          />
+          <p className="font-poppins text-lg font-extrabold text-leaf-900 sm:text-xl">
             Want to see what these plans could earn?
           </p>
           <Link
             href="/pricing"
-            className="shrink-0 rounded-full bg-peach-500 px-6 py-2.5 text-sm font-bold text-white shadow-sm transition-colors hover:bg-peach-600"
+            className="shrink-0 rounded-full bg-peach-500 px-7 py-3 text-sm font-bold text-white shadow-soft transition-colors hover:bg-peach-600"
           >
             Go to Pricing
           </Link>
         </div>
       </div>
-    </section>
+    </PageShell>
   );
 }

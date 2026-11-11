@@ -22,7 +22,7 @@ const config: Config = {
         },
         // Warm cream page background used by the redesigned project pages.
         cream: {
-          50: "#fdf8f3",
+          50: "#fdf6ed",
           100: "#fbf2e8",
           200: "#f6e7d5",
           300: "#efd9bf",

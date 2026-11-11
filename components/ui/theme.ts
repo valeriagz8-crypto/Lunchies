@@ -72,8 +72,10 @@ export const TINT: Record<TintName, Tint> = {
 export const PAGE_BG = "bg-cream-50";
 
 /** Large rounded card with the soft shadow used across the redesign. */
+// min-w-0 matters: these cards are grid items, and a grid item defaults to
+// min-width:auto, which would let a wide table push the whole page sideways.
 export const CARD =
-  "rounded-3xl border shadow-soft transition-shadow duration-200";
+  "min-w-0 rounded-3xl border shadow-soft transition-shadow duration-200";
 
 /** Rounded pill buttons. Green is primary, orange is secondary. */
 export const BTN_PRIMARY =

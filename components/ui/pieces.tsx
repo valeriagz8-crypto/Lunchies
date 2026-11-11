@@ -209,7 +209,7 @@ export function CardHead({
         {badge}
         <div className="min-w-0">
           <h2 className={CARD_TITLE}>{title}</h2>
-          {subtitle !== undefined && <div className={CARD_SUBTITLE}>{subtitle}</div>}
+          {subtitle !== undefined && <p className={CARD_SUBTITLE}>{subtitle}</p>}
         </div>
       </div>
       {action}
@@ -244,9 +244,9 @@ export function PageHero({
           {title}
         </h1>
         {subtitle !== undefined && (
-          <div className="mt-4 max-w-md text-base text-leaf-700 sm:text-lg">
+          <p className="mt-4 max-w-md text-base text-leaf-700 sm:text-lg">
             {subtitle}
-          </div>
+          </p>
         )}
         {actions}
       </div>

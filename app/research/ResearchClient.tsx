@@ -740,12 +740,12 @@ export default function ResearchClient() {
           </div>
 
           <TableWrap className="mt-5">
-            <table className="w-full min-w-[720px] border-separate border-spacing-0 text-left text-sm">
+            <table className="w-full min-w-[720px] text-left text-[14px]">
               <thead>
-                <tr className="text-leaf-700">
+                <tr className="border-b border-leaf-100 text-[13px] text-leaf-600">
                   <th
                     onClick={() => handleSortClick("name")}
-                    className="cursor-pointer select-none rounded-l-2xl bg-leaf-100/70 px-4 py-3 font-bold transition-colors hover:bg-leaf-100"
+                    className="cursor-pointer select-none pb-3 pr-4 font-bold transition-colors hover:text-leaf-800"
                   >
                     Name{" "}
                     {sortColumn === "name" && (
@@ -754,13 +754,11 @@ export default function ResearchClient() {
                       </span>
                     )}
                   </th>
-                  <th className="bg-leaf-100/70 px-4 py-3 font-bold">Type</th>
-                  <th className="bg-leaf-100/70 px-4 py-3 font-bold">
-                    Country
-                  </th>
+                  <th className="pb-3 pr-4 font-bold">Type</th>
+                  <th className="pb-3 pr-4 font-bold">Country</th>
                   <th
                     onClick={() => handleSortClick("price")}
-                    className="cursor-pointer select-none bg-leaf-100/70 px-4 py-3 font-bold transition-colors hover:bg-leaf-100"
+                    className="cursor-pointer select-none pb-3 pr-4 font-bold transition-colors hover:text-leaf-800"
                   >
                     Price (weekly){" "}
                     {sortColumn === "price" && (
@@ -769,18 +767,14 @@ export default function ResearchClient() {
                       </span>
                     )}
                   </th>
-                  <th className="bg-leaf-100/70 px-4 py-3 font-bold">
-                    Strength
-                  </th>
-                  <th className="rounded-r-2xl bg-leaf-100/70 px-4 py-3 font-bold">
-                    Weakness
-                  </th>
+                  <th className="pb-3 pr-4 font-bold">Strength</th>
+                  <th className="pb-3 pr-4 font-bold">Weakness</th>
                 </tr>
               </thead>
               <tbody>
                 {filteredCompetitors.length === 0 && (
                   <tr>
-                    <td colSpan={6} className="px-4 py-5 text-leaf-600">
+                    <td colSpan={6} className="py-5 text-leaf-600">
                       No competitors match your search — try a different
                       name, type, or country.
                     </td>
@@ -797,14 +791,14 @@ export default function ResearchClient() {
                       className="align-middle text-leaf-800 transition-colors hover:bg-leaf-50/60"
                     >
                       <td
-                        className={`px-4 py-4 font-semibold ${cellBorder} ${
+                        className={`py-3.5 pr-4 font-bold ${cellBorder} ${
                           highlighted ? "border-l-2 border-peach-400" : ""
                         }`}
                       >
                         <span aria-hidden="true">{COMPETITOR_EMOJIS[c.name]}</span>{" "}
                         {c.name}
                       </td>
-                      <td className={`px-4 py-4 ${cellBorder}`}>
+                      <td className={`py-3.5 pr-4 ${cellBorder}`}>
                         <TagPill
                           className="text-white shadow-sm"
                           style={{ backgroundColor: TYPE_COLORS[c.type] }}
@@ -812,17 +806,17 @@ export default function ResearchClient() {
                           {c.type}
                         </TagPill>
                       </td>
-                      <td className={`px-4 py-4 ${cellBorder}`}>
+                      <td className={`py-3.5 pr-4 ${cellBorder}`}>
                         {c.country}
                       </td>
-                      <td className={`px-4 py-4 font-semibold ${cellBorder}`}>
+                      <td className={`py-3.5 pr-4 font-bold ${cellBorder}`}>
                         {c.price}
                       </td>
-                      <td className={`px-4 py-4 ${cellBorder}`}>
+                      <td className={`py-3.5 pr-4 ${cellBorder}`}>
                         {c.strength}
                       </td>
                       <td
-                        className={`px-4 py-4 ${cellBorder} ${
+                        className={`py-3.5 pr-4 ${cellBorder} ${
                           highlighted ? "border-r-2 border-peach-400" : ""
                         }`}
                       >
@@ -857,7 +851,6 @@ export default function ResearchClient() {
             <RiskMap competitors={COMPETITORS} />
           </div>
         </Card>
-
         {/* Section 6: The gap */}
         <Card tint="peach" className="p-6 sm:p-8">
           <CardHead
@@ -915,35 +908,27 @@ export default function ResearchClient() {
             Previously saved research
           </h3>
           <TableWrap className="mt-4">
-            <table className="w-full min-w-[640px] border-separate border-spacing-0 text-left text-sm">
+            <table className="w-full min-w-[640px] text-left text-[14px]">
               <thead>
-                <tr className="text-leaf-700">
-                  <th className="rounded-l-2xl bg-leaf-100/70 px-4 py-3 font-bold">
-                    Date
-                  </th>
-                  <th className="bg-leaf-100/70 px-4 py-3 font-bold">Topic</th>
-                  <th className="bg-leaf-100/70 px-4 py-3 font-bold">
-                    Target user
-                  </th>
-                  <th className="bg-leaf-100/70 px-4 py-3 font-bold">
-                    Location
-                  </th>
-                  <th className="rounded-r-2xl bg-leaf-100/70 px-4 py-3 font-bold">
-                    Tags
-                  </th>
+                <tr className="border-b border-leaf-100 text-[13px] text-leaf-600">
+                  <th className="pb-3 pr-4 font-bold">Date</th>
+                  <th className="pb-3 pr-4 font-bold">Topic</th>
+                  <th className="pb-3 pr-4 font-bold">Target user</th>
+                  <th className="pb-3 pr-4 font-bold">Location</th>
+                  <th className="pb-3 pr-4 font-bold">Tags</th>
                 </tr>
               </thead>
               <tbody>
                 {loadingSaved && (
                   <tr>
-                    <td colSpan={5} className="px-4 py-5 text-leaf-600">
+                    <td colSpan={5} className="py-5 text-leaf-600">
                       Loading saved research...
                     </td>
                   </tr>
                 )}
                 {!loadingSaved && savedNotes.length === 0 && (
                   <tr>
-                    <td colSpan={5} className="px-4 py-5 text-leaf-600">
+                    <td colSpan={5} className="py-5 text-leaf-600">
                       No saved research yet — fill out the form above and
                       click Save research summary.
                     </td>
@@ -955,19 +940,19 @@ export default function ResearchClient() {
                       key={note.id}
                       className="align-middle text-leaf-800 transition-colors hover:bg-leaf-50/60"
                     >
-                      <td className="border-b border-leaf-100 px-4 py-4">
+                      <td className="border-b border-leaf-100 py-3.5 pr-4">
                         {new Date(note.created_at).toLocaleDateString()}
                       </td>
-                      <td className="border-b border-leaf-100 px-4 py-4 font-semibold">
+                      <td className="border-b border-leaf-100 py-3.5 pr-4 font-bold">
                         {note.topic}
                       </td>
-                      <td className="border-b border-leaf-100 px-4 py-4">
+                      <td className="border-b border-leaf-100 py-3.5 pr-4">
                         {note.target_user}
                       </td>
-                      <td className="border-b border-leaf-100 px-4 py-4">
+                      <td className="border-b border-leaf-100 py-3.5 pr-4">
                         {note.location}
                       </td>
-                      <td className="border-b border-leaf-100 px-4 py-4">
+                      <td className="border-b border-leaf-100 py-3.5 pr-4">
                         {note.tags && note.tags.length > 0
                           ? note.tags.join(", ")
                           : "None"}

@@ -226,11 +226,15 @@ export function CardHead({
 }) {
   return (
     <div
-      className={`flex flex-wrap items-center justify-between gap-x-4 gap-y-3 ${className}`}
+      className={`flex flex-wrap items-start justify-between gap-x-4 gap-y-3 ${className}`}
     >
-      <div className="flex min-w-0 flex-1 items-center gap-3 sm:gap-4">
-        {step !== undefined && <StepPill tone={stepTone}>{step}</StepPill>}
-        {badge}
+      <div className="flex min-w-0 flex-1 items-start gap-3 sm:gap-4">
+        {step !== undefined && (
+          <span className="mt-1.5 shrink-0">
+            <StepPill tone={stepTone}>{step}</StepPill>
+          </span>
+        )}
+        {badge !== undefined && <span className="shrink-0">{badge}</span>}
         <div className="min-w-0">
           <h2 className={`${CARD_TITLE} ${titleClassName}`}>{title}</h2>
           {subtitle !== undefined && (

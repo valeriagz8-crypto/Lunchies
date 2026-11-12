@@ -292,7 +292,10 @@ export default function DemoPage() {
               {AGENT_MAP_NOTE}
             </p>
 
-            <div className="mt-4 space-y-2">
+            <h3 className="mt-5 font-poppins text-[15px] font-extrabold text-leaf-800">
+              Module details
+            </h3>
+            <div className="mt-2.5 space-y-2">
               {AGENT_MODULES.map((mod, index) => {
                 const style = MODULE_STYLE[index % MODULE_STYLE.length];
                 const Icon = style.icon;
@@ -423,27 +426,31 @@ export default function DemoPage() {
                 return (
                   <li
                     key={row.title}
-                    className="flex items-center gap-3 rounded-2xl border border-leaf-100 bg-leaf-50/60 p-4"
+                    className="flex items-start gap-3 rounded-2xl border border-leaf-100 bg-leaf-50/60 p-4"
                   >
                     <IconBadge tint="green" size="sm" icon={Icon} />
-                    <p className="min-w-0 flex-1 font-poppins text-[14px] font-extrabold leading-tight text-leaf-900">
-                      {row.title}
-                    </p>
+                    {/* Stacked, so the chip can never sit on top of the title
+                        however narrow this card gets. */}
+                    <div className="flex min-w-0 flex-1 flex-col items-start gap-2">
+                      <p className="w-full font-poppins text-[14px] font-extrabold leading-snug text-leaf-900">
+                        {row.title}
+                      </p>
                     {/* A check mark only where there is a real result. */}
-                    <span
-                      className={`inline-flex shrink-0 items-center gap-1.5 rounded-full border px-3 py-1.5 text-[12px] font-bold ${
-                        row.result
-                          ? "border-leaf-600 bg-leaf-600 text-white"
-                          : "border-leaf-200 bg-white text-leaf-500"
-                      }`}
-                    >
-                      {row.result ? (
-                        <CheckCircle2 className="h-3.5 w-3.5" aria-hidden="true" />
-                      ) : (
-                        <CircleDashed className="h-3.5 w-3.5" aria-hidden="true" />
-                      )}
-                      {row.result ?? TESTING_PENDING_LABEL}
-                    </span>
+                      <span
+                        className={`inline-flex shrink-0 items-center gap-1.5 rounded-full border px-3 py-1.5 text-[12px] font-bold ${
+                          row.result
+                            ? "border-leaf-600 bg-leaf-600 text-white"
+                            : "border-leaf-200 bg-white text-leaf-500"
+                        }`}
+                      >
+                        {row.result ? (
+                          <CheckCircle2 className="h-3.5 w-3.5" aria-hidden="true" />
+                        ) : (
+                          <CircleDashed className="h-3.5 w-3.5" aria-hidden="true" />
+                        )}
+                        {row.result ?? TESTING_PENDING_LABEL}
+                      </span>
+                    </div>
                   </li>
                 );
               })}
@@ -471,13 +478,13 @@ export default function DemoPage() {
                 {ROADMAP_PHASES.map((phase, index) => {
                   const style = ROADMAP_STYLE[index % ROADMAP_STYLE.length];
                   return (
-                    <div key={phase.id} className="relative">
+                    <div key={phase.id} className="relative flex flex-col">
                       <span
                         aria-hidden="true"
                         className={`relative z-10 mx-auto mb-4 hidden h-4 w-4 rounded-full ring-4 ring-cream-50 lg:block ${style.dot}`}
                       />
                       <div
-                        className={`rounded-3xl border p-4 ${TINT[style.tint].card}`}
+                        className={`flex h-full flex-col rounded-3xl border p-4 ${TINT[style.tint].card}`}
                       >
                         <div className="flex flex-wrap items-baseline justify-center gap-x-2 lg:justify-start">
                           <h3 className="font-poppins text-[17px] font-extrabold text-leaf-900">
@@ -504,7 +511,7 @@ export default function DemoPage() {
                               <span>
                                 {item.label}
                                 {item.note && (
-                                  <span className="ml-1.5 inline-flex rounded-full bg-white/80 px-2 py-0.5 text-[10.5px] font-bold text-peach-600">
+                                  <span className="mt-1 block w-fit max-w-full rounded-full bg-white/80 px-2 py-0.5 text-[10.5px] font-bold leading-snug text-peach-600">
                                     {item.note}
                                   </span>
                                 )}

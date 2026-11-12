@@ -215,39 +215,37 @@ export default function SavedRecords({
     <div className="grid items-start gap-6 lg:grid-cols-2">
       {metricsCard}
 
-      <Card tint="green" className="p-6 sm:p-8">
+      <Card tint="green" className="flex h-full flex-col p-6 sm:p-8">
         <CardHead
           badge={<IconBadge tint="green" icon={Database} />}
           title={DATA_LIVES_TITLE}
           subtitle={DATA_LIVES_INTRO}
         />
-        <ul className="mt-5 space-y-2.5">
+        <ul className="mt-5 space-y-2">
           {liveRows.map((row) => (
             <li key={row.module}>
               <Link
                 href={row.route}
-                className="flex items-center gap-3 rounded-2xl border border-leaf-100 bg-white p-3.5 transition-transform hover:-translate-y-0.5"
+                className="flex items-center gap-3 rounded-2xl border border-leaf-100 bg-white px-3.5 py-2.5 transition-transform hover:-translate-y-0.5"
               >
-                <span className="min-w-0 flex-1">
-                  <span className="block font-poppins text-[14px] font-extrabold leading-tight text-leaf-900">
-                    {row.module}
-                  </span>
-                  <span className="mt-1 flex flex-wrap gap-1.5">
-                    {row.tables.map((t) => (
-                      <span
-                        key={t}
-                        className="inline-flex max-w-full items-center rounded-full bg-leaf-50 px-2 py-0.5 font-mono text-[10.5px] font-semibold text-leaf-700 ring-1 ring-leaf-100"
-                      >
-                        {t}
-                      </span>
-                    ))}
-                  </span>
+                <span className="min-w-0 flex-1 truncate font-poppins text-[14px] font-extrabold leading-tight text-leaf-900">
+                  {row.module}
                 </span>
-                <span className="shrink-0 text-right">
-                  <span className="block font-poppins text-[20px] font-extrabold leading-none text-leaf-900">
+                <span className="hidden shrink-0 gap-1.5 sm:flex">
+                  {row.tables.map((t) => (
+                    <span
+                      key={t}
+                      className="inline-flex items-center rounded-full bg-leaf-50 px-2 py-0.5 font-mono text-[10.5px] font-semibold text-leaf-700 ring-1 ring-leaf-100"
+                    >
+                      {t}
+                    </span>
+                  ))}
+                </span>
+                <span className="w-[62px] shrink-0 text-right">
+                  <span className="font-poppins text-[18px] font-extrabold leading-none text-leaf-900">
                     {loading ? "…" : row.total === null ? "—" : formatInt(row.total)}
                   </span>
-                  <span className="block text-[11px] font-medium text-leaf-500">
+                  <span className="ml-1 text-[11px] font-medium text-leaf-500">
                     rows
                   </span>
                 </span>
@@ -255,7 +253,7 @@ export default function SavedRecords({
             </li>
           ))}
         </ul>
-        <p className="mt-4 rounded-2xl bg-white/70 px-4 py-3 text-[12px] leading-relaxed text-leaf-600">
+        <p className="mt-auto rounded-2xl bg-white/70 px-4 py-3 text-[12px] leading-relaxed text-leaf-600">
           {DATA_LIVES_NOTE}
         </p>
       </Card>

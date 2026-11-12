@@ -50,6 +50,8 @@ import {
   REVENUE_MODEL_CUSTOMERS,
   REVENUE_MODEL_NOTE,
   REVENUE_MODEL_SCENARIO,
+  REGRESSION_SHORT,
+  REVENUE_MODEL_BADGE,
   REVENUE_MODEL_TITLE,
   ROADMAP_PHASES,
   TESTING_INTRO,
@@ -141,7 +143,7 @@ export default function DashboardPage() {
     {
       tint: "peach",
       icon: Laptop,
-      value: regressionResult ?? TESTING_PENDING_LABEL,
+      value: regressionResult ? REGRESSION_SHORT : TESTING_PENDING_LABEL,
       label: DASHBOARD_TILE_LABELS.regression,
       pending: regressionResult === null,
       href: DASHBOARD_LINKS.testing,
@@ -155,8 +157,8 @@ export default function DashboardPage() {
     {
       tint: "cream",
       icon: Rocket,
-      value: `${roadmapIdeas} ideas`,
-      label: DASHBOARD_TILE_LABELS.roadmap,
+      value: "V2",
+      label: `${DASHBOARD_TILE_LABELS.roadmap}, ${roadmapIdeas} ideas`,
       href: DASHBOARD_LINKS.versionTwo,
     },
   ];
@@ -171,8 +173,9 @@ export default function DashboardPage() {
     {
       tint: "cream" as TintName,
       icon: Wallet,
-      value: formatMXN(revenue.monthly),
-      label: `monthly revenue (${SCENARIO_LABELS[REVENUE_MODEL_SCENARIO].toLowerCase()} scenario)`,
+      // formatMXN is the source of the figure; only the unit moves to the label
+      value: formatMXN(revenue.monthly).replace(/\s*MXN$/, ""),
+      label: `MXN monthly revenue (${SCENARIO_LABELS[REVENUE_MODEL_SCENARIO].toLowerCase()} scenario)`,
     },
     {
       tint: "peach" as TintName,
@@ -234,12 +237,10 @@ export default function DashboardPage() {
               />
               <div className="min-w-0">
                 <p
-                  className={`font-poppins font-extrabold leading-tight text-leaf-900 ${
+                  className={`whitespace-nowrap font-poppins font-extrabold leading-none text-leaf-900 ${
                     tile.pending
-                      ? "text-[19px] sm:text-[26px]"
-                      : tile.value.length > 9
-                        ? "text-[17px] sm:text-[24px]"
-                        : "text-[30px] sm:text-[40px]"
+                      ? "text-[20px] sm:text-[26px]"
+                      : "text-[28px] sm:text-[38px]"
                   }`}
                 >
                   {tile.pending ? (
@@ -251,13 +252,13 @@ export default function DashboardPage() {
                     tile.value
                   )}
                 </p>
-                <p className="mt-1 text-[13px] font-medium leading-snug text-leaf-600 sm:text-[16px]">
+                <p className="mt-1.5 text-[12.5px] font-medium leading-snug text-leaf-600 sm:text-[14px]">
                   {tile.label}
                 </p>
               </div>
             </div>
           );
-          const shell = `flex h-[132px] items-center rounded-[28px] border px-4 shadow-card sm:h-[150px] sm:px-7 ${TINT[tile.tint].card}`;
+          const shell = `flex h-[118px] items-center rounded-[28px] border px-4 shadow-card sm:h-[132px] sm:px-6 ${TINT[tile.tint].card}`;
           return tile.href ? (
             <Link
               key={tile.label}
@@ -292,18 +293,18 @@ export default function DashboardPage() {
                   <Link
                     href={mod.route}
                     title={mod.route}
-                    className="flex items-center gap-3.5 py-[11px] transition-colors hover:text-leaf-600"
+                    className="flex items-center gap-3 py-[7px] transition-colors hover:text-leaf-600"
                   >
                     <ModIcon
                       className="h-[22px] w-[22px] shrink-0 text-leaf-600"
                       aria-hidden="true"
                       strokeWidth={2.1}
                     />
-                    <span className="min-w-0 flex-1 font-poppins text-[17px] font-extrabold text-leaf-900">
+                    <span className="min-w-0 flex-1 font-poppins text-[15px] font-extrabold text-leaf-900">
                       {mod.name}
                     </span>
                     <span
-                      className={`inline-flex shrink-0 items-center gap-1.5 rounded-full border px-3.5 py-1.5 text-[13px] font-bold ${
+                      className={`inline-flex shrink-0 items-center gap-1.5 rounded-full border px-3 py-1 text-[12px] font-bold ${
                         mod.status === "Live"
                           ? "border-leaf-200 bg-white text-leaf-700"
                           : "border-leaf-200 bg-white text-leaf-400"
@@ -329,13 +330,13 @@ export default function DashboardPage() {
               title="Testing summary"
               subtitle={TESTING_INTRO}
             />
-            <ul className="mb-5 mt-5 flex flex-1 flex-col justify-between gap-3">
+            <ul className="mt-5 space-y-3">
               {TESTING_ROWS.map((row, index) => {
                 const Icon = TESTING_ICONS[index % TESTING_ICONS.length];
                 return (
                   <li
                     key={row.title}
-                    className="flex items-center gap-3.5 rounded-2xl border border-leaf-100 bg-leaf-50/60 p-4"
+                    className="flex min-h-[70px] items-center gap-3 rounded-2xl border border-leaf-100 bg-leaf-50/60 px-4 py-3"
                   >
                     <IconBadge tint="green" size="sm" icon={Icon} />
                     <div className="min-w-0 flex-1">
@@ -365,7 +366,7 @@ export default function DashboardPage() {
                 );
               })}
             </ul>
-            <p className="mt-auto rounded-2xl bg-cream-100 px-4 py-3 text-[13px] font-medium text-leaf-700">
+            <p className="mt-4 rounded-2xl bg-cream-100 px-4 py-3 text-[13px] font-medium text-leaf-700">
               {TESTING_NOTE}
             </p>
           </Card>
@@ -376,12 +377,15 @@ export default function DashboardPage() {
             component, so the metrics card is handed to it as a prop. */}
         <SavedRecords
           metricsCard={
-            <Card tint="plain" className="p-6 sm:p-8">
+            <Card tint="plain" className="flex h-full flex-col p-6 sm:p-8">
               <CardHead
                 badge={<IconBadge tint="cream" icon={LineChart} />}
-                titleClassName="text-[20px] sm:text-[22px]"
                 title={REVENUE_MODEL_TITLE}
-                subtitle="Main project indicators."
+                subtitle={
+                  <span className="mt-1 inline-flex rounded-full bg-cream-200/70 px-3 py-1 text-[12px] font-bold text-amber-800">
+                    {REVENUE_MODEL_BADGE}
+                  </span>
+                }
               />
               <div className="mt-5 grid gap-3 sm:grid-cols-3">
                 {metricTiles.map((tile) => {
@@ -389,17 +393,17 @@ export default function DashboardPage() {
                   return (
                     <div
                       key={tile.label}
-                      className={`rounded-2xl border p-4 text-center ${TINT[tile.tint].card}`}
+                      className={`rounded-2xl border px-2.5 py-4 text-center ${TINT[tile.tint].card}`}
                     >
                       <span
                         className={`mx-auto flex h-9 w-9 items-center justify-center rounded-full bg-white/80 ${TINT[tile.tint].badgeInk}`}
                       >
                         <Icon className="h-4 w-4" aria-hidden="true" strokeWidth={2.2} />
                       </span>
-                      <p className="mt-2 whitespace-nowrap font-poppins text-[18px] font-extrabold leading-tight text-leaf-900">
+                      <p className="mt-2 whitespace-nowrap font-poppins text-[20px] font-extrabold leading-none text-leaf-900">
                         {tile.value}
                       </p>
-                      <p className="mt-0.5 text-[12px] leading-snug text-leaf-600">
+                      <p className="mt-1.5 text-[11px] leading-[1.35] text-leaf-600">
                         {tile.label}
                       </p>
                     </div>
@@ -411,7 +415,7 @@ export default function DashboardPage() {
               </p>
               <Link
                 href="/pricing"
-                className="mt-4 inline-flex items-center gap-2 text-[14px] font-bold text-leaf-700 hover:text-peach-600"
+                className="mt-auto inline-flex items-center gap-2 pt-4 text-[14px] font-bold text-leaf-700 hover:text-peach-600"
               >
                 Open the calculator
                 <ArrowRight className="h-4 w-4" aria-hidden="true" />

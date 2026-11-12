@@ -230,6 +230,9 @@ export const REGRESSION_RUN = {
  */
 export const REGRESSION_RESULT = `${REGRESSION_RUN.passed}/${REGRESSION_RUN.checks} checks passed`;
 
+/** The same figure as a one-line value for the dashboard stat tile. */
+export const REGRESSION_SHORT = `${REGRESSION_RUN.passed}/${REGRESSION_RUN.checks}`;
+
 export const TESTING_INTRO = "External user tests and a full-site regression test.";
 
 export const TESTING_ROWS: TestingRow[] = [
@@ -391,7 +394,10 @@ export const REVENUE_MODEL_CUSTOMERS = {
 
 export const REVENUE_MODEL_SCENARIO = "base" as const;
 
-export const REVENUE_MODEL_TITLE = "Revenue model (assumptions, not real sales)";
+export const REVENUE_MODEL_TITLE = "Key metrics";
+
+/** The honesty label, shown as a small badge rather than a three-line title. */
+export const REVENUE_MODEL_BADGE = "Revenue model: assumptions, not real sales";
 
 export const REVENUE_MODEL_NOTE =
   "These figures come from the /pricing calculator running its default customer split on the base scenario. Nothing here has been sold.";
@@ -447,7 +453,7 @@ export const SAVED_RECORDS_PREVIEW_COUNT = 3;
 
 export const DASHBOARD_TILE_LABELS = {
   externalUsers: "external users tested",
-  regression: "site regression test",
+  regression: "regression checks passed",
   modules: "modules integrated (live)",
   roadmap: "development roadmap",
 } as const;

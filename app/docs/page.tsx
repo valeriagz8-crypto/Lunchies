@@ -2,20 +2,18 @@ import Link from "next/link";
 import {
   BookOpen,
   Database,
-  FileText,
   Layers,
   MessageCircle,
   Route,
   Workflow,
 } from "lucide-react";
 import {
-  Blob,
   Card,
   CardHead,
+  HeroArt,
   IconBadge,
   PageHero,
   PageShell,
-  Sparkle,
 } from "@/components/ui/pieces";
 
 /** Shared classes for the bulleted and numbered lists on this page. */
@@ -37,37 +35,6 @@ const CODE =
 const ROUTE_LINK =
   "font-semibold text-leaf-700 underline decoration-leaf-300 underline-offset-2 transition-colors hover:text-peach-600";
 
-/**
- * Decorative hero art: a folder with a couple of document sheets, drawn from
- * lucide icons and CSS shapes. It carries no words.
- */
-function DocsArt() {
-  return (
-    <div className="relative flex min-h-[180px] items-center justify-center sm:min-h-[220px]">
-      <Blob
-        tone="leaf"
-        className="left-1/2 top-1/2 h-[190px] w-[220px] -translate-x-1/2 -translate-y-1/2 sm:h-[230px] sm:w-[270px]"
-      />
-      <Sparkle className="absolute left-4 top-5 h-7 w-9" color="peach" />
-      <Sparkle
-        className="absolute bottom-6 right-4 h-6 w-8 rotate-180"
-        color="leaf"
-      />
-      <div className="relative flex items-end gap-3" aria-hidden="true">
-        <span className="flex h-16 w-14 rotate-[-8deg] items-center justify-center rounded-xl bg-white shadow-soft ring-1 ring-leaf-100">
-          <FileText className="h-6 w-6 text-peach-500" />
-        </span>
-        <span className="flex h-24 w-20 items-center justify-center rounded-2xl bg-leaf-600 shadow-soft-lg">
-          <Layers className="h-9 w-9 text-white" />
-        </span>
-        <span className="flex h-16 w-14 rotate-[8deg] items-center justify-center rounded-xl bg-white shadow-soft ring-1 ring-leaf-100">
-          <Database className="h-6 w-6 text-leaf-600" />
-        </span>
-      </div>
-    </div>
-  );
-}
-
 export default function DocsPage() {
   return (
     <PageShell width="max-w-4xl">
@@ -83,7 +50,15 @@ export default function DocsPage() {
             Lunchies.
           </>
         }
-        art={<DocsArt />}
+        art={
+          <HeroArt
+            src="/images/redesign/docs-notepad.webp"
+            width={434}
+            height={384}
+            tone="leaf"
+            priority
+          />
+        }
       />
 
       <div className="mt-12 space-y-6">

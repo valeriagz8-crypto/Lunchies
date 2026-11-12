@@ -235,6 +235,21 @@ export const TESTING_ROWS: TestingRow[] = [
 
 export const TESTING_PENDING_LABEL = "Pending";
 
+/**
+ * /demo shows only the short version of the testing step. The full summary,
+ * with its three rows, lives on /dashboard#testing so the two pages do not
+ * repeat the same information.
+ */
+export const DEMO_TESTING_INTRO = "What will be checked before launch.";
+
+export const DEMO_TESTING_STEPS = [
+  { title: "5 external users" },
+  { title: "Full-site regression test" },
+] as const;
+
+export const DEMO_TESTING_CTA = "View testing details";
+export const DEMO_TESTING_HREF = "/dashboard#testing";
+
 export const TESTING_NOTE =
   "Nothing in this section has results yet. The fields stay empty until the tests are run.";
 

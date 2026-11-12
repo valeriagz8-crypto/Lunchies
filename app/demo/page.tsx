@@ -5,7 +5,6 @@ import {
   CalendarDays,
   ChefHat,
   CircleDashed,
-  ClipboardList,
   Clock,
   Database,
   Laptop,
@@ -42,6 +41,10 @@ import {
   DEMO_CTA,
   DEMO_HERO,
   DEMO_STEPS,
+  DEMO_TESTING_CTA,
+  DEMO_TESTING_HREF,
+  DEMO_TESTING_INTRO,
+  DEMO_TESTING_STEPS,
   DEMO_VIDEO_LABEL,
   DEMO_VIDEO_PENDING_LABEL,
   DEMO_VIDEO_URL,
@@ -56,11 +59,9 @@ import {
   ROADMAP_NOTE,
   ROADMAP_PHASES,
   ROADMAP_STATUS_LABEL,
-  TESTING_INTRO,
-  TESTING_NOTE,
   TESTING_PENDING_LABEL,
-  TESTING_ROWS,
 } from "@/lib/week6Data";
+import AgentMapDiagram, { type DiagramNode } from "./AgentMapDiagram";
 
 /** Pastel tint and icon per product-tour card, in the mockup's order. */
 const TOUR_STYLE: { tint: TintName; icon: typeof CalendarDays }[] = [
@@ -71,13 +72,22 @@ const TOUR_STYLE: { tint: TintName; icon: typeof CalendarDays }[] = [
   { tint: "pink", icon: LineChart },
 ];
 
-/** Icon per module in the agent map, in the order the data lists them. */
-const MODULE_ICONS = [
-  CalendarDays,
-  Sparkles,
-  LineChart,
-  UserRound,
-  MessageCircle,
+/** Icon and tint per module, in the order lib/week6Data lists them. */
+const MODULE_STYLE: { icon: typeof CalendarDays; tint: TintName }[] = [
+  { icon: CalendarDays, tint: "green" },
+  { icon: Sparkles, tint: "peach" },
+  { icon: LineChart, tint: "blue" },
+  { icon: UserRound, tint: "cream" },
+  { icon: MessageCircle, tint: "pink" },
+];
+
+/** Node positions for the radial diagram, in its 800x520 viewBox. */
+const NODE_POSITIONS = [
+  { x: 400, y: 58 },
+  { x: 108, y: 212 },
+  { x: 692, y: 212 },
+  { x: 142, y: 486 },
+  { x: 658, y: 486 },
 ];
 
 const IMPACT_STYLE: { tint: TintName; icon: typeof Leaf }[] = [
@@ -86,16 +96,24 @@ const IMPACT_STYLE: { tint: TintName; icon: typeof Leaf }[] = [
   { tint: "pink", icon: Users },
 ];
 
-const TESTING_ICONS = [Users, Laptop, ClipboardList];
+const TESTING_STEP_ICONS = [Users, Laptop];
 
-const ROADMAP_STYLE: { tint: TintName; dot: string }[] = [
-  { tint: "green", dot: "bg-leaf-500" },
-  { tint: "cream", dot: "bg-peach-400" },
-  { tint: "blue", dot: "bg-sky-400" },
+const ROADMAP_STYLE: { tint: TintName; dot: string; ring: string }[] = [
+  { tint: "green", dot: "bg-leaf-500", ring: "ring-leaf-200" },
+  { tint: "cream", dot: "bg-peach-400", ring: "ring-peach-200" },
+  { tint: "blue", dot: "bg-sky-400", ring: "ring-sky-200" },
 ];
 
 export default function DemoPage() {
   const videoReady = DEMO_VIDEO_URL !== "";
+
+  const diagramNodes: DiagramNode[] = AGENT_MODULES.map((mod, i) => ({
+    name: mod.name,
+    icon: MODULE_STYLE[i % MODULE_STYLE.length].icon,
+    tint: MODULE_STYLE[i % MODULE_STYLE.length].tint,
+    x: NODE_POSITIONS[i % NODE_POSITIONS.length].x,
+    y: NODE_POSITIONS[i % NODE_POSITIONS.length].y,
+  }));
 
   return (
     <PageShell>
@@ -143,7 +161,7 @@ export default function DemoPage() {
         }
       />
 
-      {/* Step bar — anchors into the five sections below */}
+      {/* Step bar */}
       <StepStrip className="mt-8">
         {DEMO_STEPS.map((step, index) => (
           <Fragment key={step.href}>
@@ -195,39 +213,32 @@ export default function DemoPage() {
               const body = (
                 <>
                   <span
-                    className={`flex h-11 w-11 items-center justify-center rounded-full bg-white/80 shadow-sm ${tint.badgeInk}`}
+                    className={`flex h-12 w-12 items-center justify-center rounded-2xl bg-white/85 shadow-sm ${tint.badgeInk}`}
                   >
-                    <Icon className="h-5 w-5" aria-hidden="true" strokeWidth={2.2} />
+                    <Icon className="h-6 w-6" aria-hidden="true" strokeWidth={2.2} />
                   </span>
-                  <span
-                    className={`mt-3 inline-flex w-fit items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-bold ${
-                      live
-                        ? "bg-leaf-600 text-white"
-                        : "border border-leaf-200 bg-white/80 text-leaf-500"
-                    }`}
-                  >
-                    {live ? (
-                      <Sparkles className="h-3 w-3" aria-hidden="true" />
-                    ) : (
-                      <CircleDashed className="h-3 w-3" aria-hidden="true" />
-                    )}
-                    {card.status}
-                  </span>
-                  <h3 className="mt-2.5 font-poppins text-lg font-extrabold text-leaf-900">
+                  <h3 className="mt-3.5 font-poppins text-[19px] font-extrabold leading-tight text-leaf-900">
                     {card.title}
                   </h3>
-                  <p className="mt-1.5 flex-1 text-[14px] leading-snug text-leaf-700">
+                  <p className="mt-1.5 text-[14px] leading-snug text-leaf-700">
                     {card.description}
                   </p>
-                  <p className="mt-3 text-[12px] leading-snug text-leaf-500">
-                    {card.evidence}
-                  </p>
-                  {live && card.href && (
-                    <span className="mt-3 inline-flex items-center gap-1.5 text-[13px] font-bold text-leaf-700">
-                      Open {card.href}
-                      <ArrowRight className="h-3.5 w-3.5" aria-hidden="true" />
+                  <span className="mt-auto flex items-center justify-between gap-2 pt-4">
+                    <span
+                      className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide ${
+                        live
+                          ? "bg-leaf-600 text-white"
+                          : "border border-leaf-200 bg-white/80 text-leaf-500"
+                      }`}
+                    >
+                      {card.status}
                     </span>
-                  )}
+                    <span
+                      className={`flex h-8 w-8 items-center justify-center rounded-full bg-white/85 shadow-sm ${tint.badgeInk}`}
+                    >
+                      <ArrowRight className="h-4 w-4" aria-hidden="true" />
+                    </span>
+                  </span>
                 </>
               );
 
@@ -237,240 +248,265 @@ export default function DemoPage() {
                 <Link
                   key={card.title}
                   href={card.href}
+                  title={card.evidence}
                   className={`${shell} shadow-sm transition-transform hover:-translate-y-0.5`}
                 >
                   {body}
                 </Link>
               ) : (
-                <div key={card.title} className={shell}>
+                <div key={card.title} title={card.evidence} className={shell}>
                   {body}
                 </div>
               );
             })}
           </div>
+
+          {/* The evidence for every badge, kept out of the cards so they all
+              share one height. */}
+          <dl className="mt-5 grid gap-x-6 gap-y-1.5 rounded-2xl bg-cream-100 px-4 py-3.5 text-[12px] leading-snug text-leaf-600 sm:grid-cols-2 lg:grid-cols-3">
+            {PRODUCT_TOUR.map((card) => (
+              <div key={card.title} className="flex gap-1.5">
+                <dt className="shrink-0 font-bold text-leaf-700">
+                  {card.title}:
+                </dt>
+                <dd>{card.evidence}</dd>
+              </div>
+            ))}
+          </dl>
         </Card>
 
-        {/* 2 — Agent map */}
-        <Card id="agent-map" tint="green" className="scroll-mt-24 p-6 sm:p-8">
-          <CardHead
-            step="2"
-            title="Agent map"
-            subtitle={AGENT_MAP_INTRO}
-          />
+        {/* 2 + 3 — Agent map beside Practical impact */}
+        <div className="grid items-start gap-6 lg:grid-cols-[1.3fr_1fr]">
+          <Card id="agent-map" tint="green" className="scroll-mt-24 p-6 sm:p-8">
+            <CardHead step="2" title="Agent map" subtitle={AGENT_MAP_INTRO} />
 
-          <p className="mt-4 flex items-start gap-2.5 rounded-2xl bg-white/70 px-4 py-3 text-[13px] leading-relaxed text-leaf-700 shadow-sm">
-            <Sparkles
-              className="mt-0.5 h-4 w-4 shrink-0 text-leaf-600"
-              aria-hidden="true"
-            />
-            {AGENT_MAP_NOTE}
-          </p>
+            <AgentMapDiagram nodes={diagramNodes} />
 
-          <div className="mt-5 grid gap-4 lg:grid-cols-2">
-            {AGENT_MODULES.map((mod, index) => {
-              const Icon = MODULE_ICONS[index % MODULE_ICONS.length];
-              return (
-                <div
-                  key={mod.name}
-                  className="flex flex-col rounded-3xl border border-leaf-100/70 bg-white p-5 shadow-sm"
-                >
-                  <div className="flex items-center gap-3">
-                    <IconBadge tint="green" size="sm" icon={Icon} />
-                    <div className="min-w-0">
-                      <h3 className="font-poppins text-[17px] font-extrabold leading-tight text-leaf-900">
-                        {mod.name}
-                      </h3>
-                      <Link
-                        href={mod.route}
-                        className="text-[13px] font-bold text-leaf-600 underline decoration-leaf-200 underline-offset-2 hover:text-peach-600"
+            <p className="mt-4 flex items-start gap-2.5 rounded-2xl bg-white/70 px-4 py-3 text-[12px] leading-relaxed text-leaf-700 shadow-sm">
+              <Sparkles
+                className="mt-0.5 h-4 w-4 shrink-0 text-leaf-600"
+                aria-hidden="true"
+              />
+              {AGENT_MAP_NOTE}
+            </p>
+
+            <div className="mt-4 space-y-2">
+              {AGENT_MODULES.map((mod, index) => {
+                const style = MODULE_STYLE[index % MODULE_STYLE.length];
+                const Icon = style.icon;
+                return (
+                  <details
+                    key={mod.name}
+                    className="group rounded-2xl border border-leaf-100 bg-white px-4 py-3 [&_summary::-webkit-details-marker]:hidden"
+                  >
+                    <summary className="flex cursor-pointer list-none items-center gap-3">
+                      <span
+                        className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full ${TINT[style.tint].badge} ${TINT[style.tint].badgeInk}`}
                       >
-                        {mod.route}
-                      </Link>
-                    </div>
-                  </div>
+                        <Icon className="h-4 w-4" aria-hidden="true" strokeWidth={2.3} />
+                      </span>
+                      <span className="min-w-0 flex-1">
+                        <span className="block font-poppins text-[14px] font-extrabold leading-tight text-leaf-900">
+                          {mod.name}
+                        </span>
+                        <span className="block font-mono text-[11px] text-leaf-500">
+                          {mod.route}
+                        </span>
+                      </span>
+                      <ArrowRight
+                        className="h-4 w-4 shrink-0 text-leaf-400 transition-transform group-open:rotate-90"
+                        aria-hidden="true"
+                      />
+                    </summary>
 
-                  <dl className="mt-4 space-y-2.5 text-[13px] leading-snug">
-                    <div className="flex flex-col gap-0.5 sm:flex-row sm:gap-2">
-                      <dt className="shrink-0 font-bold text-leaf-500 sm:w-[86px]">
-                        Receives
-                      </dt>
-                      <dd className="text-leaf-800">{mod.receives}</dd>
-                    </div>
-                    <div className="flex flex-col gap-0.5 sm:flex-row sm:gap-2">
-                      <dt className="shrink-0 font-bold text-leaf-500 sm:w-[86px]">
-                        Produces
-                      </dt>
-                      <dd className="text-leaf-800">{mod.produces}</dd>
-                    </div>
-                    <div className="flex flex-col gap-0.5 sm:flex-row sm:gap-2">
-                      <dt className="shrink-0 font-bold text-leaf-500 sm:w-[86px]">
-                        Writes to
-                      </dt>
-                      <dd className="flex flex-wrap gap-1.5">
-                        {mod.tables.map((t) => (
-                          <span
-                            key={t}
-                            className="inline-flex items-center gap-1 rounded-full bg-leaf-50 px-2.5 py-1 font-mono text-[11px] font-semibold text-leaf-700 ring-1 ring-leaf-100"
-                          >
-                            <Database className="h-3 w-3" aria-hidden="true" />
-                            {t}
-                          </span>
-                        ))}
-                      </dd>
-                    </div>
-                    <div className="flex flex-col gap-0.5 border-t border-leaf-100 pt-2.5 sm:flex-row sm:gap-2">
-                      <dt className="shrink-0 font-bold text-peach-600 sm:w-[86px]">
-                        Human
-                      </dt>
-                      <dd className="text-leaf-800">{mod.human}</dd>
-                    </div>
-                  </dl>
-                </div>
-              );
-            })}
-          </div>
-        </Card>
+                    <dl className="mt-3 space-y-2 border-t border-leaf-100 pt-3 text-[12.5px] leading-snug">
+                      <div className="flex flex-col gap-0.5 sm:flex-row sm:gap-2">
+                        <dt className="shrink-0 font-bold text-leaf-500 sm:w-[76px]">
+                          Receives
+                        </dt>
+                        <dd className="text-leaf-800">{mod.receives}</dd>
+                      </div>
+                      <div className="flex flex-col gap-0.5 sm:flex-row sm:gap-2">
+                        <dt className="shrink-0 font-bold text-leaf-500 sm:w-[76px]">
+                          Produces
+                        </dt>
+                        <dd className="text-leaf-800">{mod.produces}</dd>
+                      </div>
+                      <div className="flex flex-col gap-0.5 sm:flex-row sm:gap-2">
+                        <dt className="shrink-0 font-bold text-leaf-500 sm:w-[76px]">
+                          Writes to
+                        </dt>
+                        <dd className="flex flex-wrap gap-1.5">
+                          {mod.tables.map((t) => (
+                            <span
+                              key={t}
+                              className="inline-flex items-center gap-1 rounded-full bg-leaf-50 px-2 py-0.5 font-mono text-[10.5px] font-semibold text-leaf-700 ring-1 ring-leaf-100"
+                            >
+                              <Database className="h-3 w-3" aria-hidden="true" />
+                              {t}
+                            </span>
+                          ))}
+                        </dd>
+                      </div>
+                      <div className="flex flex-col gap-0.5 sm:flex-row sm:gap-2">
+                        <dt className="shrink-0 font-bold text-peach-600 sm:w-[76px]">
+                          Human
+                        </dt>
+                        <dd className="text-leaf-800">{mod.human}</dd>
+                      </div>
+                    </dl>
+                  </details>
+                );
+              })}
+            </div>
+          </Card>
 
-        {/* 3 — Practical impact */}
-        <Card id="impact" tint="plain" className="scroll-mt-24 p-6 sm:p-8">
-          <CardHead step="3" title="Practical impact" subtitle={IMPACT_INTRO} />
+          <Card id="impact" tint="plain" className="scroll-mt-24 p-6 sm:p-8">
+            <CardHead step="3" title="Practical impact" subtitle={IMPACT_INTRO} />
 
-          <div className="mt-6 grid gap-4 sm:grid-cols-3">
-            {IMPACT_CARDS.map((card, index) => {
-              const style = IMPACT_STYLE[index % IMPACT_STYLE.length];
-              const Icon = style.icon;
-              return (
-                <div
-                  key={card.title}
-                  className={`rounded-3xl border p-5 ${TINT[style.tint].card}`}
-                >
-                  <IconBadge tint={style.tint} size="sm" icon={Icon} />
-                  <h3 className="mt-3 font-poppins text-[17px] font-extrabold text-leaf-900">
-                    {card.title}
-                  </h3>
-                  <p className="mt-1.5 text-[14px] leading-snug text-leaf-700">
-                    {card.description}
-                  </p>
-                </div>
-              );
-            })}
-          </div>
-
-          <p className="mt-4 rounded-2xl bg-cream-100 px-4 py-3 text-[13px] font-medium text-leaf-700">
-            {IMPACT_DISCLAIMER}
-          </p>
-
-          <div className="mt-5 rounded-3xl border border-rose-100/70 bg-gradient-to-b from-[#fdeff1] to-[#fbe4e8] p-5 sm:p-6">
-            <h3 className="font-poppins text-[19px] font-extrabold text-leaf-900">
-              {RISKS_TITLE}
-            </h3>
-            <ul className="mt-3.5 space-y-2.5">
-              {RISKS.map((risk) => (
-                <li
-                  key={risk}
-                  className="flex items-start gap-2.5 text-[14px] leading-snug text-leaf-800"
-                >
-                  <span
-                    aria-hidden="true"
-                    className="mt-[7px] h-1.5 w-1.5 shrink-0 rounded-full bg-rose-400"
-                  />
-                  {risk}
-                </li>
-              ))}
+            <ul className="mt-5 divide-y divide-leaf-100">
+              {IMPACT_CARDS.map((card, index) => {
+                const style = IMPACT_STYLE[index % IMPACT_STYLE.length];
+                const Icon = style.icon;
+                return (
+                  <li key={card.title} className="flex items-start gap-3.5 py-4">
+                    <IconBadge tint={style.tint} size="sm" icon={Icon} />
+                    <div className="min-w-0">
+                      <h3 className="font-poppins text-[16px] font-extrabold text-leaf-900">
+                        {card.title}
+                      </h3>
+                      <p className="mt-0.5 text-[14px] leading-snug text-leaf-700">
+                        {card.description}
+                      </p>
+                    </div>
+                  </li>
+                );
+              })}
             </ul>
-          </div>
-        </Card>
 
-        {/* 4 + 5 — Testing and roadmap */}
-        <div className="grid items-start gap-6 lg:grid-cols-2">
+            <p className="mt-2 rounded-2xl bg-cream-100 px-4 py-3 text-[12.5px] font-medium text-leaf-700">
+              {IMPACT_DISCLAIMER}
+            </p>
+
+            <div className="mt-4 rounded-3xl border border-rose-100/70 bg-gradient-to-b from-[#fdeff1] to-[#fbe4e8] p-5">
+              <h3 className="font-poppins text-[17px] font-extrabold text-leaf-900">
+                {RISKS_TITLE}
+              </h3>
+              <ul className="mt-3 space-y-2">
+                {RISKS.map((risk) => (
+                  <li
+                    key={risk}
+                    className="flex items-start gap-2.5 text-[13px] leading-snug text-leaf-800"
+                  >
+                    <span
+                      aria-hidden="true"
+                      className="mt-[6px] h-1.5 w-1.5 shrink-0 rounded-full bg-rose-400"
+                    />
+                    {risk}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </Card>
+        </div>
+
+        {/* 4 + 5 — Testing step beside the roadmap */}
+        <div className="grid items-start gap-6 lg:grid-cols-[0.78fr_1.22fr]">
           <Card id="testing" tint="plain" className="scroll-mt-24 p-6 sm:p-8">
-            <CardHead step="4" title="Testing summary" subtitle={TESTING_INTRO} />
+            <CardHead step="4" title="Testing" subtitle={DEMO_TESTING_INTRO} />
 
-            <ul className="mt-6 space-y-3">
-              {TESTING_ROWS.map((row, index) => {
-                const Icon = TESTING_ICONS[index % TESTING_ICONS.length];
+            <ul className="mt-5 space-y-3">
+              {DEMO_TESTING_STEPS.map((row, index) => {
+                const Icon = TESTING_STEP_ICONS[index % TESTING_STEP_ICONS.length];
                 return (
                   <li
                     key={row.title}
-                    className="flex items-center gap-3.5 rounded-2xl border border-leaf-100 bg-leaf-50/60 p-4"
+                    className="flex items-center gap-3 rounded-2xl border border-leaf-100 bg-leaf-50/60 p-4"
                   >
                     <IconBadge tint="green" size="sm" icon={Icon} />
-                    <div className="min-w-0 flex-1">
-                      <p className="font-poppins text-[15px] font-extrabold text-leaf-900">
-                        {row.title}
-                      </p>
-                      <p className="text-[13px] leading-snug text-leaf-600">
-                        {row.description}
-                      </p>
-                    </div>
+                    <p className="min-w-0 flex-1 font-poppins text-[14px] font-extrabold leading-tight text-leaf-900">
+                      {row.title}
+                    </p>
                     <span className="inline-flex shrink-0 items-center gap-1.5 rounded-full border border-leaf-200 bg-white px-3 py-1.5 text-[12px] font-bold text-leaf-500">
                       <CircleDashed className="h-3.5 w-3.5" aria-hidden="true" />
-                      {row.result ?? TESTING_PENDING_LABEL}
+                      {TESTING_PENDING_LABEL}
                     </span>
                   </li>
                 );
               })}
             </ul>
 
-            <p className="mt-4 rounded-2xl bg-cream-100 px-4 py-3 text-[13px] font-medium text-leaf-700">
-              {TESTING_NOTE}
-            </p>
+            <Link
+              href={DEMO_TESTING_HREF}
+              className="mt-5 inline-flex w-full items-center justify-center gap-2 rounded-full bg-leaf-100 px-6 py-3 text-[14px] font-bold text-leaf-700 transition-colors hover:bg-leaf-200"
+            >
+              {DEMO_TESTING_CTA}
+              <ArrowRight className="h-4 w-4" aria-hidden="true" />
+            </Link>
           </Card>
 
           <Card id="version-2" tint="plain" className="scroll-mt-24 p-6 sm:p-8">
             <CardHead step="5" title="Version 2 roadmap" subtitle={ROADMAP_INTRO} />
 
-            <div className="mt-6 space-y-4">
-              {ROADMAP_PHASES.map((phase, index) => {
-                const style = ROADMAP_STYLE[index % ROADMAP_STYLE.length];
-                return (
-                  <div
-                    key={phase.id}
-                    className={`rounded-3xl border p-5 ${TINT[style.tint].card}`}
-                  >
-                    <div className="flex flex-wrap items-center gap-2.5">
+            {/* Horizontal timeline: a rule with one dot per phase. */}
+            <div className="relative mt-7">
+              <div
+                aria-hidden="true"
+                className="absolute left-[16.6%] right-[16.6%] top-[7px] hidden h-[2px] bg-leaf-200 lg:block"
+              />
+              <div className="grid gap-4 lg:grid-cols-3">
+                {ROADMAP_PHASES.map((phase, index) => {
+                  const style = ROADMAP_STYLE[index % ROADMAP_STYLE.length];
+                  return (
+                    <div key={phase.id} className="relative">
                       <span
                         aria-hidden="true"
-                        className={`h-2.5 w-2.5 rounded-full ${style.dot}`}
+                        className={`relative z-10 mx-auto mb-4 hidden h-4 w-4 rounded-full ring-4 ring-cream-50 lg:block ${style.dot}`}
                       />
-                      <h3 className="font-poppins text-[18px] font-extrabold text-leaf-900">
-                        {phase.id}
-                      </h3>
-                      <span className="text-[13px] font-semibold text-leaf-600">
-                        ({phase.term})
-                      </span>
-                      <span className="ml-auto inline-flex items-center gap-1.5 rounded-full border border-leaf-200 bg-white/80 px-2.5 py-1 text-[11px] font-bold text-leaf-500">
-                        <CircleDashed className="h-3 w-3" aria-hidden="true" />
-                        {ROADMAP_STATUS_LABEL}
-                      </span>
-                    </div>
-                    <ul className="mt-3.5 space-y-2">
-                      {phase.items.map((item) => (
-                        <li
-                          key={item.label}
-                          className="flex items-start gap-2.5 text-[14px] leading-snug text-leaf-800"
-                        >
-                          <span
-                            aria-hidden="true"
-                            className="mt-[7px] h-1.5 w-1.5 shrink-0 rounded-full bg-leaf-400"
-                          />
-                          <span>
-                            {item.label}
-                            {item.note && (
-                              <span className="ml-2 inline-flex rounded-full bg-white/80 px-2 py-0.5 text-[11px] font-bold text-peach-600">
-                                {item.note}
-                              </span>
-                            )}
+                      <div
+                        className={`rounded-3xl border p-4 ${TINT[style.tint].card}`}
+                      >
+                        <div className="flex flex-wrap items-baseline justify-center gap-x-2 lg:justify-start">
+                          <h3 className="font-poppins text-[17px] font-extrabold text-leaf-900">
+                            {phase.id}
+                          </h3>
+                          <span className="text-[13px] font-semibold text-leaf-600">
+                            ({phase.term})
                           </span>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                );
-              })}
+                        </div>
+                        <span className="mt-2 inline-flex items-center gap-1.5 rounded-full border border-leaf-200 bg-white/80 px-2.5 py-1 text-[11px] font-bold text-leaf-500">
+                          <CircleDashed className="h-3 w-3" aria-hidden="true" />
+                          {ROADMAP_STATUS_LABEL}
+                        </span>
+                        <ul className="mt-3 space-y-2">
+                          {phase.items.map((item) => (
+                            <li
+                              key={item.label}
+                              className="flex items-start gap-2 text-[12.5px] leading-snug text-leaf-800"
+                            >
+                              <span
+                                aria-hidden="true"
+                                className="mt-[6px] h-1.5 w-1.5 shrink-0 rounded-full bg-leaf-400"
+                              />
+                              <span>
+                                {item.label}
+                                {item.note && (
+                                  <span className="ml-1.5 inline-flex rounded-full bg-white/80 px-2 py-0.5 text-[10.5px] font-bold text-peach-600">
+                                    {item.note}
+                                  </span>
+                                )}
+                              </span>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
             </div>
 
-            <p className="mt-4 rounded-2xl bg-cream-100 px-4 py-3 text-[13px] font-medium text-leaf-700">
+            <p className="mt-4 rounded-2xl bg-cream-100 px-4 py-3 text-[12.5px] font-medium text-leaf-700">
               {ROADMAP_NOTE}
             </p>
           </Card>

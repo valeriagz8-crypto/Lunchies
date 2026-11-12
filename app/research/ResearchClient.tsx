@@ -445,7 +445,16 @@ export default function ResearchClient() {
             better.
           </>
         }
-        art={<HeroArt tone="leaf">🔎</HeroArt>}
+        art={
+          <HeroArt
+            src="/images/redesign/hero-research.webp"
+            width={580}
+            height={524}
+            tone="leaf"
+            priority
+            glyph="🔎"
+          />
+        }
       />
 
       {/* KPI widget */}

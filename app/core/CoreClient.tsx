@@ -171,7 +171,16 @@ export default function CoreClient() {
             and fun lunch plan just for them.
           </>
         }
-        art={<HeroArt tone="leaf">🍱</HeroArt>}
+        art={
+          <HeroArt
+            src="/images/redesign/hero-core.webp"
+            width={592}
+            height={488}
+            tone="leaf"
+            priority
+            glyph="🍱"
+          />
+        }
       />
 
       {/*

@@ -330,7 +330,16 @@ export default function PricingClient() {
             See what each plan includes →
           </Link>
         }
-        art={<HeroArt tone="cream">🥗</HeroArt>}
+        art={
+          <HeroArt
+            src="/images/redesign/hero-pricing.webp"
+            width={578}
+            height={448}
+            tone="cream"
+            priority
+            glyph="🥗"
+          />
+        }
       />
 
       {/* Step bar */}

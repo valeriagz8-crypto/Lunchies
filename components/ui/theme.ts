@@ -2,20 +2,20 @@ import type { LucideIcon } from "lucide-react";
 
 /**
  * Shared visual language for the project pages (/core, /product, /research,
- * /pricing, /docs). Purely presentational: every token here is a class name,
- * never copy or data.
+ * /pricing, /docs), taken from the mockups in mockups/redesign.
  *
- * The look is taken from the redesign mockups: large rounded cards with soft
- * shadows and pastel tints on a warm cream page.
+ * Purely presentational: every token here is a class name, never copy or data.
  */
 export type TintName = "green" | "peach" | "pink" | "blue" | "cream" | "plain";
 
 export type Tint = {
-  /** Card surface + border. */
+  /** Card surface. The mockup cards carry a soft top-to-bottom wash. */
   card: string;
-  /** Tinted circle behind an icon or emoji. */
+  /** Pale circle behind an icon or emoji. */
   badge: string;
-  /** Accent text colour used for headings and small highlights. */
+  /** Icon colour inside that circle. */
+  badgeInk: string;
+  /** Accent text colour for headings and small highlights. */
   accent: string;
   /** Flat tint with no border, for table headers and inner strips. */
   strip: string;
@@ -25,87 +25,107 @@ export type Tint = {
 
 export const TINT: Record<TintName, Tint> = {
   green: {
-    card: "border-leaf-100/80 bg-leaf-50",
-    badge: "bg-leaf-100 text-leaf-700",
+    card: "border-leaf-100/70 bg-gradient-to-b from-[#eff8f1] to-[#e3f1e7]",
+    badge: "bg-leaf-100",
+    badgeInk: "text-leaf-700",
     accent: "text-leaf-700",
     strip: "bg-leaf-100/70",
-    rule: "border-leaf-100",
+    rule: "border-leaf-200/60",
   },
   peach: {
-    card: "border-peach-100/80 bg-peach-50",
-    badge: "bg-peach-100 text-peach-600",
+    card: "border-peach-100/70 bg-gradient-to-b from-[#fdf1e6] to-[#fce7d6]",
+    badge: "bg-peach-100",
+    badgeInk: "text-peach-500",
     accent: "text-peach-700",
     strip: "bg-peach-100/70",
-    rule: "border-peach-100",
+    rule: "border-peach-200/60",
   },
   pink: {
-    card: "border-rose-100/80 bg-rose-50",
-    badge: "bg-rose-100 text-rose-600",
+    card: "border-rose-100/70 bg-gradient-to-b from-[#fdeff1] to-[#fbe4e8]",
+    badge: "bg-rose-100",
+    badgeInk: "text-rose-500",
     accent: "text-rose-700",
     strip: "bg-rose-100/70",
-    rule: "border-rose-100",
+    rule: "border-rose-200/60",
   },
   blue: {
-    card: "border-sky-100/80 bg-sky-50",
-    badge: "bg-sky-100 text-sky-600",
+    card: "border-sky-100/70 bg-gradient-to-b from-[#eef5fd] to-[#e2edfb]",
+    badge: "bg-sky-100",
+    badgeInk: "text-sky-600",
     accent: "text-sky-700",
     strip: "bg-sky-100/70",
-    rule: "border-sky-100",
+    rule: "border-sky-200/60",
   },
   cream: {
-    card: "border-cream-200/80 bg-cream-100",
-    badge: "bg-cream-200 text-amber-700",
+    card: "border-cream-200/70 bg-gradient-to-b from-[#fdf6ea] to-[#fbeeda]",
+    badge: "bg-cream-200",
+    badgeInk: "text-amber-600",
     accent: "text-amber-800",
     strip: "bg-cream-200/80",
-    rule: "border-cream-200",
+    rule: "border-cream-300/60",
   },
   plain: {
-    card: "border-leaf-100/70 bg-white",
-    badge: "bg-leaf-50 text-leaf-600",
+    card: "border-white bg-white",
+    badge: "bg-leaf-50",
+    badgeInk: "text-leaf-600",
     accent: "text-leaf-700",
     strip: "bg-leaf-50",
     rule: "border-leaf-100",
   },
 };
 
-/** The warm cream page background every redesigned page sits on. */
+/** The warm cream page background, matched to the mockups. */
 export const PAGE_BG = "bg-cream-50";
 
-/** Large rounded card with the soft shadow used across the redesign. */
-// min-w-0 matters: these cards are grid items, and a grid item defaults to
-// min-width:auto, which would let a wide table push the whole page sideways.
+/**
+ * The big soft card from the mockups: a generous radius, a hairline border and
+ * a wide, very low-contrast shadow. min-w-0 matters because these are grid
+ * items and a wide table would otherwise push the page sideways.
+ */
 export const CARD =
-  "min-w-0 rounded-3xl border shadow-soft transition-shadow duration-200";
+  "min-w-0 rounded-[28px] border shadow-card transition-shadow duration-200";
 
-/** Rounded pill buttons. Green is primary, orange is secondary. */
+/** Primary action: deep green, fully rounded, generous padding. */
 export const BTN_PRIMARY =
-  "inline-flex items-center justify-center gap-2 rounded-full bg-leaf-600 px-7 py-3 text-sm font-semibold text-white shadow-soft transition-colors hover:bg-leaf-700 disabled:cursor-not-allowed disabled:opacity-60";
+  "inline-flex items-center justify-center gap-2.5 rounded-full bg-leaf-700 px-8 py-3.5 text-[15px] font-bold text-white shadow-btn transition-colors hover:bg-leaf-800 disabled:cursor-not-allowed disabled:opacity-60";
 
+/** Secondary action: orange, same shape. */
 export const BTN_SECONDARY =
-  "inline-flex items-center justify-center gap-2 rounded-full bg-peach-500 px-6 py-2.5 text-sm font-semibold text-white shadow-soft transition-colors hover:bg-peach-600 disabled:cursor-not-allowed disabled:opacity-60";
+  "inline-flex items-center justify-center gap-2.5 rounded-full bg-peach-500 px-7 py-3 text-[15px] font-bold text-white shadow-btn transition-colors hover:bg-peach-600 disabled:cursor-not-allowed disabled:opacity-60";
 
+/** Quiet action: white pill with a hairline. */
 export const BTN_GHOST =
-  "inline-flex items-center justify-center gap-2 rounded-full border border-leaf-200 bg-white px-5 py-2.5 text-sm font-semibold text-leaf-700 shadow-sm transition-colors hover:bg-leaf-50 disabled:cursor-not-allowed disabled:opacity-50";
+  "inline-flex items-center justify-center gap-2 rounded-full border border-leaf-200 bg-white px-6 py-3 text-sm font-bold text-leaf-700 shadow-sm transition-colors hover:bg-leaf-50 disabled:cursor-not-allowed disabled:opacity-50";
 
-/** Small rounded action button used inside table rows. */
+/** Small pale-green pill used for row actions, like View. */
 export const BTN_ROW =
-  "inline-flex items-center justify-center rounded-full border border-leaf-200 bg-white px-4 py-1.5 text-xs font-semibold text-leaf-700 shadow-sm transition-colors hover:bg-leaf-50";
+  "inline-flex items-center justify-center rounded-full bg-leaf-100 px-4 py-1.5 text-xs font-bold text-leaf-700 transition-colors hover:bg-leaf-200";
 
+/** Small pale-red square-ish button used for destructive row actions. */
 export const BTN_ROW_DANGER =
-  "inline-flex items-center justify-center rounded-full border border-rose-200 bg-white px-2.5 py-1.5 text-xs text-rose-500 shadow-sm transition-colors hover:bg-rose-50";
+  "inline-flex items-center justify-center rounded-xl border border-rose-200 bg-rose-50 px-2.5 py-1.5 text-xs text-rose-500 transition-colors hover:bg-rose-100";
+
+/** Unselected chip: white with a coloured hairline and coloured ink. */
+export const CHIP_GREEN =
+  "rounded-full border border-leaf-200 bg-white px-5 py-2 text-sm font-bold text-leaf-700 shadow-sm transition-colors hover:bg-leaf-50";
+export const CHIP_GREEN_ON =
+  "rounded-full border border-leaf-700 bg-leaf-700 px-5 py-2 text-sm font-bold text-white shadow-sm transition-colors";
+export const CHIP_PEACH =
+  "rounded-full border border-peach-200 bg-white px-5 py-2 text-sm font-bold text-peach-500 shadow-sm transition-colors hover:bg-peach-50";
+export const CHIP_PEACH_ON =
+  "rounded-full border border-peach-500 bg-peach-500 px-5 py-2 text-sm font-bold text-white shadow-sm transition-colors";
 
 /** Text inputs, selects and the like. */
 export const FIELD =
-  "w-full rounded-2xl border border-leaf-100 bg-white px-4 py-2.5 text-sm text-leaf-900 shadow-sm transition-colors focus:border-leaf-400 focus:outline-none focus:ring-2 focus:ring-leaf-100";
+  "w-full rounded-2xl border border-leaf-100 bg-white px-5 py-3 text-[15px] text-leaf-900 shadow-sm transition-colors focus:border-leaf-400 focus:outline-none focus:ring-2 focus:ring-leaf-100";
 
-/** Soft label above a field or a group of chips. */
-export const FIELD_LABEL =
-  "block text-sm font-semibold text-leaf-800";
+/** Label above a field or a group of chips. */
+export const FIELD_LABEL = "block text-[15px] font-bold text-leaf-900";
 
 /** Section heading inside a card. */
 export const CARD_TITLE =
-  "font-poppins text-xl font-bold tracking-tight text-leaf-900 sm:text-2xl";
+  "font-poppins text-[26px] font-extrabold leading-tight tracking-tight text-leaf-900 sm:text-[30px]";
 
-export const CARD_SUBTITLE = "mt-1 text-sm text-leaf-600";
+export const CARD_SUBTITLE = "mt-1.5 text-[15px] text-leaf-600";
 
 export type StepIcon = LucideIcon;

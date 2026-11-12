@@ -125,7 +125,16 @@ export default function ProductPage() {
           </>
         }
         subtitle="See what Lunchies offers, our plans and who it's for."
-        art={<HeroArt tone="peach">🍱</HeroArt>}
+        art={
+          <HeroArt
+            src="/images/redesign/hero-product.webp"
+            width={560}
+            height={510}
+            tone="peach"
+            priority
+            glyph="🍱"
+          />
+        }
       />
 
       {/* Stat tiles */}

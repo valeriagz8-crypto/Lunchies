@@ -22,7 +22,7 @@ const config: Config = {
         },
         // Warm cream page background used by the redesigned project pages.
         cream: {
-          50: "#fdf6ed",
+          50: "#fbf6f0",
           100: "#fbf2e8",
           200: "#f6e7d5",
           300: "#efd9bf",
@@ -41,9 +41,12 @@ const config: Config = {
         },
       },
       boxShadow: {
-        // Soft, wide, low-contrast shadow used by every redesigned card.
+        // Soft, wide, low-contrast shadows used by the redesigned pages.
         soft: "0 12px 32px -18px rgba(34, 79, 51, 0.35)",
         "soft-lg": "0 24px 56px -28px rgba(34, 79, 51, 0.42)",
+        // The big mockup card: barely-there, very wide.
+        card: "0 18px 40px -26px rgba(61, 48, 34, 0.30)",
+        btn: "0 10px 22px -12px rgba(31, 85, 50, 0.55)",
       },
       keyframes: {
         rise: {

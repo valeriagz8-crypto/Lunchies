@@ -22,11 +22,11 @@ export default function Navbar() {
 
   return (
     <header className="sticky top-0 z-10 border-b border-cream-200 bg-cream-50/90 backdrop-blur">
-      <nav className="mx-auto flex max-w-5xl items-center justify-between px-5 py-3.5 sm:px-6">
-        <Link href="/" className="font-poppins text-[22px] font-extrabold tracking-tight text-leaf-800">
+      <nav className="mx-auto flex max-w-5xl items-center justify-between gap-3 px-5 py-3.5 sm:px-6">
+        <Link href="/" className="shrink-0 whitespace-nowrap font-poppins text-[19px] font-extrabold tracking-tight text-leaf-800">
           Lunchies 🍎
         </Link>
-        <ul className="hidden items-center gap-0.5 text-[15px] font-semibold text-[#1f3c57] lg:flex">
+        <ul className="hidden items-center gap-0 text-[14px] font-semibold text-[#1f3c57] lg:flex">
           {links.map((link) => {
             const isActive = pathname === link.href;
             return (
@@ -36,8 +36,8 @@ export default function Navbar() {
                   aria-current={isActive ? "page" : undefined}
                   className={
                     isActive
-                      ? "block rounded-xl bg-leaf-100 px-3.5 py-2 font-bold text-leaf-700 shadow-[inset_0_-2px_0_0_#2f7d49]"
-                      : "block rounded-xl px-3.5 py-2 transition-colors hover:bg-leaf-50 hover:text-leaf-700"
+                      ? "block whitespace-nowrap rounded-xl bg-leaf-100 px-2.5 py-2 font-bold text-leaf-700 shadow-[inset_0_-2px_0_0_#2f7d49]"
+                      : "block whitespace-nowrap rounded-xl px-2.5 py-2 transition-colors hover:bg-leaf-50 hover:text-leaf-700"
                   }
                 >
                   {link.label}
@@ -49,7 +49,7 @@ export default function Navbar() {
         <div className="hidden lg:block">
           <Link
             href="/core"
-            className="rounded-full bg-leaf-700 px-7 py-3 text-[15px] font-bold text-white shadow-btn transition-colors hover:bg-leaf-800"
+            className="whitespace-nowrap rounded-full bg-leaf-700 px-5 py-2.5 text-[14px] font-bold text-white shadow-btn transition-colors hover:bg-leaf-800"
           >
             Get started
           </Link>

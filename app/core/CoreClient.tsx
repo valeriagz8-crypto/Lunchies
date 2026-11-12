@@ -1,7 +1,7 @@
 "use client";
 
 import { Fragment, useEffect, useState } from "react";
-import { CalendarDays, Sparkles, Utensils } from "lucide-react";
+import { CalendarDays, Heart, Salad, Sparkles, Utensils } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import {
   ALLERGY_OPTIONS,
@@ -15,10 +15,12 @@ import {
   Card,
   CardHead,
   HeroArt,
+  HeroLabel,
   IconBadge,
   PageHero,
   PageShell,
   StepRing,
+  StickyNote,
   TableWrap,
 } from "@/components/ui/pieces";
 import {
@@ -176,6 +178,11 @@ export default function CoreClient() {
   return (
     <PageShell>
       <PageHero
+        label={
+          <HeroLabel badge={<IconBadge tint="green" size="sm" icon={Salad} />}>
+            Core engine
+          </HeroLabel>
+        }
         title={
           <>
             Create a personalized{" "}
@@ -198,6 +205,15 @@ export default function CoreClient() {
             tone="leaf"
             priority
             glyph="🍱"
+            note={
+              <StickyNote>
+                Healthy lunches, happier kids.
+                <Heart
+                  className="mt-1 h-4 w-4 fill-rose-200 text-rose-400"
+                  aria-hidden="true"
+                />
+              </StickyNote>
+            }
           />
         }
       />

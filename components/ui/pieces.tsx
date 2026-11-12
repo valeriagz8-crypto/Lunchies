@@ -377,11 +377,11 @@ export function HeroArt({
         priority={priority}
         aria-hidden="true"
         className={`relative max-h-[230px] object-contain drop-shadow-[0_18px_28px_rgba(61,48,34,0.18)] sm:max-h-[260px] ${
-          note ? "w-[72%] max-w-[300px] -translate-x-[8%]" : "w-[88%] max-w-[370px]"
+          note ? "w-[64%] max-w-[260px] -translate-x-[22%]" : "w-[88%] max-w-[370px]"
         }`}
       />
       {note && (
-        <div className="absolute right-0 top-1/2 w-[42%] max-w-[170px] -translate-y-1/2 sm:-translate-y-[55%]">
+        <div className="absolute right-[-2%] top-1/2 w-[44%] max-w-[172px] -translate-y-[54%]">
           {note}
         </div>
       )}
@@ -522,7 +522,7 @@ export function StickyNote({
       : "bg-[#fde6e6] text-rose-500";
   return (
     <div
-      className={`pointer-events-none relative rotate-[4deg] rounded-2xl px-5 py-4 shadow-[0_14px_30px_-16px_rgba(61,48,34,0.45)] ${skin} ${className}`}
+      className={`pointer-events-none relative rotate-[4deg] rounded-2xl px-4 py-5 shadow-[0_14px_30px_-16px_rgba(61,48,34,0.45)] ${skin} ${className}`}
     >
       {/* washi tape */}
       <span

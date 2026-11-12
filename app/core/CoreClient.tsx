@@ -1,7 +1,6 @@
 "use client";
 
 import { Fragment, useEffect, useState } from "react";
-import Image from "next/image";
 import { CalendarDays, Sparkles, Utensils } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import {
@@ -57,15 +56,6 @@ const DAY_ICONS: Record<string, string> = {
 
 /** Pastel tint per weekday card, matching the mockup's colour rhythm. */
 const DAY_TINTS: TintName[] = ["green", "pink", "cream", "blue", "green"];
-
-/** Decorative lunchbox illustration per weekday card. */
-const DAY_ART = [
-  "/images/redesign/day-1.webp",
-  "/images/redesign/day-2.webp",
-  "/images/redesign/day-3.webp",
-  "/images/redesign/day-4.webp",
-  "/images/redesign/day-5.webp",
-];
 
 /** Day-name ink per weekday card, following the mockup. */
 const DAY_INK = [
@@ -329,7 +319,7 @@ export default function CoreClient() {
                   return (
                     <div
                       key={meal.day}
-                      className={`overflow-hidden rounded-3xl border p-3.5 ${tint.card}`}
+                      className={`rounded-3xl border p-4 ${tint.card}`}
                     >
                       <div className="flex items-center justify-center gap-2">
                         <h3
@@ -343,14 +333,6 @@ export default function CoreClient() {
                           {DAY_ICONS[meal.day]}
                         </span>
                       </div>
-                      <Image
-                        src={DAY_ART[index % DAY_ART.length]}
-                        alt=""
-                        width={300}
-                        height={258}
-                        aria-hidden="true"
-                        className="mt-3 w-full rounded-2xl"
-                      />
                       <ul className="mt-3 space-y-1.5 px-1 pb-1 text-[13px] leading-snug text-leaf-800">
                         <li>
                           {getEmoji(meal.protein)} {meal.protein}

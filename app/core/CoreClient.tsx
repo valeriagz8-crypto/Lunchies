@@ -1,6 +1,8 @@
 "use client";
 
 import { Fragment, useEffect, useState } from "react";
+import Image from "next/image";
+import { CalendarDays, Sparkles, Utensils } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import {
   ALLERGY_OPTIONS,
@@ -17,7 +19,7 @@ import {
   IconBadge,
   PageHero,
   PageShell,
-  StepPill,
+  StepRing,
   TableWrap,
 } from "@/components/ui/pieces";
 import {
@@ -26,6 +28,10 @@ import {
   BTN_ROW,
   BTN_ROW_DANGER,
   BTN_SECONDARY,
+  CHIP_GREEN,
+  CHIP_GREEN_ON,
+  CHIP_PEACH,
+  CHIP_PEACH_ON,
   FIELD,
   FIELD_LABEL,
   TINT,
@@ -49,8 +55,26 @@ const DAY_ICONS: Record<string, string> = {
   Friday: "🍲",
 };
 
-/** Pastel tint per weekday card, matching the redesign's colour rhythm. */
+/** Pastel tint per weekday card, matching the mockup's colour rhythm. */
 const DAY_TINTS: TintName[] = ["green", "pink", "cream", "blue", "green"];
+
+/** Decorative lunchbox illustration per weekday card. */
+const DAY_ART = [
+  "/images/redesign/day-1.webp",
+  "/images/redesign/day-2.webp",
+  "/images/redesign/day-3.webp",
+  "/images/redesign/day-4.webp",
+  "/images/redesign/day-5.webp",
+];
+
+/** Day-name ink per weekday card, following the mockup. */
+const DAY_INK = [
+  "text-leaf-700",
+  "text-peach-600",
+  "text-amber-700",
+  "text-sky-700",
+  "text-leaf-700",
+];
 
 const VALUE_PROPS = [
   {
@@ -77,6 +101,9 @@ const VALUE_PROPS = [
 
 /** Pastel tint per value prop, so the row reads as one set of cards. */
 const VALUE_PROP_TINTS: TintName[] = ["green", "peach", "blue", "pink"];
+
+/** The orange icon beside each "How it works" step in the mockup. */
+const HOW_ICONS = [Utensils, Sparkles, CalendarDays];
 
 function toggleTag(list: string[], tag: string) {
   return list.includes(tag)
@@ -161,8 +188,10 @@ export default function CoreClient() {
       <PageHero
         title={
           <>
-            Create a personalized 5-day{" "}
-            <span className="text-peach-500">lunch plan</span>
+            Create a personalized{" "}
+            <span className="text-peach-500">
+              <span className="whitespace-nowrap">5-day</span> lunch plan
+            </span>
           </>
         }
         subtitle={
@@ -184,27 +213,24 @@ export default function CoreClient() {
       />
 
       {/*
-        Laid out so "How it works" sits beside the form on wide screens, the
-        way the mockup shows it, while the DOM order stays exactly as before.
+        Form beside "How it works" on wide screens, the way the mockup shows
+        it, while the DOM order stays exactly as it was.
       */}
-      <div className="mt-12 grid gap-6 lg:grid-cols-3">
+      <div className="mt-10 grid gap-5 lg:grid-cols-[1.45fr_1fr]">
         {/* Section 1: Form */}
-        <Card
-          tint="green"
-          className="p-6 sm:p-8 lg:col-span-2 lg:col-start-1 lg:row-start-1"
-        >
+        <Card tint="green" className="p-6 sm:p-7 lg:col-start-1 lg:row-start-1">
           <CardHead
             step="1"
             badge={<IconBadge tint="green">📝</IconBadge>}
             title="Tell us about your child"
           />
 
-          <div className="mt-6">
+          <div className="mt-7">
             <label className={FIELD_LABEL}>Child&apos;s age</label>
             <select
               value={childAge}
               onChange={(e) => setChildAge(e.target.value)}
-              className={`${FIELD} mt-2 max-w-xs`}
+              className={`${FIELD} mt-2.5`}
             >
               {CHILD_AGE_OPTIONS.map((age) => (
                 <option key={age} value={age}>
@@ -224,11 +250,7 @@ export default function CoreClient() {
                     key={tag}
                     type="button"
                     onClick={() => setAllergies((prev) => toggleTag(prev, tag))}
-                    className={`rounded-full border px-4 py-2 text-sm font-semibold shadow-sm transition-colors ${
-                      active
-                        ? "border-peach-500 bg-peach-500 text-white"
-                        : "border-peach-200 bg-white text-peach-600 hover:bg-peach-50"
-                    }`}
+                    className={active ? CHIP_PEACH_ON : CHIP_PEACH}
                   >
                     {tag}
                   </button>
@@ -249,11 +271,7 @@ export default function CoreClient() {
                     onClick={() =>
                       setPreferences((prev) => toggleTag(prev, tag))
                     }
-                    className={`rounded-full border px-4 py-2 text-sm font-semibold shadow-sm transition-colors ${
-                      active
-                        ? "border-leaf-600 bg-leaf-600 text-white"
-                        : "border-leaf-200 bg-white text-leaf-700 hover:bg-leaf-50"
-                    }`}
+                    className={active ? CHIP_GREEN_ON : CHIP_GREEN}
                   >
                     {tag}
                   </button>
@@ -265,12 +283,12 @@ export default function CoreClient() {
           <button
             type="button"
             onClick={handleGenerate}
-            className={`${BTN_PRIMARY} mt-8 px-9 text-base`}
+            className={`${BTN_PRIMARY} mt-8 px-10 py-4 text-base`}
           >
             Generate menu
           </button>
 
-          <div className="mt-5 flex items-start gap-2.5 rounded-2xl bg-white/80 px-4 py-3 text-xs text-leaf-600 shadow-sm">
+          <div className="mt-6 flex items-start gap-2.5 rounded-2xl bg-white/70 px-4 py-3 text-[13px] leading-relaxed text-leaf-600">
             <span aria-hidden="true">ℹ️</span>
             <span>
               We&apos;ll use this information to create a balanced and
@@ -282,7 +300,7 @@ export default function CoreClient() {
         {/* Section 2: Output */}
         <Card
           tint="plain"
-          className="p-6 sm:p-8 lg:col-span-3 lg:col-start-1 lg:row-start-2"
+          className="p-6 sm:p-8 lg:col-span-2 lg:col-start-1 lg:row-start-2"
         >
           <CardHead
             step="2"
@@ -290,7 +308,7 @@ export default function CoreClient() {
             title="Your 5-day lunch plan"
             action={
               generated ? (
-                <span className="rounded-full bg-leaf-100 px-3.5 py-1.5 text-xs font-bold text-leaf-700">
+                <span className="rounded-full bg-leaf-100 px-4 py-2 text-xs font-bold text-leaf-700">
                   Generated
                 </span>
               ) : undefined
@@ -298,10 +316,10 @@ export default function CoreClient() {
           />
 
           {!plan ? (
-            <p className="mt-5 rounded-2xl bg-cream-100 px-4 py-4 text-sm text-leaf-600">
+            <p className="mt-6 rounded-2xl bg-cream-100 px-5 py-4 text-[15px] text-leaf-600">
               Fill out the form above and click{" "}
-              <span className="font-semibold text-leaf-800">Generate menu</span>{" "}
-              to see your plan.
+              <span className="font-bold text-leaf-800">Generate menu</span> to
+              see your plan.
             </p>
           ) : (
             <>
@@ -311,17 +329,29 @@ export default function CoreClient() {
                   return (
                     <div
                       key={meal.day}
-                      className={`rounded-2xl border p-4 shadow-sm ${tint.card}`}
+                      className={`overflow-hidden rounded-3xl border p-3.5 ${tint.card}`}
                     >
-                      <div className="flex items-center justify-between gap-2">
-                        <h3 className="font-poppins font-bold text-leaf-900">
+                      <div className="flex items-center justify-center gap-2">
+                        <h3
+                          className={`font-poppins text-lg font-extrabold ${
+                            DAY_INK[index % DAY_INK.length]
+                          }`}
+                        >
                           {meal.day}
                         </h3>
-                        <span className="text-lg" aria-hidden="true">
+                        <span className="text-base" aria-hidden="true">
                           {DAY_ICONS[meal.day]}
                         </span>
                       </div>
-                      <ul className="mt-3 space-y-1.5 text-sm text-leaf-700">
+                      <Image
+                        src={DAY_ART[index % DAY_ART.length]}
+                        alt=""
+                        width={300}
+                        height={258}
+                        aria-hidden="true"
+                        className="mt-3 w-full rounded-2xl"
+                      />
+                      <ul className="mt-3 space-y-1.5 px-1 pb-1 text-[13px] leading-snug text-leaf-800">
                         <li>
                           {getEmoji(meal.protein)} {meal.protein}
                         </li>
@@ -337,7 +367,7 @@ export default function CoreClient() {
                 })}
               </div>
 
-              <div className="mt-6 flex flex-wrap items-center gap-3">
+              <div className="mt-7 flex flex-wrap items-center gap-3">
                 <button
                   type="button"
                   onClick={handleGenerate}
@@ -354,12 +384,12 @@ export default function CoreClient() {
                   {saving ? "Saving..." : "Save plan"}
                 </button>
                 {saveMessage && (
-                  <span className="text-sm font-semibold text-leaf-700">
+                  <span className="text-sm font-bold text-leaf-700">
                     {saveMessage}
                   </span>
                 )}
               </div>
-              <p className="mt-4 flex items-center gap-2 rounded-2xl bg-cream-100 px-4 py-2.5 text-xs text-leaf-600">
+              <p className="mt-4 flex items-center gap-2 rounded-2xl bg-cream-100 px-4 py-3 text-[13px] text-leaf-600">
                 <span aria-hidden="true">🔒</span>
                 Your plan will be saved so you can see it later.
               </p>
@@ -370,7 +400,7 @@ export default function CoreClient() {
         {/* Section 3: Saved plans */}
         <Card
           tint="plain"
-          className="p-6 sm:p-8 lg:col-span-3 lg:col-start-1 lg:row-start-3"
+          className="p-6 sm:p-8 lg:col-span-2 lg:col-start-1 lg:row-start-3"
         >
           <CardHead
             step="3"
@@ -379,31 +409,21 @@ export default function CoreClient() {
           />
 
           <TableWrap className="mt-6">
-            <table className="w-full min-w-[640px] border-separate border-spacing-0 text-left text-sm">
+            <table className="w-full min-w-[640px] text-left text-[15px]">
               <thead>
-                <tr className="text-leaf-700">
-                  <th className="rounded-l-2xl bg-leaf-100/70 px-4 py-3 font-bold">
-                    Date
-                  </th>
-                  <th className="bg-leaf-100/70 px-4 py-3 font-bold">
-                    Child&apos;s age
-                  </th>
-                  <th className="bg-leaf-100/70 px-4 py-3 font-bold">
-                    Allergies
-                  </th>
-                  <th className="bg-leaf-100/70 px-4 py-3 font-bold">
-                    Preferences
-                  </th>
-                  <th className="bg-leaf-100/70 px-4 py-3 font-bold">Days</th>
-                  <th className="rounded-r-2xl bg-leaf-100/70 px-4 py-3 font-bold">
-                    Actions
-                  </th>
+                <tr className="border-b border-leaf-100 text-[13px] text-leaf-500">
+                  <th className="pb-3 pr-4 font-bold">Date</th>
+                  <th className="pb-3 pr-4 font-bold">Child&apos;s age</th>
+                  <th className="pb-3 pr-4 font-bold">Allergies</th>
+                  <th className="pb-3 pr-4 font-bold">Preferences</th>
+                  <th className="pb-3 pr-4 font-bold">Days</th>
+                  <th className="pb-3 pr-4 font-bold">Actions</th>
                 </tr>
               </thead>
               <tbody>
                 {loadingSaved && (
                   <tr>
-                    <td colSpan={6} className="px-4 py-5 text-leaf-600">
+                    <td colSpan={6} className="py-5 text-leaf-600">
                       Loading saved plans...
                     </td>
                   </tr>
@@ -411,7 +431,7 @@ export default function CoreClient() {
 
                 {!loadingSaved && savedPlans.length === 0 && (
                   <tr>
-                    <td colSpan={6} className="px-4 py-5 text-leaf-600">
+                    <td colSpan={6} className="py-5 text-leaf-600">
                       No saved plans yet — generate one above and click Save
                       plan.
                     </td>
@@ -421,27 +441,25 @@ export default function CoreClient() {
                 {!loadingSaved &&
                   savedPlans.slice(0, visibleRows).map((row) => (
                     <Fragment key={row.id}>
-                      <tr className="align-middle text-leaf-800">
-                        <td className="border-b border-leaf-100 px-4 py-4">
+                      <tr className="border-b border-leaf-100 align-middle text-leaf-800">
+                        <td className="py-4 pr-4">
                           {new Date(row.created_at).toLocaleDateString()}
                         </td>
-                        <td className="border-b border-leaf-100 px-4 py-4">
-                          {row.child_age}
-                        </td>
-                        <td className="border-b border-leaf-100 px-4 py-4">
+                        <td className="py-4 pr-4">{row.child_age}</td>
+                        <td className="py-4 pr-4">
                           {row.allergies.length > 0
                             ? row.allergies.join(", ")
                             : "None"}
                         </td>
-                        <td className="border-b border-leaf-100 px-4 py-4">
+                        <td className="py-4 pr-4">
                           {row.preferences.length > 0
                             ? row.preferences.join(", ")
                             : "None"}
                         </td>
-                        <td className="border-b border-leaf-100 px-4 py-4">
+                        <td className="py-4 pr-4">
                           {row.plan_json.length} days
                         </td>
-                        <td className="border-b border-leaf-100 px-4 py-4">
+                        <td className="py-4 pr-4">
                           <div className="flex items-center gap-2">
                             <button
                               type="button"
@@ -466,16 +484,13 @@ export default function CoreClient() {
                         </td>
                       </tr>
                       {expandedId === row.id && (
-                        <tr className="bg-leaf-50">
-                          <td
-                            colSpan={6}
-                            className="border-b border-leaf-100 px-3 py-4"
-                          >
+                        <tr className="border-b border-leaf-100 bg-leaf-50/70">
+                          <td colSpan={6} className="px-3 py-4">
                             <ul className="grid gap-2 sm:grid-cols-2 lg:grid-cols-5">
                               {row.plan_json.map((meal) => (
                                 <li
                                   key={meal.day}
-                                  className="rounded-2xl bg-white p-3 text-sm text-leaf-700 shadow-sm"
+                                  className="rounded-2xl bg-white p-3.5 text-[13px] text-leaf-700 shadow-sm"
                                 >
                                   <p className="font-poppins font-bold text-leaf-900">
                                     {meal.day}
@@ -514,67 +529,73 @@ export default function CoreClient() {
             </div>
           )}
         </Card>
-
         {/* Section 4: Sidebar */}
         <Card
           tint="peach"
-          className="h-fit p-6 sm:p-7 lg:col-start-3 lg:row-start-1"
+          className="h-fit p-6 sm:p-7 lg:col-start-2 lg:row-start-1"
         >
-          <h2 className="font-poppins text-xl font-bold tracking-tight text-leaf-900">
+          <h2 className="font-poppins text-[26px] font-extrabold tracking-tight text-leaf-900">
             How it works
           </h2>
-          <ol className="mt-5 space-y-4 text-sm text-leaf-800">
-            <li className="flex gap-3 border-b border-peach-100 pb-4">
-              <StepPill size="sm" tone="peach">
-                1
-              </StepPill>
-              <span>
+          <ol className="mt-4">
+            {[
+              <>
                 Tell us your child&apos;s age, allergies, and food
                 preferences.
-              </span>
-            </li>
-            <li className="flex gap-3 border-b border-peach-100 pb-4">
-              <StepPill size="sm" tone="peach">
-                2
-              </StepPill>
-              <span>
+              </>,
+              <>
                 We instantly generate a 5-day lunch plan, filtering out
                 anything on the allergy list.
-              </span>
-            </li>
-            <li className="flex gap-3">
-              <StepPill size="sm" tone="peach">
-                3
-              </StepPill>
-              <span>
-                Save your favorite plan so you can find it again later.
-              </span>
-            </li>
+              </>,
+              <>Save your favorite plan so you can find it again later.</>,
+            ].map((copy, index) => {
+              const Icon = HOW_ICONS[index];
+              return (
+                <li
+                  key={index}
+                  className={`flex items-center gap-3.5 py-4 ${
+                    index > 0 ? "border-t border-peach-200/70" : "pt-1"
+                  }`}
+                >
+                  <StepRing>{index + 1}</StepRing>
+                  <Icon
+                    className="h-6 w-6 shrink-0 text-peach-500"
+                    aria-hidden="true"
+                    strokeWidth={2}
+                  />
+                  <span className="text-[15px] leading-snug text-leaf-800">
+                    {copy}
+                  </span>
+                </li>
+              );
+            })}
           </ol>
-          <p className="mt-5 rounded-2xl bg-white/80 px-4 py-3 text-xs text-leaf-600 shadow-sm">
+          <p className="mt-2 rounded-2xl bg-leaf-100/70 px-4 py-3.5 text-[13px] leading-relaxed text-leaf-700">
             🔒 Your plans are saved securely in our database.
           </p>
         </Card>
       </div>
 
-      <div className="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {VALUE_PROPS.map((prop, index) => {
           const tint = TINT[VALUE_PROP_TINTS[index % VALUE_PROP_TINTS.length]];
           return (
             <div
               key={prop.title}
-              className={`rounded-3xl border p-6 shadow-soft ${tint.card}`}
+              className={`rounded-[28px] border p-6 shadow-card ${tint.card}`}
             >
               <span
-                className={`flex h-12 w-12 items-center justify-center rounded-2xl bg-white/80 text-2xl shadow-sm`}
+                className="flex h-12 w-12 items-center justify-center rounded-full bg-white/90 text-2xl shadow-sm"
                 aria-hidden="true"
               >
                 {prop.icon}
               </span>
-              <h2 className="mt-4 font-poppins text-base font-bold text-leaf-900">
+              <h2 className="mt-4 font-poppins text-[17px] font-extrabold text-leaf-900">
                 {prop.title}
               </h2>
-              <p className="mt-1.5 text-sm text-leaf-700">{prop.description}</p>
+              <p className="mt-1.5 text-[14px] leading-snug text-leaf-700">
+                {prop.description}
+              </p>
             </div>
           );
         })}

@@ -107,13 +107,13 @@ export const BTN_ROW_DANGER =
 
 /** Unselected chip: white with a coloured hairline and coloured ink. */
 export const CHIP_GREEN =
-  "rounded-full border border-leaf-200 bg-white px-5 py-2 text-sm font-bold text-leaf-700 shadow-sm transition-colors hover:bg-leaf-50";
+  "rounded-full border border-leaf-200 bg-white px-3.5 py-1.5 text-[13px] font-bold text-leaf-700 shadow-sm transition-colors hover:bg-leaf-50";
 export const CHIP_GREEN_ON =
-  "rounded-full border border-leaf-700 bg-leaf-700 px-5 py-2 text-sm font-bold text-white shadow-sm transition-colors";
+  "rounded-full border border-leaf-700 bg-leaf-700 px-3.5 py-1.5 text-[13px] font-bold text-white shadow-sm transition-colors";
 export const CHIP_PEACH =
-  "rounded-full border border-peach-200 bg-white px-5 py-2 text-sm font-bold text-peach-500 shadow-sm transition-colors hover:bg-peach-50";
+  "rounded-full border border-peach-200 bg-white px-3.5 py-1.5 text-[13px] font-bold text-peach-500 shadow-sm transition-colors hover:bg-peach-50";
 export const CHIP_PEACH_ON =
-  "rounded-full border border-peach-500 bg-peach-500 px-5 py-2 text-sm font-bold text-white shadow-sm transition-colors";
+  "rounded-full border border-peach-500 bg-peach-500 px-3.5 py-1.5 text-[13px] font-bold text-white shadow-sm transition-colors";
 
 /** Text inputs, selects and the like. */
 export const FIELD =

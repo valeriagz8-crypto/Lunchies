@@ -32,7 +32,7 @@ export function PageShell({
 }) {
   return (
     <div className={`${PAGE_BG} ${className}`}>
-      <div className={`mx-auto ${width} px-5 py-10 sm:px-6 sm:py-14`}>
+      <div className={`mx-auto ${width} px-5 py-8 sm:px-6 sm:py-11`}>
         {children}
       </div>
     </div>
@@ -263,10 +263,10 @@ export function PageHero({
   art?: ReactNode;
 }) {
   return (
-    <div className="grid items-center gap-6 md:grid-cols-[1fr_0.95fr] md:gap-4">
+    <div className="grid items-center gap-5 md:grid-cols-[1.25fr_1fr] md:gap-3">
       <div className="relative">
         {label}
-        <h1 className="mt-3 font-poppins text-[40px] font-extrabold leading-[1.06] tracking-[-0.02em] text-leaf-900 sm:text-[52px]">
+        <h1 className="mt-3 font-poppins text-[36px] font-extrabold leading-[1.08] tracking-[-0.02em] text-leaf-900 sm:text-[44px]">
           {title}
         </h1>
         {subtitle !== undefined && (
@@ -343,11 +343,11 @@ export function HeroArt({
 }) {
   return (
     <div
-      className={`relative flex min-h-[230px] items-center justify-center sm:min-h-[300px] ${className}`}
+      className={`relative flex min-h-[200px] items-center justify-center sm:min-h-[245px] ${className}`}
     >
       <Blob
         tone={tone}
-        className="left-1/2 top-1/2 h-[250px] w-[300px] -translate-x-1/2 -translate-y-[54%] sm:h-[310px] sm:w-[370px]"
+        className="left-1/2 top-1/2 h-[230px] w-full max-w-[440px] -translate-x-1/2 -translate-y-[52%] sm:h-[300px]"
       />
       <Sparkle
         className="absolute left-1 top-3 h-8 w-10 sm:left-0 sm:top-2"
@@ -369,7 +369,7 @@ export function HeroArt({
         height={height}
         priority={priority}
         aria-hidden="true"
-        className="relative w-[78%] max-w-[330px] drop-shadow-[0_18px_28px_rgba(61,48,34,0.18)]"
+        className="relative w-[88%] max-w-[370px] drop-shadow-[0_18px_28px_rgba(61,48,34,0.18)]"
       />
     </div>
   );

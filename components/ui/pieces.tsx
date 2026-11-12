@@ -143,7 +143,8 @@ export function StepPill({
   size?: "sm" | "md";
   className?: string;
 }) {
-  const box = size === "sm" ? "h-6 w-6 text-[11px]" : "h-7 w-7 text-xs";
+  const box =
+    size === "sm" ? "h-6 w-6 text-[11px] lg:h-7 lg:w-7 lg:text-[13px]" : "h-7 w-7 text-xs";
   const colour =
     tone === "peach" ? "bg-peach-500 text-white" : "bg-leaf-700 text-white";
   return (
@@ -257,24 +258,27 @@ export function PageHero({
   label,
   title,
   subtitle,
+  subtitleWidth = "max-w-[30rem]",
   actions,
   art,
 }: {
   label?: ReactNode;
   title: ReactNode;
   subtitle?: ReactNode;
+  /** Set so the subtitle wraps where the page's mockup wraps it. */
+  subtitleWidth?: string;
   actions?: ReactNode;
   art?: ReactNode;
 }) {
   return (
-    <div className="grid items-center gap-5 md:grid-cols-[1.25fr_1fr] md:gap-3">
+    <div className="grid items-center gap-5 md:grid-cols-[1.25fr_1fr] md:gap-3 lg:grid-cols-[1.08fr_1fr]">
       <div className="relative">
         {label}
         <h1 className="mt-3 font-poppins text-[36px] font-extrabold leading-[1.06] tracking-[-0.02em] text-leaf-900 sm:text-[44px] lg:text-[56px]">
           {title}
         </h1>
         {subtitle !== undefined && (
-          <p className="mt-4 max-w-[26rem] text-[17px] leading-relaxed text-leaf-700 lg:text-[19px]">
+          <p className={`mt-4 text-[17px] leading-relaxed text-leaf-700 lg:text-[19px] ${subtitleWidth}`}>
             {subtitle}
           </p>
         )}
@@ -354,7 +358,7 @@ export function HeroArt({
     >
       <Blob
         tone={tone}
-        className="left-1/2 top-1/2 h-[230px] w-full max-w-[520px] -translate-x-1/2 -translate-y-[52%] sm:h-[300px] lg:h-[350px]"
+        className="left-1/2 top-1/2 h-[230px] w-full max-w-[520px] -translate-x-1/2 -translate-y-[52%] sm:h-[300px] lg:h-[380px]"
       />
       <Sparkle
         className="absolute left-1 top-3 h-8 w-10 sm:left-0 sm:top-2"
@@ -376,12 +380,12 @@ export function HeroArt({
         height={height}
         priority={priority}
         aria-hidden="true"
-        className={`relative max-h-[230px] object-contain drop-shadow-[0_18px_28px_rgba(61,48,34,0.18)] sm:max-h-[260px] lg:max-h-[310px] ${
-          note ? "w-[66%] max-w-[330px] -translate-x-[20%]" : "w-[88%] max-w-[430px]"
+        className={`relative max-h-[230px] object-contain drop-shadow-[0_18px_28px_rgba(61,48,34,0.18)] sm:max-h-[260px] lg:max-h-[330px] ${
+          note ? "w-[70%] max-w-[420px] -translate-x-[18%]" : "w-[88%] max-w-[430px]"
         }`}
       />
       {note && (
-        <div className="absolute right-0 top-1/2 w-[44%] max-w-[210px] -translate-y-[54%] sm:right-[-2%]">
+        <div className="absolute right-0 top-1/2 w-[44%] max-w-[240px] -translate-y-[54%] sm:right-[-2%]">
           {note}
         </div>
       )}
@@ -401,7 +405,7 @@ export function StepStrip({
 }) {
   return (
     <div
-      className={`flex flex-wrap items-center justify-center gap-x-3 gap-y-3 rounded-full border border-leaf-100/70 bg-gradient-to-b from-[#eff8f1] to-[#e6f2ea] px-5 py-3.5 text-center text-[13px] font-bold text-leaf-800 sm:px-7 sm:text-[15px] ${className}`}
+      className={`flex flex-wrap items-center justify-center gap-x-3 gap-y-3 rounded-full border border-leaf-100/70 bg-gradient-to-b from-[#eff8f1] to-[#e6f2ea] px-5 py-4 text-center text-[13px] font-bold text-leaf-800 sm:px-7 sm:text-[15px] lg:py-[18px] lg:text-[17px] ${className}`}
     >
       {children}
     </div>
@@ -542,7 +546,7 @@ export function StickyNote({
         aria-hidden="true"
         className="absolute -top-3 left-1/2 h-6 w-16 -translate-x-1/2 -rotate-3 rounded-[3px] bg-amber-200/70"
       />
-      <div className="font-caveat text-[20px] font-semibold leading-tight sm:text-[23px]">
+      <div className="font-caveat text-[20px] font-semibold leading-tight sm:text-[23px] lg:text-[27px]">
         {children}
       </div>
     </div>

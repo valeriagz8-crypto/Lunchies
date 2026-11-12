@@ -117,7 +117,7 @@ export default function DemoPage() {
   }));
 
   return (
-    <PageShell>
+    <PageShell width="max-w-[1280px]">
       {/* Hero */}
       <PageHero
         label={
@@ -132,6 +132,7 @@ export default function DemoPage() {
           </>
         }
         subtitle={DEMO_HERO.subtitle}
+        subtitleWidth="max-w-[26rem] lg:max-w-[31rem]"
         actions={
           <a
             href={DEMO_HERO.ctaHref}
@@ -214,14 +215,14 @@ export default function DemoPage() {
               const body = (
                 <>
                   <span
-                    className={`flex h-12 w-12 items-center justify-center rounded-2xl bg-white/85 shadow-sm ${tint.badgeInk}`}
+                    className={`flex h-12 w-12 items-center justify-center rounded-2xl bg-white/85 shadow-sm lg:h-14 lg:w-14 ${tint.badgeInk}`}
                   >
-                    <Icon className="h-6 w-6" aria-hidden="true" strokeWidth={2.2} />
+                    <Icon className="h-6 w-6 lg:h-7 lg:w-7" aria-hidden="true" strokeWidth={2.2} />
                   </span>
-                  <h3 className="mt-3.5 font-poppins text-[19px] font-extrabold leading-tight text-leaf-900">
+                  <h3 className="mt-4 font-poppins text-[19px] font-extrabold leading-tight text-leaf-900 lg:text-[24px]">
                     {card.title}
                   </h3>
-                  <p className="mt-1.5 text-[14px] leading-snug text-leaf-700">
+                  <p className="mt-2 text-[14px] leading-snug text-leaf-700 lg:text-[16px]">
                     {card.description}
                   </p>
                   <span className="mt-auto flex items-center justify-between gap-2 pt-4">
@@ -243,7 +244,7 @@ export default function DemoPage() {
                 </>
               );
 
-              const shell = `flex h-full flex-col rounded-3xl border p-5 ${tint.card}`;
+              const shell = `flex h-full flex-col rounded-3xl border p-5 lg:p-6 ${tint.card}`;
 
               return live && card.href ? (
                 <Link
@@ -277,8 +278,8 @@ export default function DemoPage() {
         </Card>
 
         {/* 2 + 3 — Agent map beside Practical impact */}
-        <div className="grid items-start gap-6 lg:grid-cols-[1.3fr_1fr]">
-          <Card id="agent-map" tint="green" className="scroll-mt-24 p-6 sm:p-8">
+        <div className="grid gap-6 lg:grid-cols-[1.3fr_1fr]">
+          <Card id="agent-map" tint="green" className="flex scroll-mt-24 flex-col p-6 sm:p-8">
             <CardHead step="2" title="Agent map" subtitle={AGENT_MAP_INTRO} />
 
             <AgentMapDiagram nodes={diagramNodes} />
@@ -362,10 +363,10 @@ export default function DemoPage() {
             </div>
           </Card>
 
-          <Card id="impact" tint="plain" className="scroll-mt-24 p-6 sm:p-8">
+          <Card id="impact" tint="plain" className="flex scroll-mt-24 flex-col p-6 sm:p-8">
             <CardHead step="3" title="Practical impact" subtitle={IMPACT_INTRO} />
 
-            <ul className="mt-5 divide-y divide-leaf-100">
+            <ul className="mt-5 flex flex-1 flex-col justify-around divide-y divide-leaf-100">
               {IMPACT_CARDS.map((card, index) => {
                 const style = IMPACT_STYLE[index % IMPACT_STYLE.length];
                 const Icon = style.icon;
@@ -385,7 +386,7 @@ export default function DemoPage() {
               })}
             </ul>
 
-            <p className="mt-2 rounded-2xl bg-cream-100 px-4 py-3 text-[12.5px] font-medium text-leaf-700">
+            <p className="mb-4 mt-2 rounded-2xl bg-cream-100 px-4 py-3 text-[12.5px] font-medium text-leaf-700">
               {IMPACT_DISCLAIMER}
             </p>
 
@@ -432,7 +433,7 @@ export default function DemoPage() {
                     <span
                       className={`inline-flex shrink-0 items-center gap-1.5 rounded-full border px-3 py-1.5 text-[12px] font-bold ${
                         row.result
-                          ? "border-leaf-200 bg-leaf-50 text-leaf-700"
+                          ? "border-leaf-600 bg-leaf-600 text-white"
                           : "border-leaf-200 bg-white text-leaf-500"
                       }`}
                     >

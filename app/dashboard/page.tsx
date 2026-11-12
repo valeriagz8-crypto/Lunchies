@@ -200,6 +200,7 @@ export default function DashboardPage() {
           </>
         }
         subtitle={DASHBOARD_HERO.subtitle}
+        subtitleWidth="max-w-[23rem] lg:max-w-[26rem]"
         art={
           <HeroArt
             src="/images/redesign/hero-product.webp"

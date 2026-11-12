@@ -224,7 +224,9 @@ export const TESTING_ROWS: TestingRow[] = [
   {
     title: "Full-site regression test",
     description: "All pages and key flows verified.",
-    result: null,
+    // Filled from the npm run test:regression output of 2026-11-12. See
+    // docs/regression-report.md for the full run.
+    result: "35/35 passed",
   },
   {
     title: "Main findings",
@@ -251,7 +253,7 @@ export const DEMO_TESTING_CTA = "View testing details";
 export const DEMO_TESTING_HREF = "/dashboard#testing";
 
 export const TESTING_NOTE =
-  "Nothing in this section has results yet. The fields stay empty until the tests are run.";
+  "The regression test has been run and its result is shown above. The external user tests and the findings they produce have not happened yet, so those fields stay empty until they do.";
 
 /* ------------------------------------------------------------ version 2 */
 
@@ -1138,3 +1140,16 @@ export const BUILD_LOG: BuildLogWeek[] = [
 ];
 
 export const BUILD_LOG_TOTAL = 118;
+
+/* --------------------------------------------- regression run result */
+
+/**
+ * Taken from the JSON reporter output of `npm run test:regression`.
+ * docs/regression-report.md is generated from the same run.
+ */
+export const REGRESSION_RUN = {
+  date: "2026-11-12",
+  checks: 35,
+  passed: 35,
+  failed: 0,
+} as const;

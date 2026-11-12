@@ -270,11 +270,11 @@ export function PageHero({
     <div className="grid items-center gap-5 md:grid-cols-[1.25fr_1fr] md:gap-3">
       <div className="relative">
         {label}
-        <h1 className="mt-3 font-poppins text-[36px] font-extrabold leading-[1.08] tracking-[-0.02em] text-leaf-900 sm:text-[44px]">
+        <h1 className="mt-3 font-poppins text-[36px] font-extrabold leading-[1.06] tracking-[-0.02em] text-leaf-900 sm:text-[44px] lg:text-[56px]">
           {title}
         </h1>
         {subtitle !== undefined && (
-          <p className="mt-4 max-w-[30rem] text-[17px] leading-relaxed text-leaf-700">
+          <p className="mt-4 max-w-[26rem] text-[17px] leading-relaxed text-leaf-700 lg:text-[19px]">
             {subtitle}
           </p>
         )}
@@ -350,11 +350,11 @@ export function HeroArt({
 }) {
   return (
     <div
-      className={`relative flex min-h-[190px] items-center justify-center sm:min-h-[235px] ${className}`}
+      className={`relative flex min-h-[190px] items-center justify-center sm:min-h-[235px] lg:min-h-[290px] ${className}`}
     >
       <Blob
         tone={tone}
-        className="left-1/2 top-1/2 h-[230px] w-full max-w-[440px] -translate-x-1/2 -translate-y-[52%] sm:h-[300px]"
+        className="left-1/2 top-1/2 h-[230px] w-full max-w-[520px] -translate-x-1/2 -translate-y-[52%] sm:h-[300px] lg:h-[350px]"
       />
       <Sparkle
         className="absolute left-1 top-3 h-8 w-10 sm:left-0 sm:top-2"
@@ -376,12 +376,12 @@ export function HeroArt({
         height={height}
         priority={priority}
         aria-hidden="true"
-        className={`relative max-h-[230px] object-contain drop-shadow-[0_18px_28px_rgba(61,48,34,0.18)] sm:max-h-[260px] ${
-          note ? "w-[64%] max-w-[260px] -translate-x-[22%]" : "w-[88%] max-w-[370px]"
+        className={`relative max-h-[230px] object-contain drop-shadow-[0_18px_28px_rgba(61,48,34,0.18)] sm:max-h-[260px] lg:max-h-[310px] ${
+          note ? "w-[66%] max-w-[330px] -translate-x-[20%]" : "w-[88%] max-w-[430px]"
         }`}
       />
       {note && (
-        <div className="absolute right-[-2%] top-1/2 w-[44%] max-w-[172px] -translate-y-[54%]">
+        <div className="absolute right-0 top-1/2 w-[44%] max-w-[210px] -translate-y-[54%] sm:right-[-2%]">
           {note}
         </div>
       )}

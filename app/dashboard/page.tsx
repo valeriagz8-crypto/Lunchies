@@ -183,7 +183,7 @@ export default function DashboardPage() {
   ];
 
   return (
-    <PageShell>
+    <PageShell width="max-w-[1280px]">
       {/* Hero */}
       <PageHero
         label={
@@ -194,7 +194,9 @@ export default function DashboardPage() {
         title={
           <>
             {DASHBOARD_HERO.titleLead}{" "}
-            <span className="text-peach-500">{DASHBOARD_HERO.titleAccent}</span>
+            <span className="block text-peach-500">
+              {DASHBOARD_HERO.titleAccent}
+            </span>
           </>
         }
         subtitle={DASHBOARD_HERO.subtitle}
@@ -203,7 +205,7 @@ export default function DashboardPage() {
             src="/images/redesign/hero-product.webp"
             width={560}
             height={510}
-            tone="peach"
+            tone="leaf"
             priority
             note={
               <StickyNote tone="cream">
@@ -223,12 +225,20 @@ export default function DashboardPage() {
         {statTiles.map((tile) => {
           const Icon = tile.icon;
           const body = (
-            <div className="flex items-center gap-3.5">
-              <IconBadge tint={tile.tint} icon={Icon} />
+            <div className="flex w-full min-w-0 items-center gap-2.5 sm:gap-4">
+              <Icon
+                className={`h-7 w-7 shrink-0 sm:h-9 sm:w-9 ${TINT[tile.tint].badgeInk}`}
+                aria-hidden="true"
+                strokeWidth={2.1}
+              />
               <div className="min-w-0">
                 <p
                   className={`font-poppins font-extrabold leading-tight text-leaf-900 ${
-                    tile.pending ? "text-[19px]" : "text-[26px]"
+                    tile.pending
+                      ? "text-[19px] sm:text-[26px]"
+                      : tile.value.length > 9
+                        ? "text-[17px] sm:text-[24px]"
+                        : "text-[30px] sm:text-[40px]"
                   }`}
                 >
                   {tile.pending ? (
@@ -240,13 +250,13 @@ export default function DashboardPage() {
                     tile.value
                   )}
                 </p>
-                <p className="mt-0.5 text-[13px] font-medium leading-snug text-leaf-600">
+                <p className="mt-1 text-[13px] font-medium leading-snug text-leaf-600 sm:text-[16px]">
                   {tile.label}
                 </p>
               </div>
             </div>
           );
-          const shell = `rounded-[28px] border p-5 shadow-card ${TINT[tile.tint].card}`;
+          const shell = `flex h-[132px] items-center rounded-[28px] border px-4 shadow-card sm:h-[150px] sm:px-7 ${TINT[tile.tint].card}`;
           return tile.href ? (
             <Link
               key={tile.label}
@@ -265,8 +275,8 @@ export default function DashboardPage() {
 
       <div className="mt-6 space-y-6">
         {/* Project modules + Testing summary */}
-        <div className="grid items-start gap-6 lg:grid-cols-2">
-          <Card tint="plain" className="p-6 sm:p-8">
+        <div className="grid gap-6 lg:grid-cols-2">
+          <Card tint="plain" className="flex flex-col p-6 sm:p-8">
             <CardHead
               badge={<IconBadge tint="green" icon={BarChart3} />}
               title="Project modules"
@@ -280,30 +290,28 @@ export default function DashboardPage() {
                 <li key={mod.route}>
                   <Link
                     href={mod.route}
-                    className="flex items-center gap-3 py-3 transition-colors hover:text-leaf-600"
+                    title={mod.route}
+                    className="flex items-center gap-3.5 py-[11px] transition-colors hover:text-leaf-600"
                   >
-                    <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-leaf-50 text-leaf-600">
-                      <ModIcon className="h-[18px] w-[18px]" aria-hidden="true" strokeWidth={2.2} />
-                    </span>
-                    <span className="min-w-0 flex-1">
-                      <span className="block font-poppins text-[15px] font-extrabold text-leaf-900">
-                        {mod.name}
-                      </span>
-                      <span className="block font-mono text-[11px] text-leaf-500">
-                        {mod.route}
-                      </span>
+                    <ModIcon
+                      className="h-[22px] w-[22px] shrink-0 text-leaf-600"
+                      aria-hidden="true"
+                      strokeWidth={2.1}
+                    />
+                    <span className="min-w-0 flex-1 font-poppins text-[17px] font-extrabold text-leaf-900">
+                      {mod.name}
                     </span>
                     <span
-                      className={`inline-flex shrink-0 items-center gap-1.5 rounded-full px-3 py-1.5 text-[12px] font-bold ${
+                      className={`inline-flex shrink-0 items-center gap-1.5 rounded-full border px-3.5 py-1.5 text-[13px] font-bold ${
                         mod.status === "Live"
-                          ? "bg-leaf-600 text-white"
-                          : "border border-leaf-200 bg-white text-leaf-500"
+                          ? "border-leaf-200 bg-white text-leaf-700"
+                          : "border-leaf-200 bg-white text-leaf-400"
                       }`}
                     >
                       {mod.status === "Live" ? (
-                        <Sparkles className="h-3 w-3" aria-hidden="true" />
+                        <CheckCircle2 className="h-3.5 w-3.5 text-leaf-600" aria-hidden="true" />
                       ) : (
-                        <CircleDashed className="h-3 w-3" aria-hidden="true" />
+                        <CircleDashed className="h-3.5 w-3.5" aria-hidden="true" />
                       )}
                       {mod.status}
                     </span>
@@ -314,13 +322,13 @@ export default function DashboardPage() {
             </ul>
           </Card>
 
-          <Card id="testing" tint="plain" className="scroll-mt-24 p-6 sm:p-8">
+          <Card id="testing" tint="plain" className="flex scroll-mt-24 flex-col p-6 sm:p-8">
             <CardHead
               badge={<IconBadge tint="green" icon={Users} />}
               title="Testing summary"
               subtitle={TESTING_INTRO}
             />
-            <ul className="mt-5 space-y-3">
+            <ul className="mb-5 mt-5 flex flex-1 flex-col justify-between gap-3">
               {TESTING_ROWS.map((row, index) => {
                 const Icon = TESTING_ICONS[index % TESTING_ICONS.length];
                 return (
@@ -330,10 +338,10 @@ export default function DashboardPage() {
                   >
                     <IconBadge tint="green" size="sm" icon={Icon} />
                     <div className="min-w-0 flex-1">
-                      <p className="font-poppins text-[15px] font-extrabold text-leaf-900">
+                      <p className="font-poppins text-[16px] font-extrabold text-leaf-900">
                         {row.title}
                       </p>
-                      <p className="text-[13px] leading-snug text-leaf-600">
+                      <p className="text-[14px] leading-snug text-leaf-600">
                         {row.description}
                       </p>
                     </div>
@@ -341,7 +349,7 @@ export default function DashboardPage() {
                     <span
                       className={`inline-flex shrink-0 items-center gap-1.5 rounded-full border px-3 py-1.5 text-[12px] font-bold ${
                         row.result
-                          ? "border-leaf-200 bg-leaf-50 text-leaf-700"
+                          ? "border-leaf-600 bg-leaf-600 text-white"
                           : "border-leaf-200 bg-white text-leaf-500"
                       }`}
                     >
@@ -356,7 +364,7 @@ export default function DashboardPage() {
                 );
               })}
             </ul>
-            <p className="mt-4 rounded-2xl bg-cream-100 px-4 py-3 text-[13px] font-medium text-leaf-700">
+            <p className="mt-auto rounded-2xl bg-cream-100 px-4 py-3 text-[13px] font-medium text-leaf-700">
               {TESTING_NOTE}
             </p>
           </Card>
@@ -387,7 +395,7 @@ export default function DashboardPage() {
                       >
                         <Icon className="h-4 w-4" aria-hidden="true" strokeWidth={2.2} />
                       </span>
-                      <p className="mt-2 font-poppins text-[19px] font-extrabold leading-tight text-leaf-900">
+                      <p className="mt-2 whitespace-nowrap font-poppins text-[18px] font-extrabold leading-tight text-leaf-900">
                         {tile.value}
                       </p>
                       <p className="mt-0.5 text-[12px] leading-snug text-leaf-600">

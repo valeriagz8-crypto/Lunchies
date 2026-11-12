@@ -297,3 +297,133 @@ export const DEMO_CTA = {
   button: "Go to the product",
   href: "/product",
 } as const;
+
+/* =======================================================================
+ * Stage 2 — /dashboard
+ * ===================================================================== */
+
+/* ----------------------------------------------------------- dashboard */
+
+export const DASHBOARD_HERO = {
+  eyebrow: "Dashboard",
+  titleLead: "Project overview",
+  titleAccent: "& progress.",
+  subtitle:
+    "Track our product, testing and project milestones in one place.",
+  noteItems: ["Product", "Testing", "Impact", "Next steps"],
+} as const;
+
+export type ModuleStatus = "Live" | "Planned";
+
+export type ProjectModule = {
+  name: string;
+  route: string;
+  status: ModuleStatus;
+};
+
+/**
+ * Single source of truth for the project module list. Every route here is a
+ * real page in app/, so the count of "Live" below is a fact about the
+ * repository rather than a number someone typed.
+ */
+export const PROJECT_MODULES: ProjectModule[] = [
+  { name: "Home", route: "/", status: "Live" },
+  { name: "Core", route: "/core", status: "Live" },
+  { name: "Research", route: "/research", status: "Live" },
+  { name: "Product", route: "/product", status: "Live" },
+  { name: "Pricing", route: "/pricing", status: "Live" },
+  { name: "Marketing", route: "/marketing", status: "Live" },
+  { name: "Chat", route: "/chat", status: "Live" },
+  { name: "Docs", route: "/docs", status: "Live" },
+  { name: "Demo", route: "/demo", status: "Live" },
+  { name: "Dashboard", route: "/dashboard", status: "Live" },
+];
+
+export const PROJECT_MODULES_INTRO =
+  "Status of each integrated page and feature.";
+
+/**
+ * The customer split the /pricing calculator starts from. It is an
+ * assumption, not a sale. Every figure derived from it on /dashboard is
+ * computed with calculateRevenue() from lib/pricing, never written down.
+ */
+export const REVENUE_MODEL_CUSTOMERS = {
+  basic: 150,
+  plus: 100,
+  premium: 50,
+} as const;
+
+export const REVENUE_MODEL_SCENARIO = "base" as const;
+
+export const REVENUE_MODEL_TITLE = "Revenue model (assumptions, not real sales)";
+
+export const REVENUE_MODEL_NOTE =
+  "These figures come from the /pricing calculator running its default customer split on the base scenario. Nothing here has been sold.";
+
+/* ----------------------------------------------- saved records (Supabase) */
+
+export type SavedRecordsTable = {
+  /** The Supabase table name. */
+  table: string;
+  /** How it is shown on the page. */
+  label: string;
+  /** Which module writes to it. */
+  source: string;
+};
+
+/**
+ * The tables /dashboard is allowed to count. review_requests is deliberately
+ * absent: it holds the only personal contact data in the project and is
+ * never read here.
+ */
+export const SAVED_RECORD_TABLES: SavedRecordsTable[] = [
+  { table: "core_outputs", label: "Lunch plans", source: "/core" },
+  { table: "research_notes", label: "Research notes", source: "/research" },
+  { table: "pricing_scenarios", label: "Pricing scenarios", source: "/pricing" },
+  { table: "marketing_assets", label: "Marketing assets", source: "/marketing" },
+  { table: "ab_events", label: "A/B events", source: "/marketing" },
+  { table: "chat_sessions", label: "Chat sessions", source: "/chat" },
+];
+
+export const SAVED_RECORDS_TITLE = "Saved records";
+
+export const SAVED_RECORDS_INTRO =
+  "Live counts and the most recent entries written by each module.";
+
+/**
+ * Shown under the section. The page selects only the columns named in each
+ * preview below, so allergies, preferences, contacts and chat messages are
+ * never requested from the database in the first place.
+ */
+export const SAVED_RECORDS_PRIVACY_NOTE = "Personal data is not shown here.";
+
+export const SAVED_RECORDS_COPY = {
+  loading: "Loading saved records...",
+  empty: "No records saved yet.",
+  error: "Could not load the saved records.",
+  timeout: "The database took too long to answer. Try again in a moment.",
+  countOnly: "Count only — no conversation content is read.",
+} as const;
+
+export const SAVED_RECORDS_PREVIEW_COUNT = 3;
+
+/* --------------------------------------------------------- stat tiles */
+
+export const DASHBOARD_TILE_LABELS = {
+  externalUsers: "external users tested",
+  regression: "site regression test",
+  modules: "modules integrated (live)",
+  roadmap: "development roadmap",
+} as const;
+
+export const DASHBOARD_LINKS = {
+  agentMap: "/demo#agent-map",
+  versionTwo: "/demo#version-2",
+  testing: "/demo#testing",
+} as const;
+
+export const DASHBOARD_AGENT_MAP_INTRO =
+  "The five modules that run in this project today.";
+
+export const DASHBOARD_SEE_FULL = "See the full agent map";
+export const DASHBOARD_SEE_ROADMAP = "See the full roadmap";

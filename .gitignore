@@ -27,3 +27,8 @@ next-env.d.ts
 .vercel
 .env*
 /mockups
+
+# Playwright
+/test-results/
+/playwright-report/
+tests/e2e/.report.json

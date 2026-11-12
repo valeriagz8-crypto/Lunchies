@@ -1,10 +1,16 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import type { ReactNode } from "react";
+import Link from "next/link";
 import { Database, Lock } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import { TIMED_OUT, withTimeout } from "@/lib/requestTimeout";
 import {
+  DATA_LIVES_INTRO,
+  DATA_LIVES_NOTE,
+  DATA_LIVES_ROWS,
+  DATA_LIVES_TITLE,
   SAVED_RECORDS_COPY,
   SAVED_RECORDS_INTRO,
   SAVED_RECORDS_PREVIEW_COUNT,
@@ -49,7 +55,13 @@ function formatInt(value: number): string {
   return new Intl.NumberFormat("en-US").format(value);
 }
 
-export default function SavedRecords() {
+export default function SavedRecords({
+  metricsCard,
+  versionCard,
+}: {
+  metricsCard: ReactNode;
+  versionCard: ReactNode;
+}) {
   const [counts, setCounts] = useState<Counts>({});
   const [core, setCore] = useState<CorePreview[]>([]);
   const [research, setResearch] = useState<ResearchPreview[]>([]);
@@ -189,7 +201,66 @@ export default function SavedRecords() {
     },
   ];
 
+  const liveRows = DATA_LIVES_ROWS.map((row) => {
+    const values = row.tables.map((t) => counts[t]);
+    const known = values.filter((v): v is number => typeof v === "number");
+    return {
+      ...row,
+      total: known.length === values.length ? known.reduce((a, b) => a + b, 0) : null,
+    };
+  });
+
   return (
+    <>
+    <div className="grid items-start gap-6 lg:grid-cols-2">
+      {metricsCard}
+
+      <Card tint="green" className="p-6 sm:p-8">
+        <CardHead
+          badge={<IconBadge tint="green" icon={Database} />}
+          title={DATA_LIVES_TITLE}
+          subtitle={DATA_LIVES_INTRO}
+        />
+        <ul className="mt-5 space-y-2.5">
+          {liveRows.map((row) => (
+            <li key={row.module}>
+              <Link
+                href={row.route}
+                className="flex items-center gap-3 rounded-2xl border border-leaf-100 bg-white p-3.5 transition-transform hover:-translate-y-0.5"
+              >
+                <span className="min-w-0 flex-1">
+                  <span className="block font-poppins text-[14px] font-extrabold leading-tight text-leaf-900">
+                    {row.module}
+                  </span>
+                  <span className="mt-1 flex flex-wrap gap-1.5">
+                    {row.tables.map((t) => (
+                      <span
+                        key={t}
+                        className="inline-flex max-w-full items-center rounded-full bg-leaf-50 px-2 py-0.5 font-mono text-[10.5px] font-semibold text-leaf-700 ring-1 ring-leaf-100"
+                      >
+                        {t}
+                      </span>
+                    ))}
+                  </span>
+                </span>
+                <span className="shrink-0 text-right">
+                  <span className="block font-poppins text-[20px] font-extrabold leading-none text-leaf-900">
+                    {loading ? "…" : row.total === null ? "—" : formatInt(row.total)}
+                  </span>
+                  <span className="block text-[11px] font-medium text-leaf-500">
+                    rows
+                  </span>
+                </span>
+              </Link>
+            </li>
+          ))}
+        </ul>
+        <p className="mt-4 rounded-2xl bg-white/70 px-4 py-3 text-[12px] leading-relaxed text-leaf-600">
+          {DATA_LIVES_NOTE}
+        </p>
+      </Card>
+    </div>
+
     <Card tint="plain" className="scroll-mt-24 p-6 sm:p-8" id="saved-records">
       <CardHead
         badge={<IconBadge tint="green" icon={Database} />}
@@ -300,5 +371,8 @@ export default function SavedRecords() {
         </>
       )}
     </Card>
+
+    {versionCard}
+    </>
   );
 }

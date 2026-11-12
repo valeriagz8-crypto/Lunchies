@@ -1,19 +1,24 @@
 import Link from "next/link";
 import {
   ArrowRight,
-  BarChart3,
   CalendarDays,
+  DollarSign,
+  FileText,
+  Home,
+  Megaphone,
+  MessageCircle,
+  Package,
+  Play,
+  Search,
+  BarChart3,
   CircleDashed,
   ClipboardList,
   Flag,
   Laptop,
   LineChart,
-  MessageCircle,
   Rocket,
-  Share2,
   Sparkles,
   Trophy,
-  UserRound,
   Users,
   Wallet,
 } from "lucide-react";
@@ -33,23 +38,19 @@ import { calculateRevenue, formatMXN } from "@/lib/pricing";
 import { PLANS } from "@/lib/productData";
 import { SCENARIO_LABELS } from "@/lib/pricingAssumptions";
 import {
-  AGENT_MODULES,
-  DASHBOARD_AGENT_MAP_INTRO,
   DASHBOARD_HERO,
   DASHBOARD_LINKS,
-  DASHBOARD_SEE_FULL,
-  DASHBOARD_SEE_ROADMAP,
   DASHBOARD_TILE_LABELS,
+  DASHBOARD_V2_INTRO,
+  DASHBOARD_V2_LINKS,
+  DASHBOARD_V2_TITLE,
   PROJECT_MODULES,
   PROJECT_MODULES_INTRO,
   REVENUE_MODEL_CUSTOMERS,
   REVENUE_MODEL_NOTE,
   REVENUE_MODEL_SCENARIO,
   REVENUE_MODEL_TITLE,
-  ROADMAP_INTRO,
-  ROADMAP_NOTE,
   ROADMAP_PHASES,
-  ROADMAP_STATUS_LABEL,
   TESTING_INTRO,
   TESTING_NOTE,
   TESTING_PENDING_LABEL,
@@ -57,20 +58,20 @@ import {
 } from "@/lib/week6Data";
 import SavedRecords from "./SavedRecords";
 
-const MODULE_ICONS = [
-  CalendarDays,
-  Sparkles,
-  LineChart,
-  UserRound,
-  MessageCircle,
-];
-
 const TESTING_ICONS = [Users, Laptop, ClipboardList];
 
-const ROADMAP_STYLE: { tint: TintName; dot: string }[] = [
-  { tint: "green", dot: "bg-leaf-500" },
-  { tint: "cream", dot: "bg-peach-400" },
-  { tint: "blue", dot: "bg-sky-400" },
+/** One icon per project module, in the order lib/week6Data lists them. */
+const PROJECT_MODULE_ICONS = [
+  Home,
+  CalendarDays,
+  Search,
+  Package,
+  DollarSign,
+  Megaphone,
+  MessageCircle,
+  FileText,
+  Play,
+  BarChart3,
 ];
 
 export default function DashboardPage() {
@@ -221,26 +222,28 @@ export default function DashboardPage() {
         {statTiles.map((tile) => {
           const Icon = tile.icon;
           const body = (
-            <>
-              <IconBadge tint={tile.tint} size="sm" icon={Icon} />
-              <p
-                className={`mt-3 font-poppins font-extrabold leading-tight text-leaf-900 ${
-                  tile.pending ? "text-[20px]" : "text-[26px]"
-                }`}
-              >
-                {tile.pending ? (
-                  <span className="inline-flex items-center gap-1.5 text-leaf-500">
-                    <CircleDashed className="h-4 w-4" aria-hidden="true" />
-                    {tile.value}
-                  </span>
-                ) : (
-                  tile.value
-                )}
-              </p>
-              <p className="mt-0.5 text-[13px] font-medium leading-snug text-leaf-600">
-                {tile.label}
-              </p>
-            </>
+            <div className="flex items-center gap-3.5">
+              <IconBadge tint={tile.tint} icon={Icon} />
+              <div className="min-w-0">
+                <p
+                  className={`font-poppins font-extrabold leading-tight text-leaf-900 ${
+                    tile.pending ? "text-[19px]" : "text-[26px]"
+                  }`}
+                >
+                  {tile.pending ? (
+                    <span className="inline-flex items-center gap-1.5 text-leaf-500">
+                      <CircleDashed className="h-4 w-4 shrink-0" aria-hidden="true" />
+                      {tile.value}
+                    </span>
+                  ) : (
+                    tile.value
+                  )}
+                </p>
+                <p className="mt-0.5 text-[13px] font-medium leading-snug text-leaf-600">
+                  {tile.label}
+                </p>
+              </div>
+            </div>
           );
           const shell = `rounded-[28px] border p-5 shadow-card ${TINT[tile.tint].card}`;
           return tile.href ? (
@@ -269,13 +272,19 @@ export default function DashboardPage() {
               subtitle={PROJECT_MODULES_INTRO}
             />
             <ul className="mt-5 divide-y divide-leaf-100">
-              {PROJECT_MODULES.map((mod) => (
+              {PROJECT_MODULES.map((mod, index) => {
+                const ModIcon =
+                  PROJECT_MODULE_ICONS[index % PROJECT_MODULE_ICONS.length];
+                return (
                 <li key={mod.route}>
                   <Link
                     href={mod.route}
-                    className="flex items-center justify-between gap-3 py-3 transition-colors hover:text-leaf-600"
+                    className="flex items-center gap-3 py-3 transition-colors hover:text-leaf-600"
                   >
-                    <span className="min-w-0">
+                    <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-leaf-50 text-leaf-600">
+                      <ModIcon className="h-[18px] w-[18px]" aria-hidden="true" strokeWidth={2.2} />
+                    </span>
+                    <span className="min-w-0 flex-1">
                       <span className="block font-poppins text-[15px] font-extrabold text-leaf-900">
                         {mod.name}
                       </span>
@@ -299,7 +308,8 @@ export default function DashboardPage() {
                     </span>
                   </Link>
                 </li>
-              ))}
+                );
+              })}
             </ul>
           </Card>
 
@@ -340,162 +350,76 @@ export default function DashboardPage() {
           </Card>
         </div>
 
-        {/* Saved records — live Supabase data */}
-        <SavedRecords />
-
-        {/* Revenue model + Agent map */}
-        <div className="grid items-start gap-6 lg:grid-cols-2">
-          <Card tint="plain" className="p-6 sm:p-8">
-            <CardHead
-              badge={<IconBadge tint="cream" icon={LineChart} />}
-              titleClassName="text-[20px] sm:text-[22px]"
-              title={REVENUE_MODEL_TITLE}
-              subtitle="Main project indicators."
-            />
-            <div className="mt-5 grid gap-3 sm:grid-cols-3">
-              {metricTiles.map((tile) => {
-                const Icon = tile.icon;
-                return (
-                  <div
-                    key={tile.label}
-                    className={`rounded-2xl border p-4 text-center ${TINT[tile.tint].card}`}
-                  >
-                    <span
-                      className={`mx-auto flex h-9 w-9 items-center justify-center rounded-full bg-white/80 ${TINT[tile.tint].badgeInk}`}
+        {/* Key metrics beside Where the data lives, then Saved records and
+            the Version 2 links. The counts are fetched once, in the client
+            component, so the metrics card is handed to it as a prop. */}
+        <SavedRecords
+          metricsCard={
+            <Card tint="plain" className="p-6 sm:p-8">
+              <CardHead
+                badge={<IconBadge tint="cream" icon={LineChart} />}
+                titleClassName="text-[20px] sm:text-[22px]"
+                title={REVENUE_MODEL_TITLE}
+                subtitle="Main project indicators."
+              />
+              <div className="mt-5 grid gap-3 sm:grid-cols-3">
+                {metricTiles.map((tile) => {
+                  const Icon = tile.icon;
+                  return (
+                    <div
+                      key={tile.label}
+                      className={`rounded-2xl border p-4 text-center ${TINT[tile.tint].card}`}
                     >
-                      <Icon className="h-4 w-4" aria-hidden="true" strokeWidth={2.2} />
-                    </span>
-                    <p className="mt-2 font-poppins text-[19px] font-extrabold leading-tight text-leaf-900">
-                      {tile.value}
-                    </p>
-                    <p className="mt-0.5 text-[12px] leading-snug text-leaf-600">
-                      {tile.label}
-                    </p>
-                  </div>
-                );
-              })}
-            </div>
-            <p className="mt-4 rounded-2xl bg-cream-100 px-4 py-3 text-[13px] font-medium text-leaf-700">
-              {REVENUE_MODEL_NOTE}
-            </p>
-            <Link
-              href="/pricing"
-              className="mt-4 inline-flex items-center gap-2 text-[14px] font-bold text-leaf-700 hover:text-peach-600"
-            >
-              Open the calculator
-              <ArrowRight className="h-4 w-4" aria-hidden="true" />
-            </Link>
-          </Card>
-
-          <Card tint="green" className="p-6 sm:p-8">
-            <CardHead
-              badge={<IconBadge tint="green" icon={Share2} />}
-              title="Agent map"
-              subtitle={DASHBOARD_AGENT_MAP_INTRO}
-            />
-            <ul className="mt-5 space-y-2.5">
-              {AGENT_MODULES.map((mod, index) => {
-                const Icon = MODULE_ICONS[index % MODULE_ICONS.length];
-                return (
-                  <li key={mod.name}>
-                    <Link
-                      href={mod.route}
-                      className="flex items-center gap-3 rounded-2xl border border-leaf-100 bg-white p-3.5 transition-transform hover:-translate-y-0.5"
-                    >
-                      <IconBadge tint="green" size="sm" icon={Icon} />
-                      <span className="min-w-0 flex-1">
-                        <span className="block font-poppins text-[15px] font-extrabold text-leaf-900">
-                          {mod.name}
-                        </span>
-                        <span className="block truncate text-[12px] text-leaf-600">
-                          {mod.tables.join(", ")}
-                        </span>
-                      </span>
-                      <span className="hidden shrink-0 font-mono text-[11px] text-leaf-500 sm:inline">
-                        {mod.route}
-                      </span>
-                    </Link>
-                  </li>
-                );
-              })}
-            </ul>
-            <Link
-              href={DASHBOARD_LINKS.agentMap}
-              className="mt-4 inline-flex items-center gap-2 text-[14px] font-bold text-leaf-700 hover:text-peach-600"
-            >
-              {DASHBOARD_SEE_FULL}
-              <ArrowRight className="h-4 w-4" aria-hidden="true" />
-            </Link>
-          </Card>
-        </div>
-
-        {/* Version 2 roadmap */}
-        <Card tint="plain" className="p-6 sm:p-8">
-          <CardHead
-            badge={<IconBadge tint="blue" icon={Flag} />}
-            title="Version 2 roadmap"
-            subtitle={ROADMAP_INTRO}
-          />
-          <div className="mt-5 grid gap-4 lg:grid-cols-3">
-            {ROADMAP_PHASES.map((phase, index) => {
-              const style = ROADMAP_STYLE[index % ROADMAP_STYLE.length];
-              return (
-                <div
-                  key={phase.id}
-                  className={`rounded-3xl border p-5 ${TINT[style.tint].card}`}
-                >
-                  <div className="flex flex-wrap items-center gap-2">
-                    <span
-                      aria-hidden="true"
-                      className={`h-2.5 w-2.5 rounded-full ${style.dot}`}
-                    />
-                    <h3 className="font-poppins text-[18px] font-extrabold text-leaf-900">
-                      {phase.id}
-                    </h3>
-                    <span className="text-[13px] font-semibold text-leaf-600">
-                      ({phase.term})
-                    </span>
-                  </div>
-                  <span className="mt-2 inline-flex items-center gap-1.5 rounded-full border border-leaf-200 bg-white/80 px-2.5 py-1 text-[11px] font-bold text-leaf-500">
-                    <CircleDashed className="h-3 w-3" aria-hidden="true" />
-                    {ROADMAP_STATUS_LABEL}
-                  </span>
-                  <ul className="mt-3 space-y-2">
-                    {phase.items.map((item) => (
-                      <li
-                        key={item.label}
-                        className="flex items-start gap-2.5 text-[14px] leading-snug text-leaf-800"
+                      <span
+                        className={`mx-auto flex h-9 w-9 items-center justify-center rounded-full bg-white/80 ${TINT[tile.tint].badgeInk}`}
                       >
-                        <span
-                          aria-hidden="true"
-                          className="mt-[7px] h-1.5 w-1.5 shrink-0 rounded-full bg-leaf-400"
-                        />
-                        <span>
-                          {item.label}
-                          {item.note && (
-                            <span className="ml-2 inline-flex rounded-full bg-white/80 px-2 py-0.5 text-[11px] font-bold text-peach-600">
-                              {item.note}
-                            </span>
-                          )}
-                        </span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              );
-            })}
-          </div>
-          <p className="mt-4 rounded-2xl bg-cream-100 px-4 py-3 text-[13px] font-medium text-leaf-700">
-            {ROADMAP_NOTE}
-          </p>
-          <Link
-            href={DASHBOARD_LINKS.versionTwo}
-            className="mt-4 inline-flex items-center gap-2 text-[14px] font-bold text-leaf-700 hover:text-peach-600"
-          >
-            {DASHBOARD_SEE_ROADMAP}
-            <ArrowRight className="h-4 w-4" aria-hidden="true" />
-          </Link>
-        </Card>
+                        <Icon className="h-4 w-4" aria-hidden="true" strokeWidth={2.2} />
+                      </span>
+                      <p className="mt-2 font-poppins text-[19px] font-extrabold leading-tight text-leaf-900">
+                        {tile.value}
+                      </p>
+                      <p className="mt-0.5 text-[12px] leading-snug text-leaf-600">
+                        {tile.label}
+                      </p>
+                    </div>
+                  );
+                })}
+              </div>
+              <p className="mt-4 rounded-2xl bg-cream-100 px-4 py-3 text-[13px] font-medium text-leaf-700">
+                {REVENUE_MODEL_NOTE}
+              </p>
+              <Link
+                href="/pricing"
+                className="mt-4 inline-flex items-center gap-2 text-[14px] font-bold text-leaf-700 hover:text-peach-600"
+              >
+                Open the calculator
+                <ArrowRight className="h-4 w-4" aria-hidden="true" />
+              </Link>
+            </Card>
+          }
+          versionCard={
+            <Card tint="plain" className="p-6 sm:p-8">
+              <CardHead
+                badge={<IconBadge tint="blue" icon={Flag} />}
+                title={DASHBOARD_V2_TITLE}
+                subtitle={DASHBOARD_V2_INTRO}
+              />
+              <div className="mt-5 grid gap-3 sm:grid-cols-2">
+                {DASHBOARD_V2_LINKS.map((link) => (
+                  <Link
+                    key={link.href}
+                    href={link.href}
+                    className="flex items-center justify-between gap-3 rounded-2xl border border-leaf-100 bg-leaf-50/60 px-5 py-4 font-poppins text-[15px] font-extrabold text-leaf-900 transition-transform hover:-translate-y-0.5"
+                  >
+                    {link.label}
+                    <ArrowRight className="h-4 w-4 shrink-0 text-leaf-500" aria-hidden="true" />
+                  </Link>
+                ))}
+              </div>
+            </Card>
+          }
+        />
+
       </div>
     </PageShell>
   );

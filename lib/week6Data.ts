@@ -442,3 +442,39 @@ export const DASHBOARD_AGENT_MAP_INTRO =
 
 export const DASHBOARD_SEE_FULL = "See the full agent map";
 export const DASHBOARD_SEE_ROADMAP = "See the full roadmap";
+
+/* ----------------------------------------------- where the data lives */
+
+/**
+ * /dashboard shows counts per module; /demo describes what each module does.
+ * The two pages deliberately carry different information about the same five
+ * modules.
+ */
+export const DATA_LIVES_TITLE = "Where the data lives";
+
+export const DATA_LIVES_INTRO =
+  "Each module and the rows it has written so far.";
+
+export const DATA_LIVES_NOTE =
+  "review_requests is not counted here. It holds the only personal contact data in the project and this page never reads it.";
+
+/** Module name -> the tables counted for it, in the module list order. */
+export const DATA_LIVES_ROWS: { module: string; route: string; tables: string[] }[] = [
+  { module: "Core planner", route: "/core", tables: ["core_outputs"] },
+  { module: "Research", route: "/research", tables: ["research_notes"] },
+  { module: "Pricing", route: "/pricing", tables: ["pricing_scenarios"] },
+  { module: "Marketing", route: "/marketing", tables: ["marketing_assets", "ab_events"] },
+  { module: "Chat assistant", route: "/chat", tables: ["chat_sessions"] },
+];
+
+/* --------------------------------------------- version 2 link card */
+
+export const DASHBOARD_V2_TITLE = "Version 2";
+
+export const DASHBOARD_V2_INTRO =
+  "The roadmap and the full agent map live on the demo walkthrough.";
+
+export const DASHBOARD_V2_LINKS = [
+  { label: "Version 2 roadmap", href: "/demo#version-2" },
+  { label: "Agent map", href: "/demo#agent-map" },
+] as const;

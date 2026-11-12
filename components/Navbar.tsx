@@ -21,7 +21,7 @@ export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
-    <header className="sticky top-0 z-10 border-b border-leaf-100 bg-white/90 backdrop-blur">
+    <header className="sticky top-0 z-10 border-b border-cream-200 bg-cream-50/90 backdrop-blur">
       <nav className="mx-auto flex max-w-5xl items-center justify-between px-4 py-4 sm:px-6">
         <Link href="/" className="text-lg font-bold text-leaf-700">
           Lunchies 🍎
@@ -80,7 +80,7 @@ export default function Navbar() {
         </button>
       </nav>
       {isOpen && (
-        <ul className="flex flex-col gap-1 border-t border-leaf-100 px-4 py-4 text-sm font-medium text-leaf-800 lg:hidden">
+        <ul className="flex flex-col gap-1 border-t border-cream-200 bg-cream-50 px-4 py-4 text-sm font-medium text-leaf-800 lg:hidden">
           {links.map((link) => {
             const isActive = pathname === link.href;
             return (

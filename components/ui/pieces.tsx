@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 import Image from "next/image";
-import type { LucideIcon } from "lucide-react";
+import { ArrowRight, Check, type LucideIcon } from "lucide-react";
 import {
   CARD,
   CARD_SUBTITLE,
@@ -336,6 +336,7 @@ export function HeroArt({
   priority = false,
   className = "",
   glyph,
+  note,
 }: {
   src: string;
   width: number;
@@ -344,6 +345,8 @@ export function HeroArt({
   priority?: boolean;
   className?: string;
   glyph?: ReactNode;
+  /** The taped sticky note the mockups pin beside the illustration. */
+  note?: ReactNode;
 }) {
   return (
     <div
@@ -373,8 +376,15 @@ export function HeroArt({
         height={height}
         priority={priority}
         aria-hidden="true"
-        className="relative max-h-[230px] w-[88%] max-w-[370px] object-contain drop-shadow-[0_18px_28px_rgba(61,48,34,0.18)] sm:max-h-[260px]"
+        className={`relative max-h-[230px] object-contain drop-shadow-[0_18px_28px_rgba(61,48,34,0.18)] sm:max-h-[260px] ${
+          note ? "w-[72%] max-w-[300px] -translate-x-[8%]" : "w-[88%] max-w-[370px]"
+        }`}
       />
+      {note && (
+        <div className="absolute right-0 top-1/2 w-[42%] max-w-[170px] -translate-y-1/2 sm:-translate-y-[55%]">
+          {note}
+        </div>
+      )}
     </div>
   );
 }
@@ -486,5 +496,126 @@ export function TagPill({
     >
       {children}
     </span>
+  );
+}
+
+/* ----------------------------------------------------------- sticky note */
+
+/**
+ * The taped sticky note the mockups pin beside each hero illustration.
+ * Decorative framing for a short line of copy; it carries no claim and no
+ * data. Drawn entirely in CSS — the mockup crop could not be used because it
+ * contains text.
+ */
+export function StickyNote({
+  children,
+  tone = "pink",
+  className = "",
+}: {
+  children: ReactNode;
+  tone?: "pink" | "cream";
+  className?: string;
+}) {
+  const skin =
+    tone === "cream"
+      ? "bg-[#fdf3e3] text-amber-800"
+      : "bg-[#fde6e6] text-rose-500";
+  return (
+    <div
+      className={`pointer-events-none relative rotate-[4deg] rounded-2xl px-5 py-4 shadow-[0_14px_30px_-16px_rgba(61,48,34,0.45)] ${skin} ${className}`}
+    >
+      {/* washi tape */}
+      <span
+        aria-hidden="true"
+        className="absolute -top-3 left-1/2 h-6 w-16 -translate-x-1/2 -rotate-3 rounded-[3px] bg-amber-200/70"
+      />
+      <div className="font-caveat text-[20px] font-semibold leading-tight sm:text-[23px]">
+        {children}
+      </div>
+    </div>
+  );
+}
+
+/** One ticked line inside a sticky note. */
+export function NoteTick({ children }: { children: ReactNode }) {
+  return (
+    <span className="flex items-center gap-2">
+      <Check className="h-4 w-4 shrink-0" aria-hidden="true" strokeWidth={3} />
+      {children}
+    </span>
+  );
+}
+
+/* ------------------------------------------------------ in-page anchors */
+
+/**
+ * A pill that scrolls to a section already on the page. Navigation only: it
+ * never reveals anything the page was not already showing.
+ */
+export function AnchorButton({
+  href,
+  children,
+  tone = "primary",
+}: {
+  href: string;
+  children: ReactNode;
+  tone?: "primary" | "quiet";
+}) {
+  const skin =
+    tone === "quiet"
+      ? "border border-leaf-200 bg-white text-leaf-700 hover:bg-leaf-50"
+      : "bg-leaf-700 text-white shadow-btn hover:bg-leaf-800";
+  return (
+    <a
+      href={href}
+      className={`mt-6 inline-flex items-center gap-2 rounded-full px-7 py-3.5 text-[15px] font-bold transition-colors ${skin}`}
+    >
+      {children}
+      <ArrowRight className="h-4 w-4" aria-hidden="true" />
+    </a>
+  );
+}
+
+/** Row of tinted chips that scroll to sections already on the page. */
+export function ChipNav({
+  children,
+  className = "",
+}: {
+  children: ReactNode;
+  className?: string;
+}) {
+  return (
+    <nav className={`grid gap-3 sm:grid-cols-2 lg:grid-cols-5 ${className}`}>
+      {children}
+    </nav>
+  );
+}
+
+export function NavChip({
+  href,
+  tint = "green",
+  icon: Icon,
+  children,
+}: {
+  href: string;
+  tint?: TintName;
+  icon?: LucideIcon;
+  children: ReactNode;
+}) {
+  return (
+    <a
+      href={href}
+      className={`flex items-center gap-2.5 rounded-2xl border px-3.5 py-3 text-[13px] font-bold leading-tight text-leaf-900 shadow-card transition-transform hover:-translate-y-0.5 ${TINT[tint].card}`}
+    >
+      {Icon && (
+        <span
+          className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full ${TINT[tint].badge} ${TINT[tint].badgeInk}`}
+        >
+          <Icon className="h-[18px] w-[18px]" aria-hidden="true" strokeWidth={2.2} />
+        </span>
+      )}
+      <span className="min-w-0 flex-1">{children}</span>
+      <ArrowRight className="h-4 w-4 shrink-0 text-leaf-500" aria-hidden="true" />
+    </a>
   );
 }

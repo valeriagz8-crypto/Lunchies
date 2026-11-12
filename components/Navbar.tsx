@@ -22,11 +22,11 @@ export default function Navbar() {
 
   return (
     <header className="sticky top-0 z-10 border-b border-cream-200 bg-cream-50/90 backdrop-blur">
-      <nav className="mx-auto flex max-w-5xl items-center justify-between px-4 py-4 sm:px-6">
-        <Link href="/" className="text-lg font-bold text-leaf-700">
+      <nav className="mx-auto flex max-w-5xl items-center justify-between px-5 py-3.5 sm:px-6">
+        <Link href="/" className="font-poppins text-[22px] font-extrabold tracking-tight text-leaf-800">
           Lunchies 🍎
         </Link>
-        <ul className="hidden items-center gap-1 text-sm font-medium text-leaf-800 lg:flex">
+        <ul className="hidden items-center gap-0.5 text-[15px] font-semibold text-[#1f3c57] lg:flex">
           {links.map((link) => {
             const isActive = pathname === link.href;
             return (
@@ -36,8 +36,8 @@ export default function Navbar() {
                   aria-current={isActive ? "page" : undefined}
                   className={
                     isActive
-                      ? "block rounded-full bg-leaf-100 px-3 py-1.5 font-semibold text-leaf-700"
-                      : "block rounded-full px-3 py-1.5 transition-colors hover:bg-leaf-50 hover:text-leaf-700"
+                      ? "block rounded-xl bg-leaf-100 px-3.5 py-2 font-bold text-leaf-700 shadow-[inset_0_-2px_0_0_#2f7d49]"
+                      : "block rounded-xl px-3.5 py-2 transition-colors hover:bg-leaf-50 hover:text-leaf-700"
                   }
                 >
                   {link.label}
@@ -49,7 +49,7 @@ export default function Navbar() {
         <div className="hidden lg:block">
           <Link
             href="/core"
-            className="rounded-full bg-leaf-600 px-5 py-2.5 text-sm font-semibold text-white shadow-soft transition-colors hover:bg-leaf-700"
+            className="rounded-full bg-leaf-700 px-7 py-3 text-[15px] font-bold text-white shadow-btn transition-colors hover:bg-leaf-800"
           >
             Get started
           </Link>
@@ -80,7 +80,7 @@ export default function Navbar() {
         </button>
       </nav>
       {isOpen && (
-        <ul className="flex flex-col gap-1 border-t border-cream-200 bg-cream-50 px-4 py-4 text-sm font-medium text-leaf-800 lg:hidden">
+        <ul className="flex flex-col gap-1 border-t border-cream-200 bg-cream-50 px-4 py-4 text-[15px] font-semibold text-[#1f3c57] lg:hidden">
           {links.map((link) => {
             const isActive = pathname === link.href;
             return (
@@ -91,8 +91,8 @@ export default function Navbar() {
                   onClick={() => setIsOpen(false)}
                   className={
                     isActive
-                      ? "block rounded-full bg-leaf-100 px-3 py-2 font-semibold text-leaf-700"
-                      : "block rounded-full px-3 py-2 transition-colors hover:bg-leaf-50 hover:text-leaf-700"
+                      ? "block rounded-xl bg-leaf-100 px-3.5 py-2.5 font-bold text-leaf-700"
+                      : "block rounded-xl px-3.5 py-2.5 transition-colors hover:bg-leaf-50 hover:text-leaf-700"
                   }
                 >
                   {link.label}
@@ -104,7 +104,7 @@ export default function Navbar() {
             <Link
               href="/core"
               onClick={() => setIsOpen(false)}
-              className="block rounded-full bg-leaf-600 px-5 py-2.5 text-center text-sm font-semibold text-white shadow-soft transition-colors hover:bg-leaf-700"
+              className="block rounded-full bg-leaf-700 px-5 py-3 text-center text-[15px] font-bold text-white shadow-btn transition-colors hover:bg-leaf-800"
             >
               Get started
             </Link>

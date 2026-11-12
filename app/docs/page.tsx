@@ -3,8 +3,11 @@ import {
   BookOpen,
   Database,
   FileText,
+  GitCommitHorizontal,
   Layers,
   MessageCircle,
+  Megaphone,
+  Presentation,
   Route,
   Workflow,
 } from "lucide-react";
@@ -18,6 +21,7 @@ import {
   PageHero,
   PageShell,
 } from "@/components/ui/pieces";
+import { BUILD_LOG, BUILD_LOG_TOTAL } from "@/lib/week6Data";
 
 /** Shared classes for the bulleted and numbered lists on this page. */
 const LIST = "docs-list mt-4 space-y-2.5 text-leaf-800";
@@ -160,6 +164,33 @@ export default function DocsPage() {
               <Link href="/docs" className={ROUTE_LINK}>/docs</Link>{" "}
               — this page.
             </li>
+            <li>
+              <Link href="/demo" className={ROUTE_LINK}>/demo</Link>{" "}
+              — Week 6, the guided walkthrough: product tour, agent map,
+              practical impact, testing step and the Version 2 roadmap.
+            </li>
+            <li>
+              <Link href="/dashboard" className={ROUTE_LINK}>
+                /dashboard
+              </Link>{" "}
+              — Week 6, project status: module list, the full testing
+              summary, the revenue model and the saved record counts.
+            </li>
+          </ul>
+
+          <h3 className={SUBHEAD}>Redirects</h3>
+          <ul className={LIST}>
+            <li>
+              <code className={CODE}>/about</code>,{" "}
+              <code className={CODE}>/how-it-works</code>,{" "}
+              <code className={CODE}>/plans</code> and{" "}
+              <code className={CODE}>/roadmap</code> were placeholder pages
+              that nothing linked to. They now redirect permanently to{" "}
+              <code className={CODE}>/</code>,{" "}
+              <code className={CODE}>/#how-it-works</code>,{" "}
+              <code className={CODE}>/product</code> and{" "}
+              <code className={CODE}>/demo#version-2</code>.
+            </li>
           </ul>
         </Card>
 
@@ -215,6 +246,47 @@ export default function DocsPage() {
               rules with no external AI API, refuses medical questions, hands
               anything it cannot answer to a person, and saves the
               conversation to Supabase.
+            </li>
+            <li>
+              <strong>Week 6 — Redesign from the mockups:</strong> Take the
+              five images in <code className={CODE}>mockups/redesign/</code> as
+              the visual spec and rebuild the look of /core, /product,
+              /research, /pricing and /docs to match them, changing only how
+              the pages look: no text, number, label, price, plan name,
+              feature name, table row, link, query, validation or test may
+              change, and where a mockup disagrees with the site the site
+              wins.
+            </li>
+            <li>
+              <strong>Week 6 — Guided walkthrough (/demo):</strong> Build
+              /demo from <code className={CODE}>mockups/demo.png</code> with a
+              product tour whose cards are badged Live or Planned according to
+              what the code really does, an agent map of only the real
+              modules, a practical impact section written as intention with a
+              risks and limits block, a short testing step and a Version 2
+              roadmap where every item is marked as an idea.
+            </li>
+            <li>
+              <strong>Week 6 — Project dashboard (/dashboard):</strong> Build
+              /dashboard from{" "}
+              <code className={CODE}>mockups/dashboard.png</code> with stat
+              tiles and a module list computed from the real data rather than
+              typed, the full testing summary, the revenue model computed by
+              the same function /pricing uses, and live record counts that
+              never read contacts, chat messages, allergies or preferences.
+            </li>
+            <li>
+              <strong>Week 6 — Full-site regression test:</strong> Add
+              Playwright and a <code className={CODE}>npm run test:regression</code>{" "}
+              script that builds the site, serves it and checks every route at
+              1280 and 390: status, heading, console errors, horizontal
+              scroll, every navbar link, the section anchors, the privacy of
+              /dashboard and one flow per module, leaving no data behind.
+            </li>
+            <li>
+              <strong>Week 6 — Redirects:</strong> Turn the four orphan
+              routes that nothing linked to into permanent redirects to the
+              pages that cover the subject, and delete their placeholders.
             </li>
           </ol>
         </Card>
@@ -277,7 +349,34 @@ export default function DocsPage() {
               even by the page that wrote it. Deletes are again limited to{" "}
               <code className={CODE}>is_test</code> rows.
             </li>
+            <li>
+              <strong>core_outputs:</strong> the README describes running the
+              table&apos;s RLS policies for insert, select and delete. The SQL
+              itself is not in the repository.
+            </li>
+            <li>
+              <strong>research_notes:</strong> the README carries the SQL,
+              which enables row level security and creates a public insert
+              policy and a public select policy. It contains no delete policy.
+            </li>
+            <li>
+              <strong>pricing_scenarios:</strong> not documented in repo. The
+              code only inserts and selects.
+            </li>
+            <li>
+              <strong>ab_events:</strong> not documented in repo. The code
+              only inserts and selects.
+            </li>
+            <li>
+              <strong>marketing_assets:</strong> not documented in repo. The
+              code inserts, selects and deletes.
+            </li>
           </ul>
+          <p className="mt-3 text-[13px] text-leaf-600">
+            Where a table is marked &quot;not documented in repo&quot;, the
+            policy exists only in the Supabase project and cannot be read from
+            here. What the code does is listed instead, because that can.
+          </p>
         </Card>
 
         <Card tint="pink" className="p-6 sm:p-8">
@@ -409,6 +508,268 @@ export default function DocsPage() {
             <li>Medical or nutritional advice.</li>
             <li>Voice input and voice replies.</li>
           </ul>
+        </Card>
+
+        <Card tint="cream" className="p-6 sm:p-8">
+          <CardHead
+            badge={<IconBadge tint="cream" icon={Megaphone} />}
+            title="Week 4 — the /marketing engine"
+          />
+          <p className="mt-4 text-leaf-800">
+            A tabbed dashboard that holds the whole go-to-market kit. Like the
+            rest of the project it runs on fixed data in{" "}
+            <code className={CODE}>lib/marketingData.ts</code>: nothing on the
+            page is generated by an external service.
+          </p>
+
+          <h3 className={SUBHEAD}>The nine tabs</h3>
+          <ul className={LIST}>
+            <li>
+              <strong>Overview</strong> — a card per section, each linking to
+              its tab.
+            </li>
+            <li>
+              <strong>Brand System</strong> — the palette, the type choices
+              and the voice rules.
+            </li>
+            <li>
+              <strong>Target Persona</strong> — the parent the product is
+              written for, with needs and objections.
+            </li>
+            <li>
+              <strong>Landing Copy</strong> — headline, subheadline, benefits
+              and the call to action.
+            </li>
+            <li>
+              <strong>Social Posts</strong> — 10 posts, each with a copy
+              button.
+            </li>
+            <li>
+              <strong>Video Scripts</strong> — 3 scripts broken into shots.
+            </li>
+            <li>
+              <strong>Campaign Calendar</strong> — a 14-day plan, one row per
+              day.
+            </li>
+            <li>
+              <strong>A/B Testing</strong> — two live tests, described below.
+            </li>
+            <li>
+              <strong>Saved Assets</strong> — the library described below.
+            </li>
+          </ul>
+
+          <h3 className={SUBHEAD}>A/B testing</h3>
+          <ul className={LIST}>
+            <li>
+              Two tests run on the page. Every view and every click is written
+              to <code className={CODE}>ab_events</code> as one row carrying{" "}
+              <code className={CODE}>test_name</code>,{" "}
+              <code className={CODE}>variant</code> and{" "}
+              <code className={CODE}>event_type</code>.
+            </li>
+            <li>
+              Results are read back and shown as vote share per variant. When
+              the two variants tie, no leader is declared.
+            </li>
+            <li>
+              The winning headline is applied to the homepage hero, so the
+              test changes something real rather than only reporting.
+            </li>
+            <li>
+              Every Supabase call on the page is wrapped in the same 8 second
+              timeout the rest of the project uses.
+            </li>
+          </ul>
+
+          <h3 className={SUBHEAD}>Saved assets and export</h3>
+          <ul className={LIST}>
+            <li>
+              Any card can be saved to{" "}
+              <code className={CODE}>marketing_assets</code> with a title, an
+              asset type and its content. An asset with an empty title or
+              empty content is rejected before it is sent.
+            </li>
+            <li>
+              Saved assets are listed, can be copied and can be deleted again
+              from the browser.
+            </li>
+            <li>
+              The whole kit exports as one Markdown file containing all 10
+              social posts, the 3 video scripts and the 14 calendar days.
+            </li>
+            <li>
+              8 automated tests cover this page: the save, load and delete
+              round trip, the empty-field rejection, the A/B event round trip,
+              the export contents, the conversion maths, the fixed variant
+              wording, the vote share and the tie case.
+            </li>
+          </ul>
+        </Card>
+
+        <Card tint="blue" className="p-6 sm:p-8">
+          <CardHead
+            badge={<IconBadge tint="blue" icon={Presentation} />}
+            title="Week 6 — /demo, /dashboard and the regression test"
+          />
+          <p className="mt-4 text-leaf-800">
+            Week 6 added two pages and a test suite, and rebuilt the look of
+            the five project pages against the mockups in{" "}
+            <code className={CODE}>mockups/</code>. The two new pages split the
+            subject deliberately: /demo explains how the project works,
+            /dashboard reports where it stands.
+          </p>
+
+          <h3 className={SUBHEAD}>
+            <Link href="/demo" className={ROUTE_LINK}>/demo</Link> — the
+            guided walkthrough
+          </h3>
+          <ul className={LIST}>
+            <li>
+              A product tour of five steps. Plan and Personalize carry a{" "}
+              <strong>Live</strong> badge because the /core planner really
+              generates and filters a 5-day plan today. Shop, Cook and Track
+              carry a <strong>Planned</strong> badge: no shopping list, no
+              recipe feature and no child profiles exist in the code. Each
+              badge is shown with the evidence for it.
+            </li>
+            <li>
+              An agent map of the five modules that are real routes: the Core
+              planner, Research, Pricing, Marketing and the Chat assistant.
+              For each one it gives what it receives, what it produces, the
+              Supabase tables it writes to and the point where a person has to
+              step in. Nutrition, Shopping, Recipe and Profile modules are not
+              drawn, because they do not exist.
+            </li>
+            <li>
+              The modules run on fixed rules and the data in this repository.
+              There is no external AI API, so the same input always produces
+              the same output.
+            </li>
+            <li>
+              A practical impact section written as intention, not as
+              measurement: healthier habits, time savings and more
+              personalization, with a line saying plainly that nothing has
+              been measured yet.
+            </li>
+            <li>
+              A risks and limits block: allergy mistakes are the most serious
+              risk, children&apos;s data deserves care, no medical advice is
+              given, plans are suggestions a parent must review, and there are
+              no real orders or payments.
+            </li>
+            <li>
+              A short testing step and a Version 2 roadmap where every item is
+              labelled an idea that has not been built.
+            </li>
+          </ul>
+
+          <h3 className={SUBHEAD}>
+            <Link href="/dashboard" className={ROUTE_LINK}>/dashboard</Link> —
+            project status
+          </h3>
+          <ul className={LIST}>
+            <li>
+              Four stat tiles. The two testing tiles read the same empty
+              fields the testing summary uses, so they say{" "}
+              <strong>Pending</strong>; the module count and the roadmap count
+              are computed from the lists themselves.
+            </li>
+            <li>
+              The ten project modules, each with its route and a status badge.
+            </li>
+            <li>
+              The full testing summary, at{" "}
+              <code className={CODE}>#testing</code>. It is the only place the
+              three testing rows appear, and all three are Pending.
+            </li>
+            <li>
+              A revenue model computed by the same{" "}
+              <code className={CODE}>calculateRevenue()</code> the /pricing
+              calculator calls, labelled as assumptions rather than sales.
+            </li>
+            <li>
+              Live record counts for the six tables the page may read, with
+              the most recent entries from four of them. It shows the date and
+              the child&apos;s age for a saved plan, never the allergies or
+              preferences; for the chat it shows the count only.{" "}
+              <code className={CODE}>review_requests</code> is never queried,
+              and the queries ask only for the columns that are displayed.
+            </li>
+          </ul>
+
+          <h3 className={SUBHEAD}>The full-site regression test</h3>
+          <ul className={LIST}>
+            <li>
+              Playwright, run with{" "}
+              <code className={CODE}>npm run test:regression</code>. It builds
+              the site, serves the production build on its own port and runs
+              the checks against it.{" "}
+              <code className={CODE}>npm test</code> is unchanged and still
+              runs only the Vitest unit tests.
+            </li>
+            <li>
+              At 1280 and 390 it checks that every route in the navbar returns
+              200, renders its heading, logs no console error and does not
+              scroll sideways.
+            </li>
+            <li>
+              It clicks every navbar link in the desktop bar and in the mobile
+              menu, and the Get started button, and checks where each one
+              lands.
+            </li>
+            <li>
+              It checks the /demo section anchors, /dashboard#testing and
+              #saved-records, that the record counts render, and that no email
+              address, phone number, allergen or allergies wording appears on
+              /dashboard.
+            </li>
+            <li>
+              It exercises one flow per module, chosen so nothing is left
+              behind: /core generates a plan without saving it, /research
+              filters and resets, /pricing moves a slider and resets,
+              /marketing switches a tab, and /chat runs with{" "}
+              <code className={CODE}>?test=1</code> so its row is marked{" "}
+              <code className={CODE}>is_test</code> and deleted afterwards.
+            </li>
+            <li>
+              The results of each run are written to{" "}
+              <code className={CODE}>docs/regression-report.md</code>.
+            </li>
+          </ul>
+        </Card>
+
+        <Card tint="plain" className="p-6 sm:p-8">
+          <CardHead
+            badge={<IconBadge tint="green" icon={GitCommitHorizontal} />}
+            title="Build log"
+            subtitle={`${BUILD_LOG_TOTAL} commits, generated from git log.`}
+          />
+          <div className="mt-5 space-y-5">
+            {BUILD_LOG.map((week) => (
+              <div key={week.week}>
+                <h3 className="font-poppins text-[15px] font-extrabold text-leaf-800">
+                  {week.week} — {week.title}{" "}
+                  <span className="font-semibold text-leaf-500">
+                    ({week.range} · {week.commits.length} commits)
+                  </span>
+                </h3>
+                <ul className="mt-2 space-y-1">
+                  {week.commits.map((commit) => (
+                    <li
+                      key={commit.hash}
+                      className="flex gap-2.5 text-[13px] leading-snug text-leaf-800"
+                    >
+                      <code className="shrink-0 font-mono text-[12px] text-leaf-500">
+                        {commit.hash}
+                      </code>
+                      <span>{commit.subject}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))}
+          </div>
         </Card>
 
         <Card tint="green" className="p-6 sm:p-8">

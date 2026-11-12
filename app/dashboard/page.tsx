@@ -348,6 +348,7 @@ export default function DashboardPage() {
           <Card tint="plain" className="p-6 sm:p-8">
             <CardHead
               badge={<IconBadge tint="cream" icon={LineChart} />}
+              titleClassName="text-[20px] sm:text-[22px]"
               title={REVENUE_MODEL_TITLE}
               subtitle="Main project indicators."
             />
@@ -410,7 +411,7 @@ export default function DashboardPage() {
                           {mod.tables.join(", ")}
                         </span>
                       </span>
-                      <span className="shrink-0 font-mono text-[11px] text-leaf-500">
+                      <span className="hidden shrink-0 font-mono text-[11px] text-leaf-500 sm:inline">
                         {mod.route}
                       </span>
                     </Link>

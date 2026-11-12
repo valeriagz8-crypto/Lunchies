@@ -267,7 +267,7 @@ export default function SavedRecords() {
                   </p>
                 ) : (
                   <TableWrap className="mt-3">
-                    <table className="w-full text-left text-[13px]">
+                    <table className="w-full min-w-[260px] text-left text-[13px]">
                       <thead>
                         <tr className="border-b border-leaf-100 text-[12px] text-leaf-500">
                           {preview.headers.map((h) => (

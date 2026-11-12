@@ -166,7 +166,7 @@ export default function DemoPage() {
               videoReady ? (
                 <a
                   href={DEMO_VIDEO_URL}
-                  className="inline-flex shrink-0 items-center gap-2 rounded-full border border-leaf-200 bg-white px-5 py-2.5 text-[13px] font-bold text-leaf-700 shadow-sm transition-colors hover:bg-leaf-50"
+                  className="inline-flex basis-full items-center justify-center gap-2 rounded-full border border-leaf-200 bg-white px-5 py-2.5 text-[13px] font-bold text-leaf-700 shadow-sm transition-colors hover:bg-leaf-50 sm:basis-auto sm:shrink-0"
                 >
                   <Play className="h-4 w-4 fill-current" aria-hidden="true" />
                   {DEMO_VIDEO_LABEL}
@@ -177,7 +177,7 @@ export default function DemoPage() {
                   disabled
                   aria-disabled="true"
                   title={DEMO_VIDEO_LABEL}
-                  className="inline-flex shrink-0 cursor-not-allowed items-center gap-2 rounded-full border border-leaf-100 bg-leaf-50/70 px-5 py-2.5 text-[13px] font-bold text-leaf-400"
+                  className="inline-flex basis-full cursor-not-allowed items-center justify-center gap-2 rounded-full border border-leaf-100 bg-leaf-50/70 px-5 py-2.5 text-[13px] font-bold text-leaf-400 sm:basis-auto sm:shrink-0"
                 >
                   <Play className="h-4 w-4" aria-hidden="true" />
                   {DEMO_VIDEO_PENDING_LABEL}
@@ -290,20 +290,20 @@ export default function DemoPage() {
                   </div>
 
                   <dl className="mt-4 space-y-2.5 text-[13px] leading-snug">
-                    <div className="flex gap-2">
-                      <dt className="w-[86px] shrink-0 font-bold text-leaf-500">
+                    <div className="flex flex-col gap-0.5 sm:flex-row sm:gap-2">
+                      <dt className="shrink-0 font-bold text-leaf-500 sm:w-[86px]">
                         Receives
                       </dt>
                       <dd className="text-leaf-800">{mod.receives}</dd>
                     </div>
-                    <div className="flex gap-2">
-                      <dt className="w-[86px] shrink-0 font-bold text-leaf-500">
+                    <div className="flex flex-col gap-0.5 sm:flex-row sm:gap-2">
+                      <dt className="shrink-0 font-bold text-leaf-500 sm:w-[86px]">
                         Produces
                       </dt>
                       <dd className="text-leaf-800">{mod.produces}</dd>
                     </div>
-                    <div className="flex gap-2">
-                      <dt className="w-[86px] shrink-0 font-bold text-leaf-500">
+                    <div className="flex flex-col gap-0.5 sm:flex-row sm:gap-2">
+                      <dt className="shrink-0 font-bold text-leaf-500 sm:w-[86px]">
                         Writes to
                       </dt>
                       <dd className="flex flex-wrap gap-1.5">
@@ -318,8 +318,8 @@ export default function DemoPage() {
                         ))}
                       </dd>
                     </div>
-                    <div className="flex gap-2 border-t border-leaf-100 pt-2.5">
-                      <dt className="w-[86px] shrink-0 font-bold text-peach-600">
+                    <div className="flex flex-col gap-0.5 border-t border-leaf-100 pt-2.5 sm:flex-row sm:gap-2">
+                      <dt className="shrink-0 font-bold text-peach-600 sm:w-[86px]">
                         Human
                       </dt>
                       <dd className="text-leaf-800">{mod.human}</dd>
@@ -382,7 +382,7 @@ export default function DemoPage() {
         </Card>
 
         {/* 4 + 5 — Testing and roadmap */}
-        <div className="grid gap-6 lg:grid-cols-2">
+        <div className="grid items-start gap-6 lg:grid-cols-2">
           <Card id="testing" tint="plain" className="scroll-mt-24 p-6 sm:p-8">
             <CardHead step="4" title="Testing summary" subtitle={TESTING_INTRO} />
 
@@ -477,7 +477,7 @@ export default function DemoPage() {
         </div>
 
         {/* Final CTA */}
-        <div className="relative flex flex-col items-center gap-4 overflow-hidden rounded-[28px] border border-rose-100/70 bg-gradient-to-r from-[#fdeff1] to-[#fde9ec] p-6 text-center shadow-card sm:flex-row sm:justify-between sm:p-8 sm:text-left">
+        <div className="relative flex flex-col items-center gap-5 overflow-hidden rounded-[28px] border border-rose-100/70 bg-gradient-to-r from-[#fdeff1] to-[#fde9ec] p-6 text-center shadow-card sm:flex-row sm:justify-between sm:gap-4 sm:p-8 sm:text-left">
           <Sparkle
             className="absolute right-4 top-4 h-6 w-8 opacity-70"
             color="peach"

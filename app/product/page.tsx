@@ -1,13 +1,16 @@
 import { Fragment } from "react";
+import { Heart } from "lucide-react";
 import Link from "next/link";
 import { FEATURES, PLANS, SEGMENTS, type PlanId } from "@/lib/productData";
 import { formatWeekly } from "@/lib/pricing";
 import {
+  AnchorButton,
   Card,
   CardHead,
   HeroArt,
   HeroLabel,
   IconBadge,
+  NoteTick,
   PageHero,
   PageShell,
   Sparkle,
@@ -15,6 +18,7 @@ import {
   StepArrow,
   StepItem,
   StepStrip,
+  StickyNote,
   TableWrap,
 } from "@/components/ui/pieces";
 import { CARD_SUBTITLE, TINT, type TintName } from "@/components/ui/theme";
@@ -91,6 +95,14 @@ const STEPS = [
   "Estimate revenue",
 ];
 
+/** Each step scrolls to a section that is already on this page. */
+const STEP_ANCHORS = [
+  "#feature-map",
+  "#our-plans",
+  "#segments",
+  "#pricing-cta",
+];
+
 /** Pastel tint per stat tile, left to right. */
 const STAT_TINTS: TintName[] = ["green", "cream", "pink", "blue"];
 
@@ -125,6 +137,9 @@ export default function ProductPage() {
           </>
         }
         subtitle="See what Lunchies offers, our plans and who it's for."
+        actions={
+          <AnchorButton href="#feature-map">Explore the product</AnchorButton>
+        }
         art={
           <HeroArt
             src="/images/redesign/hero-product.webp"
@@ -133,6 +148,19 @@ export default function ProductPage() {
             tone="peach"
             priority
             glyph="🍱"
+            note={
+              <StickyNote>
+                <span className="flex flex-col gap-1.5">
+                  <NoteTick>Personalized</NoteTick>
+                  <NoteTick>Nutritious</NoteTick>
+                  <NoteTick>Flexible</NoteTick>
+                  <Heart
+                    className="mt-0.5 h-4 w-4 fill-rose-200 text-rose-400"
+                    aria-hidden="true"
+                  />
+                </span>
+              </StickyNote>
+            }
           />
         }
       />
@@ -155,14 +183,16 @@ export default function ProductPage() {
         {STEPS.map((step, index) => (
           <Fragment key={step}>
             {index > 0 && <StepArrow>→</StepArrow>}
-            <StepItem index={index + 1}>{step}</StepItem>
+            <StepItem index={index + 1} href={STEP_ANCHORS[index]}>
+              {step}
+            </StepItem>
           </Fragment>
         ))}
       </StepStrip>
 
       <div className="mt-10 space-y-6">
         {/* Section 1: Feature map */}
-        <Card tint="plain" className="p-6 sm:p-8">
+        <Card id="feature-map" tint="plain" className="scroll-mt-24 p-6 sm:p-8">
           <CardHead
             step="1"
             badge={<IconBadge tint="green">✨</IconBadge>}
@@ -249,7 +279,7 @@ export default function ProductPage() {
         </Card>
 
         {/* Section 2: Our plans */}
-        <Card tint="plain" className="p-6 sm:p-8">
+        <Card id="our-plans" tint="plain" className="scroll-mt-24 p-6 sm:p-8">
           <CardHead
             step="2"
             badge={<IconBadge tint="peach">🏷️</IconBadge>}
@@ -310,7 +340,7 @@ export default function ProductPage() {
         </Card>
 
         {/* Section 3: Customer segments */}
-        <Card tint="green" className="p-6 sm:p-8">
+        <Card id="segments" tint="green" className="scroll-mt-24 p-6 sm:p-8">
           <CardHead
             step="3"
             badge={<IconBadge tint="green">👥</IconBadge>}
@@ -355,7 +385,7 @@ export default function ProductPage() {
         </Card>
 
         {/* CTA */}
-        <div className="relative flex flex-col items-center gap-4 overflow-hidden rounded-[28px] border border-rose-100/70 bg-gradient-to-r from-[#fdeff1] to-[#fde9ec] p-6 text-center shadow-card sm:flex-row sm:justify-between sm:p-8 sm:text-left">
+        <div id="pricing-cta" className="relative flex scroll-mt-24 flex-col items-center gap-4 overflow-hidden rounded-[28px] border border-rose-100/70 bg-gradient-to-r from-[#fdeff1] to-[#fde9ec] p-6 text-center shadow-card sm:flex-row sm:justify-between sm:p-8 sm:text-left">
           <Sparkle
             className="absolute right-4 top-4 h-6 w-8 opacity-70"
             color="peach"

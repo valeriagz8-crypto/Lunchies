@@ -412,17 +412,30 @@ export function StepStrip({
 export function StepItem({
   index,
   children,
+  href,
 }: {
   index: ReactNode;
   children: ReactNode;
+  /** When given, the step scrolls to a section already on the page. */
+  href?: string;
 }) {
-  return (
-    // The children sit directly in the flex row, exactly as they did before
-    // the redesign, so each one keeps its own line box.
-    <span className="flex items-center gap-2">
+  // The children sit directly in the flex row, exactly as they did before
+  // the redesign, so each one keeps its own line box.
+  const inner = (
+    <>
       <StepPill size="sm">{index}</StepPill>
       {children}
-    </span>
+    </>
+  );
+  return href ? (
+    <a
+      href={href}
+      className="flex items-center gap-2 rounded-full transition-colors hover:text-leaf-600"
+    >
+      {inner}
+    </a>
+  ) : (
+    <span className="flex items-center gap-2">{inner}</span>
   );
 }
 

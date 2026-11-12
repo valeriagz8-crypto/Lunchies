@@ -213,6 +213,23 @@ export type TestingRow = {
   result: string | null;
 };
 
+/**
+ * Taken from the JSON reporter output of `npm run test:regression`.
+ * docs/regression-report.md is generated from the same run.
+ */
+export const REGRESSION_RUN = {
+  date: "2026-11-12",
+  checks: 36,
+  passed: 36,
+  failed: 0,
+} as const;
+
+/**
+ * The one place the regression result is phrased. /demo and /dashboard both
+ * read it, so the two pages can never disagree.
+ */
+export const REGRESSION_RESULT = `${REGRESSION_RUN.passed}/${REGRESSION_RUN.checks} checks passed`;
+
 export const TESTING_INTRO = "External user tests and a full-site regression test.";
 
 export const TESTING_ROWS: TestingRow[] = [
@@ -224,9 +241,9 @@ export const TESTING_ROWS: TestingRow[] = [
   {
     title: "Full-site regression test",
     description: "All pages and key flows verified.",
-    // Filled from the npm run test:regression output of 2026-11-12. See
-    // docs/regression-report.md for the full run.
-    result: "35/35 passed",
+    // Comes straight from REGRESSION_RUN, so it can never drift from the
+    // run that docs/regression-report.md was generated from.
+    result: REGRESSION_RESULT,
   },
   {
     title: "Main findings",
@@ -244,10 +261,12 @@ export const TESTING_PENDING_LABEL = "Pending";
  */
 export const DEMO_TESTING_INTRO = "What will be checked before launch.";
 
-export const DEMO_TESTING_STEPS = [
-  { title: "5 external users" },
-  { title: "Full-site regression test" },
-] as const;
+export type DemoTestingStep = { title: string; result: string | null };
+
+export const DEMO_TESTING_STEPS: DemoTestingStep[] = [
+  { title: "5 external users", result: null },
+  { title: "Full-site regression test", result: REGRESSION_RESULT },
+];
 
 export const DEMO_TESTING_CTA = "View testing details";
 export const DEMO_TESTING_HREF = "/dashboard#testing";
@@ -1140,16 +1159,3 @@ export const BUILD_LOG: BuildLogWeek[] = [
 ];
 
 export const BUILD_LOG_TOTAL = 118;
-
-/* --------------------------------------------- regression run result */
-
-/**
- * Taken from the JSON reporter output of `npm run test:regression`.
- * docs/regression-report.md is generated from the same run.
- */
-export const REGRESSION_RUN = {
-  date: "2026-11-12",
-  checks: 35,
-  passed: 35,
-  failed: 0,
-} as const;

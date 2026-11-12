@@ -1,6 +1,7 @@
 import Link from "next/link";
 import {
   ArrowRight,
+  CheckCircle2,
   CalendarDays,
   DollarSign,
   FileText,
@@ -336,8 +337,19 @@ export default function DashboardPage() {
                         {row.description}
                       </p>
                     </div>
-                    <span className="inline-flex shrink-0 items-center gap-1.5 rounded-full border border-leaf-200 bg-white px-3 py-1.5 text-[12px] font-bold text-leaf-500">
-                      <CircleDashed className="h-3.5 w-3.5" aria-hidden="true" />
+                    {/* A check mark only where there is a real result. */}
+                    <span
+                      className={`inline-flex shrink-0 items-center gap-1.5 rounded-full border px-3 py-1.5 text-[12px] font-bold ${
+                        row.result
+                          ? "border-leaf-200 bg-leaf-50 text-leaf-700"
+                          : "border-leaf-200 bg-white text-leaf-500"
+                      }`}
+                    >
+                      {row.result ? (
+                        <CheckCircle2 className="h-3.5 w-3.5" aria-hidden="true" />
+                      ) : (
+                        <CircleDashed className="h-3.5 w-3.5" aria-hidden="true" />
+                      )}
                       {row.result ?? TESTING_PENDING_LABEL}
                     </span>
                   </li>

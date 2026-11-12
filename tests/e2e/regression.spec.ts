@@ -195,11 +195,40 @@ test("/demo exposes every section anchor", async ({ page }) => {
   }
 });
 
-test("/dashboard exposes #testing and #saved-records", async ({ page }) => {
+test("/dashboard exposes #testing and #saved-records, and reports honestly", async ({
+  page,
+}) => {
   await page.goto("/dashboard");
   await settle(page);
   await expect(page.locator("#testing")).toHaveCount(1);
   await expect(page.locator("#saved-records")).toHaveCount(1);
+
+  const testing = page.locator("#testing");
+
+  // The regression row must carry a real result, phrased the one way
+  // lib/week6Data.ts phrases it.
+  await expect(
+    testing.getByText(/^\d+\/\d+ checks passed$/),
+    "regression row shows its result",
+  ).toHaveCount(1);
+
+  // The two rows that have no result must still say Pending, on both pages.
+  const pending = await testing.getByText("Pending", { exact: true }).count();
+  expect(pending, "external users and main findings stay Pending").toBe(2);
+});
+
+test("/demo's short testing step mirrors the same result", async ({ page }) => {
+  await page.goto("/demo");
+  await settle(page);
+  const testing = page.locator("#testing");
+  await expect(
+    testing.getByText(/^\d+\/\d+ checks passed$/),
+    "regression step shows its result",
+  ).toHaveCount(1);
+  expect(
+    await testing.getByText("Pending", { exact: true }).count(),
+    "external users stays Pending on /demo",
+  ).toBe(1);
 });
 
 /* ------------------------------------------------- dashboard record counts */

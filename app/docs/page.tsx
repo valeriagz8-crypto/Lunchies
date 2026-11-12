@@ -2,15 +2,18 @@ import Link from "next/link";
 import {
   BookOpen,
   Database,
+  FileText,
   Layers,
   MessageCircle,
   Route,
   Workflow,
 } from "lucide-react";
 import {
+  AnchorButton,
   Card,
   CardHead,
   HeroArt,
+  HeroLabel,
   IconBadge,
   PageHero,
   PageShell,
@@ -39,6 +42,11 @@ export default function DocsPage() {
   return (
     <PageShell width="max-w-4xl">
       <PageHero
+        label={
+          <HeroLabel badge={<IconBadge tint="green" size="sm" icon={FileText} />}>
+            Docs
+          </HeroLabel>
+        }
         title={
           <>
             Project <span className="text-peach-500">Docs</span>
@@ -49,6 +57,9 @@ export default function DocsPage() {
             Build logs, prompt library, and tech stack documentation for
             Lunchies.
           </>
+        }
+        actions={
+          <AnchorButton href="#tech-stack">Explore documents</AnchorButton>
         }
         art={
           <HeroArt
@@ -62,7 +73,7 @@ export default function DocsPage() {
       />
 
       <div className="mt-12 space-y-6">
-        <Card tint="green" className="p-6 sm:p-8">
+        <Card id="tech-stack" tint="green" className="scroll-mt-24 p-6 sm:p-8">
           <CardHead
             badge={<IconBadge tint="green" icon={Layers} />}
             title="Tech Stack"

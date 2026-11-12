@@ -43,6 +43,14 @@ const NAV_LINKS = [
   { label: "Dashboard", href: "/dashboard" },
 ];
 
+/** Routes that were placeholders and now redirect permanently. */
+const REDIRECTS = [
+  { from: "/about", to: "/" },
+  { from: "/how-it-works", to: "/" },
+  { from: "/plans", to: "/product" },
+  { from: "/roadmap", to: "/demo" },
+];
+
 const WIDTHS = [
   { name: "1280", width: 1280, height: 900 },
   { name: "390", width: 390, height: 844 },
@@ -156,6 +164,16 @@ test("the Get started button goes to /core", async ({ page }) => {
   await page.waitForURL("**/core");
   expect(new URL(page.url()).pathname).toBe("/core");
 });
+
+/* -------------------------------------------------------------- redirects */
+
+for (const r of REDIRECTS) {
+  test(`${r.from} redirects to ${r.to}`, async ({ page }) => {
+    const response = await page.goto(r.from);
+    expect(response?.status(), `${r.from} final status`).toBe(200);
+    expect(new URL(page.url()).pathname, `${r.from} lands on`).toBe(r.to);
+  });
+}
 
 /* ---------------------------------------------------------------- anchors */
 

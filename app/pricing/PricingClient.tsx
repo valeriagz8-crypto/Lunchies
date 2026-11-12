@@ -1,7 +1,7 @@
 "use client";
 
 import { Fragment, useEffect, useMemo, useRef, useState } from "react";
-import { BarChart3, CalendarDays } from "lucide-react";
+import { BarChart3, CalendarDays, RefreshCw } from "lucide-react";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
 import { PLANS } from "@/lib/productData";
@@ -355,7 +355,7 @@ export default function PricingClient() {
       <div className="mt-10 space-y-6">
         {/* Section 1 + 2: Billing period + Scenario */}
         <div className="grid gap-5 md:grid-cols-2">
-          <Card tint="green" className="p-6 sm:p-8">
+          <Card tint="plain" className="p-6 sm:p-8">
             <CardHead
               step="1"
               badge={<IconBadge tint="green" icon={CalendarDays} />}
@@ -475,8 +475,9 @@ export default function PricingClient() {
               <button
                 type="button"
                 onClick={resetToDefaults}
-                className="shrink-0 rounded-full border border-leaf-200 bg-white px-4 py-2 text-xs font-bold text-leaf-700 shadow-sm transition-colors hover:bg-leaf-50"
+                className="inline-flex shrink-0 items-center gap-2 rounded-full border border-leaf-200 bg-white px-4 py-2 text-xs font-bold text-leaf-700 shadow-sm transition-colors hover:bg-leaf-50"
               >
+                <RefreshCw className="h-3.5 w-3.5" aria-hidden="true" />
                 Reset to defaults
               </button>
             }
@@ -485,17 +486,17 @@ export default function PricingClient() {
           <p className={CARD_SUBTITLE}>
             Adjust the number of active customers in each plan.
           </p>
-          <div className="mt-6 space-y-4">
+          <div className="mt-5 space-y-4">
             {PLANS.map((plan) => (
               <div
                 key={plan.id}
-                className="flex flex-wrap items-center gap-3 rounded-2xl bg-white/70 p-3 shadow-sm sm:flex-nowrap sm:gap-4 sm:p-4"
+                className="flex flex-wrap items-center gap-3 border-b border-leaf-200/50 pb-4 last:border-0 last:pb-0 sm:flex-nowrap sm:gap-4"
               >
                 <div className="flex w-full items-center gap-3 sm:contents">
-                  <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-leaf-100 text-xl">
+                  <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-white text-lg shadow-sm">
                     {PLAN_EMOJI[plan.id]}
                   </span>
-                  <span className="text-sm font-semibold text-leaf-800 sm:w-40 sm:shrink-0">
+                  <span className="text-[14px] font-bold text-leaf-800 sm:w-44 sm:shrink-0">
                     {plan.name} (${WEEKLY_PRICES[plan.id]} / week)
                   </span>
                 </div>
@@ -586,21 +587,26 @@ export default function PricingClient() {
                 {otherPeriodLabel}
               </p>
             </div>
-            <div className="grid grid-cols-1 gap-3 sm:grid-cols-3 lg:grid-cols-1">
+            <div className="flex flex-col justify-center gap-0 px-1">
               {summaryTiles.map((tile, index) => (
                 <div
                   key={tile.label}
-                  className={`flex flex-col items-center gap-0.5 rounded-2xl border p-4 text-center shadow-sm sm:p-3 lg:flex-row lg:gap-3 lg:text-left ${
-                    TINT[SUMMARY_TINTS[index % SUMMARY_TINTS.length]].card
+                  className={`flex items-center gap-3 py-4 ${
+                    index > 0 ? "border-t border-leaf-100" : "pt-0"
                   }`}
                 >
-                  <span className="text-xl" aria-hidden="true">
+                  <span
+                    className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-lg ${
+                      TINT[SUMMARY_TINTS[index % SUMMARY_TINTS.length]].badge
+                    }`}
+                    aria-hidden="true"
+                  >
                     {tile.icon}
                   </span>
-                  <p className="font-poppins text-sm font-extrabold text-leaf-900">
+                  <p className="font-poppins text-[15px] font-extrabold text-leaf-900">
                     {tile.value}
                   </p>
-                  <p className="text-xs text-leaf-600">{tile.label}</p>
+                  <p className="text-[13px] text-leaf-600">{tile.label}</p>
                 </div>
               ))}
             </div>
@@ -616,16 +622,16 @@ export default function PricingClient() {
             subtitle="These inputs are used to calculate the revenue."
           />
           <TableWrap className="mt-6">
-            <table className="w-full min-w-[420px] border-separate border-spacing-0 text-left text-sm">
+            <table className="w-full min-w-[420px] border-separate border-spacing-0 text-left text-[14px]">
               <thead>
                 <tr>
-                  <th className="py-3 pr-4 align-bottom font-bold text-leaf-700">
+                  <th className="py-2.5 pr-4 align-bottom text-[13px] font-bold text-leaf-700">
                     Assumption
                   </th>
                   {SCENARIOS.map((key) => (
                     <th
                       key={key}
-                      className={`rounded-t-2xl px-3 py-3 text-center font-poppins font-extrabold text-leaf-900 ${SCENARIO_HEADER_BG[key]}`}
+                      className={`rounded-t-2xl px-3 py-2.5 text-center font-poppins text-[14px] font-extrabold text-leaf-900 ${SCENARIO_HEADER_BG[key]}`}
                     >
                       {SCENARIO_LABELS[key]}
                     </th>
@@ -635,13 +641,13 @@ export default function PricingClient() {
               <tbody>
                 {PLANS.map((plan) => (
                   <tr key={plan.id} className="text-leaf-800">
-                    <td className="border-b border-leaf-100 py-3 pr-4 font-medium">
+                    <td className="border-b border-leaf-100 py-2.5 pr-4 font-medium">
                       Weekly price — {plan.name}
                     </td>
                     {SCENARIOS.map((key) => (
                       <td
                         key={key}
-                        className={`border-b border-white/70 px-3 py-3 text-center font-semibold ${SCENARIO_COLUMN_BG[key]}`}
+                        className={`border-b border-white/70 px-3 py-2.5 text-center font-semibold ${SCENARIO_COLUMN_BG[key]}`}
                       >
                         {formatWeekly(WEEKLY_PRICES[plan.id])}
                       </td>
@@ -649,13 +655,13 @@ export default function PricingClient() {
                   </tr>
                 ))}
                 <tr className="text-leaf-800">
-                  <td className="border-b border-leaf-100 py-3 pr-4 font-medium">
+                  <td className="border-b border-leaf-100 py-2.5 pr-4 font-medium">
                     Weeks per month
                   </td>
                   {SCENARIOS.map((key) => (
                     <td
                       key={key}
-                      className={`border-b border-white/70 px-3 py-3 text-center font-semibold ${SCENARIO_COLUMN_BG[key]}`}
+                      className={`border-b border-white/70 px-3 py-2.5 text-center font-semibold ${SCENARIO_COLUMN_BG[key]}`}
                     >
                       {WEEKS_PER_MONTH}
                     </td>
@@ -666,7 +672,7 @@ export default function PricingClient() {
                   {SCENARIOS.map((key) => (
                     <td
                       key={key}
-                      className={`rounded-b-2xl px-3 py-3 text-center font-semibold ${SCENARIO_COLUMN_BG[key]}`}
+                      className={`rounded-b-2xl px-3 py-2.5 text-center font-semibold ${SCENARIO_COLUMN_BG[key]}`}
                     >
                       {SCENARIO_MULTIPLIERS[key]}x
                     </td>

@@ -343,7 +343,7 @@ export function HeroArt({
 }) {
   return (
     <div
-      className={`relative flex min-h-[200px] items-center justify-center sm:min-h-[245px] ${className}`}
+      className={`relative flex min-h-[190px] items-center justify-center sm:min-h-[235px] ${className}`}
     >
       <Blob
         tone={tone}
@@ -369,7 +369,7 @@ export function HeroArt({
         height={height}
         priority={priority}
         aria-hidden="true"
-        className="relative w-[88%] max-w-[370px] drop-shadow-[0_18px_28px_rgba(61,48,34,0.18)]"
+        className="relative max-h-[230px] w-[88%] max-w-[370px] object-contain drop-shadow-[0_18px_28px_rgba(61,48,34,0.18)] sm:max-h-[260px]"
       />
     </div>
   );
@@ -437,12 +437,12 @@ export function StatTile({
 }) {
   return (
     <div
-      className={`${CARD} ${TINT[tint].card} flex flex-col items-center justify-center gap-0.5 px-3 py-5 text-center`}
+      className={`${CARD} ${TINT[tint].card} flex flex-col items-center justify-center gap-0 px-3 py-4 text-center`}
     >
-      <span className="text-[26px] leading-none" aria-hidden="true">
+      <span className="text-[22px] leading-none" aria-hidden="true">
         {icon}
       </span>
-      <p className="mt-1.5 font-poppins text-[26px] font-extrabold leading-tight text-leaf-900">
+      <p className="mt-1 font-poppins text-[24px] font-extrabold leading-tight text-leaf-900">
         {value}
       </p>
       <p className="text-[13px] font-medium text-leaf-600">{label}</p>

@@ -114,7 +114,7 @@ export default function ProductPage() {
       {/* Hero */}
       <PageHero
         label={
-          <HeroLabel badge={<IconBadge tint="peach" size="lg">🛍️</IconBadge>}>
+          <HeroLabel badge={<IconBadge tint="peach" size="sm">🛍️</IconBadge>}>
             Product
           </HeroLabel>
         }
@@ -162,7 +162,7 @@ export default function ProductPage() {
 
       <div className="mt-10 space-y-6">
         {/* Section 1: Feature map */}
-        <Card tint="green" className="p-6 sm:p-8">
+        <Card tint="plain" className="p-6 sm:p-8">
           <CardHead
             step="1"
             badge={<IconBadge tint="green">✨</IconBadge>}
@@ -175,10 +175,10 @@ export default function ProductPage() {
           </p>
 
           <TableWrap className="mt-6">
-            <table className="w-full table-fixed border-separate border-spacing-0 text-left text-xs sm:table-auto sm:min-w-[560px] sm:text-sm">
+            <table className="w-full table-fixed border-separate border-spacing-0 text-left text-xs sm:table-auto sm:min-w-[560px] sm:text-[14px]">
               <thead>
                 <tr>
-                  <th className="w-2/5 py-3 pr-2 align-bottom font-bold text-leaf-700 sm:w-auto sm:pr-4">
+                  <th className="w-2/5 py-2.5 pr-2 align-bottom text-[13px] font-bold text-leaf-700 sm:w-auto sm:pr-4">
                     Feature
                   </th>
                   {PLANS.map((plan) => {
@@ -205,7 +205,7 @@ export default function ProductPage() {
                   return (
                     <tr key={feature.name} className="text-leaf-800">
                       <td
-                        className={`py-3 pr-2 font-medium sm:pr-4 ${
+                        className={`py-2.5 pr-2 font-medium sm:pr-4 ${
                           isLast ? "" : "border-b border-leaf-100"
                         }`}
                       >
@@ -216,7 +216,7 @@ export default function ProductPage() {
                         return (
                           <td
                             key={plan.id}
-                            className={`px-1.5 py-3 text-center sm:px-4 ${style.columnBg} ${
+                            className={`px-1.5 py-2.5 text-center sm:px-4 ${style.columnBg} ${
                               isLast
                                 ? "rounded-b-2xl"
                                 : "border-b border-white/80"
@@ -224,7 +224,7 @@ export default function ProductPage() {
                           >
                             {includesPlan(feature.plans, plan.id) ? (
                               <span
-                                className="mx-auto flex h-6 w-6 items-center justify-center rounded-full bg-leaf-600 text-xs font-bold text-white shadow-sm"
+                                className="mx-auto flex h-[22px] w-[22px] items-center justify-center rounded-full bg-leaf-600 text-[11px] font-bold text-white shadow-sm"
                                 aria-label="Included"
                               >
                                 ✓
@@ -355,7 +355,7 @@ export default function ProductPage() {
         </Card>
 
         {/* CTA */}
-        <div className="relative flex flex-col items-center gap-4 overflow-hidden rounded-3xl border border-peach-100 bg-peach-50 p-6 text-center shadow-soft sm:flex-row sm:justify-between sm:p-8 sm:text-left">
+        <div className="relative flex flex-col items-center gap-4 overflow-hidden rounded-[28px] border border-rose-100/70 bg-gradient-to-r from-[#fdeff1] to-[#fde9ec] p-6 text-center shadow-card sm:flex-row sm:justify-between sm:p-8 sm:text-left">
           <Sparkle
             className="absolute right-4 top-4 h-6 w-8 opacity-70"
             color="peach"
@@ -365,7 +365,7 @@ export default function ProductPage() {
           </p>
           <Link
             href="/pricing"
-            className="shrink-0 rounded-full bg-peach-500 px-7 py-3 text-sm font-bold text-white shadow-soft transition-colors hover:bg-peach-600"
+            className="shrink-0 rounded-full bg-peach-500 px-8 py-3.5 text-[15px] font-bold text-white shadow-btn transition-colors hover:bg-peach-600"
           >
             Go to Pricing
           </Link>

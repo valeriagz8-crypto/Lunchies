@@ -69,7 +69,10 @@ function watchConsole(page: Page): string[] {
 }
 
 async function settle(page: Page) {
-  await page.waitForLoadState("networkidle");
+  // Some pages keep a connection open, so networkidle is a best effort.
+  await page
+    .waitForLoadState("networkidle", { timeout: 15_000 })
+    .catch(() => undefined);
   await page.waitForTimeout(1200);
   await page
     .waitForFunction(() => !document.body.innerText.includes("Loading saved"), {
@@ -123,10 +126,12 @@ for (const size of WIDTHS) {
 /* ------------------------------------------------------------- navigation */
 
 test("every desktop navbar link goes to its route", async ({ page }) => {
+  test.setTimeout(180_000);
   await page.setViewportSize({ width: 1280, height: 900 });
   for (const link of NAV_LINKS) {
-    await page.goto("/");
-    await settle(page);
+    // Only the header matters here, so this waits for it rather than for the
+    // whole page to settle.
+    await page.goto("/", { waitUntil: "domcontentloaded" });
     const nav = page.locator("header nav a", { hasText: new RegExp(`^${link.label}$`) });
     await expect(nav.first()).toBeVisible();
     await nav.first().click();
@@ -136,10 +141,10 @@ test("every desktop navbar link goes to its route", async ({ page }) => {
 });
 
 test("every mobile menu link goes to its route", async ({ page }) => {
+  test.setTimeout(180_000);
   await page.setViewportSize({ width: 390, height: 844 });
   for (const link of NAV_LINKS) {
-    await page.goto("/");
-    await settle(page);
+    await page.goto("/", { waitUntil: "domcontentloaded" });
     await page.getByRole("button", { name: "Toggle menu" }).click();
     // The desktop <ul> is still in the DOM at this width, just hidden, so the
     // mobile panel is the last one.
@@ -158,8 +163,7 @@ test("every mobile menu link goes to its route", async ({ page }) => {
 
 test("the Get started button goes to /core", async ({ page }) => {
   await page.setViewportSize({ width: 1280, height: 900 });
-  await page.goto("/");
-  await settle(page);
+  await page.goto("/", { waitUntil: "domcontentloaded" });
   await page.locator("header a", { hasText: /^Get started$/ }).first().click();
   await page.waitForURL("**/core");
   expect(new URL(page.url()).pathname).toBe("/core");

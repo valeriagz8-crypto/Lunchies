@@ -434,7 +434,8 @@ export const DASHBOARD_TILE_LABELS = {
 export const DASHBOARD_LINKS = {
   agentMap: "/demo#agent-map",
   versionTwo: "/demo#version-2",
-  testing: "/demo#testing",
+  /** The full testing summary lives on this page, so the tiles stay local. */
+  testing: "#testing",
 } as const;
 
 export const DASHBOARD_AGENT_MAP_INTRO =

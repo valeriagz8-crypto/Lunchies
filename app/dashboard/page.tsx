@@ -313,7 +313,7 @@ export default function DashboardPage() {
             </ul>
           </Card>
 
-          <Card tint="plain" className="p-6 sm:p-8">
+          <Card id="testing" tint="plain" className="scroll-mt-24 p-6 sm:p-8">
             <CardHead
               badge={<IconBadge tint="green" icon={Users} />}
               title="Testing summary"

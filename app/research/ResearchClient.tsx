@@ -20,12 +20,12 @@ import {
   HeroArt,
   HeroLabel,
   IconBadge,
+  NoteTick,
   PageHero,
   PageShell,
   StatTile,
-  StepArrow,
-  StepItem,
-  StepStrip,
+  StepPill,
+  StickyNote,
   TableWrap,
   TagPill,
 } from "@/components/ui/pieces";
@@ -453,6 +453,16 @@ export default function ResearchClient() {
             tone="leaf"
             priority
             glyph="🔎"
+            note={
+              <StickyNote>
+                <span className="flex flex-col gap-1.5">
+                  <NoteTick>Market insights</NoteTick>
+                  <NoteTick>Competitors</NoteTick>
+                  <NoteTick>Risks</NoteTick>
+                  <NoteTick>Opportunities</NoteTick>
+                </span>
+              </StickyNote>
+            }
           />
         }
       />
@@ -470,27 +480,61 @@ export default function ResearchClient() {
         ))}
       </div>
 
-      {/* Reading guide */}
-      <StepStrip className="mt-6">
-        <StepItem index={1}>
+      {/* Reading guide — the mockup's chip row. Same four steps, same words,
+          each one now scrolling to the section it names. */}
+      <nav className="mt-6 flex flex-wrap items-stretch justify-center gap-2.5">
+        <a
+          href="#mexico"
+          className="flex items-center gap-2.5 rounded-2xl border border-leaf-100/70 bg-gradient-to-b from-[#eff8f1] to-[#e3f1e7] px-4 py-3 text-[13px] font-bold leading-snug text-leaf-800 shadow-card transition-transform hover:-translate-y-0.5"
+        >
+          <StepPill size="sm">1</StepPill>
           See if the problem is real{" "}
-          <span className="text-leaf-500">(Mexico stat)</span>
-        </StepItem>
-        <StepArrow>→</StepArrow>
-        <StepItem index={2}>
+          <span className="font-semibold text-leaf-500">(Mexico stat)</span>
+        </a>
+        <span
+          aria-hidden="true"
+          className="hidden self-center px-0.5 text-peach-400 lg:block"
+        >
+          →
+        </span>
+        <a
+          href="#competitors"
+          className="flex items-center gap-2.5 rounded-2xl border border-cream-200/70 bg-gradient-to-b from-[#fdf6ea] to-[#fbeeda] px-4 py-3 text-[13px] font-bold leading-snug text-leaf-800 shadow-card transition-transform hover:-translate-y-0.5"
+        >
+          <StepPill size="sm">2</StepPill>
           See who else is solving it{" "}
-          <span className="text-leaf-500">
+          <span className="font-semibold text-leaf-500">
             (global examples + competitors)
           </span>
-        </StepItem>
-        <StepArrow>→</StepArrow>
-        <StepItem index={3}>
+        </a>
+        <span
+          aria-hidden="true"
+          className="hidden self-center px-0.5 text-peach-400 lg:block"
+        >
+          →
+        </span>
+        <a
+          href="#risk-map"
+          className="flex items-center gap-2.5 rounded-2xl border border-rose-100/70 bg-gradient-to-b from-[#fdeff1] to-[#fbe4e8] px-4 py-3 text-[13px] font-bold leading-snug text-leaf-800 shadow-card transition-transform hover:-translate-y-0.5"
+        >
+          <StepPill size="sm">3</StepPill>
           See how risky each one is{" "}
-          <span className="text-leaf-500">(risk map)</span>
-        </StepItem>
-        <StepArrow>→</StepArrow>
-        <StepItem index={4}>Save what you learned</StepItem>
-      </StepStrip>
+          <span className="font-semibold text-leaf-500">(risk map)</span>
+        </a>
+        <span
+          aria-hidden="true"
+          className="hidden self-center px-0.5 text-peach-400 lg:block"
+        >
+          →
+        </span>
+        <a
+          href="#save-research"
+          className="flex items-center gap-2.5 rounded-2xl border border-sky-100/70 bg-gradient-to-b from-[#eef5fd] to-[#e2edfb] px-4 py-3 text-[13px] font-bold leading-snug text-leaf-800 shadow-card transition-transform hover:-translate-y-0.5"
+        >
+          <StepPill size="sm">4</StepPill>
+          Save what you learned
+        </a>
+      </nav>
 
       <div className="mt-10 space-y-6">
         {/* Section 1: Intake form */}
@@ -643,7 +687,7 @@ export default function ResearchClient() {
         </Card>
 
         {/* Section 3: Mexico context */}
-        <Card tint="peach" className="p-6 sm:p-8">
+        <Card id="mexico" tint="peach" className="scroll-mt-24 p-6 sm:p-8">
           <CardHead
             step="3"
             stepTone="peach"
@@ -831,7 +875,7 @@ export default function ResearchClient() {
         </Card>
 
         {/* Section 5: Risk map */}
-        <Card tint="green" className="p-6 sm:p-8">
+        <Card id="risk-map" tint="green" className="scroll-mt-24 p-6 sm:p-8">
           <CardHead
             step="5"
             badge={<IconBadge tint="green">🗺️</IconBadge>}
@@ -869,7 +913,7 @@ export default function ResearchClient() {
         </Card>
 
         {/* Section 7: Save research */}
-        <Card tint="plain" className="p-6 sm:p-8">
+        <Card id="save-research" tint="plain" className="scroll-mt-24 p-6 sm:p-8">
           <CardHead
             step="7"
             badge={<IconBadge tint="green">💾</IconBadge>}

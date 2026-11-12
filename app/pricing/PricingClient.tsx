@@ -1,7 +1,7 @@
 "use client";
 
 import { Fragment, useEffect, useMemo, useRef, useState } from "react";
-import { BarChart3, CalendarDays, RefreshCw } from "lucide-react";
+import { BarChart3, CalendarDays, RefreshCw, TrendingUp } from "lucide-react";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
 import { PLANS } from "@/lib/productData";
@@ -26,12 +26,14 @@ import {
   HeroArt,
   HeroLabel,
   IconBadge,
+  NoteTick,
   PageHero,
   PageShell,
   Sparkle,
   StepArrow,
   StepItem,
   StepStrip,
+  StickyNote,
   TableWrap,
 } from "@/components/ui/pieces";
 import {
@@ -101,6 +103,9 @@ const STEPS = [
   "Read the revenue",
   "Save it",
 ];
+
+/** Each step scrolls to a section that is already on this page. */
+const STEP_ANCHORS = ["#period", "#customers", "#revenue", "#save-scenario"];
 
 const SCENARIO_DESCRIPTIONS: Record<ScenarioKey, string> = {
   conservative: `Fewer customers than expected (${SCENARIO_MULTIPLIERS.conservative}x)`,
@@ -338,6 +343,19 @@ export default function PricingClient() {
             tone="cream"
             priority
             glyph="🥗"
+            note={
+              <StickyNote tone="cream">
+                <span className="flex flex-col gap-1.5">
+                  <TrendingUp
+                    className="h-5 w-5 text-leaf-600"
+                    aria-hidden="true"
+                  />
+                  <NoteTick>Model</NoteTick>
+                  <NoteTick>Compare</NoteTick>
+                  <NoteTick>Estimate</NoteTick>
+                </span>
+              </StickyNote>
+            }
           />
         }
       />
@@ -347,7 +365,9 @@ export default function PricingClient() {
         {STEPS.map((step, index) => (
           <Fragment key={step}>
             {index > 0 && <StepArrow>→</StepArrow>}
-            <StepItem index={index + 1}>{step}</StepItem>
+            <StepItem index={index + 1} href={STEP_ANCHORS[index]}>
+              {step}
+            </StepItem>
           </Fragment>
         ))}
       </StepStrip>
@@ -355,7 +375,7 @@ export default function PricingClient() {
       <div className="mt-10 space-y-6">
         {/* Section 1 + 2: Billing period + Scenario */}
         <div className="grid gap-5 md:grid-cols-2">
-          <Card tint="plain" className="p-6 sm:p-8">
+          <Card id="period" tint="plain" className="scroll-mt-24 p-6 sm:p-8">
             <CardHead
               step="1"
               badge={<IconBadge tint="green" icon={CalendarDays} />}
@@ -466,7 +486,7 @@ export default function PricingClient() {
         </div>
 
         {/* Section 3: Number of customers per plan */}
-        <Card tint="green" className="p-6 sm:p-8">
+        <Card id="customers" tint="green" className="scroll-mt-24 p-6 sm:p-8">
           <CardHead
             step="3"
             badge={<IconBadge tint="green">👨‍👩‍👧</IconBadge>}
@@ -532,7 +552,7 @@ export default function PricingClient() {
         </Card>
 
         {/* Section 4: Estimated revenue */}
-        <Card tint="plain" className="p-6 sm:p-8">
+        <Card id="revenue" tint="plain" className="scroll-mt-24 p-6 sm:p-8">
           <CardHead
             step="4"
             badge={<IconBadge tint="cream">💰</IconBadge>}
@@ -740,7 +760,7 @@ export default function PricingClient() {
 
         {/* Section 6 + 7: Save this scenario + Saved scenarios */}
         <div className="grid gap-5 lg:grid-cols-2">
-          <Card tint="plain" className="p-6 sm:p-8">
+          <Card id="save-scenario" tint="plain" className="scroll-mt-24 p-6 sm:p-8">
             <CardHead
               step="6"
               badge={<IconBadge tint="peach">🔖</IconBadge>}

@@ -51,6 +51,7 @@ import {
   DEMO_VIDEO_URL,
   IMPACT_CARDS,
   IMPACT_DISCLAIMER,
+  IMPACT_EVIDENCE,
   IMPACT_INTRO,
   PRODUCT_TOUR,
   PRODUCT_TOUR_INTRO,
@@ -282,7 +283,11 @@ export default function DemoPage() {
           <Card id="agent-map" tint="green" className="flex scroll-mt-24 flex-col p-6 sm:p-8">
             <CardHead step="2" title="Agent map" subtitle={AGENT_MAP_INTRO} />
 
-            <AgentMapDiagram nodes={diagramNodes} />
+            {/* The diagram takes whatever slack the shared row height leaves,
+                so the card fills without stretching the rows apart. */}
+            <div className="hidden flex-1 items-center justify-center lg:flex">
+              <AgentMapDiagram nodes={diagramNodes} />
+            </div>
 
             <p className="mt-4 flex items-start gap-2.5 rounded-2xl bg-white/70 px-4 py-3 text-[12px] leading-relaxed text-leaf-700 shadow-sm">
               <Sparkles
@@ -392,6 +397,30 @@ export default function DemoPage() {
             <p className="mb-4 mt-2 rounded-2xl bg-cream-100 px-4 py-3 text-[12.5px] font-medium text-leaf-700">
               {IMPACT_DISCLAIMER}
             </p>
+
+            {/* Context for the problem, with its source. Not a Lunchies
+                result — the limit line says so on the page. */}
+            <div className="mt-4 rounded-3xl border border-cream-200/80 bg-cream-100 p-5">
+              <h3 className="font-poppins text-[15px] font-extrabold leading-snug text-leaf-900">
+                {IMPACT_EVIDENCE.heading}
+              </h3>
+              <p className="mt-2 text-[13px] leading-relaxed text-leaf-800">
+                {IMPACT_EVIDENCE.text}
+              </p>
+              <p className="mt-2.5 text-[12px] leading-relaxed text-leaf-600">
+                <a
+                  href={IMPACT_EVIDENCE.sourceUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="font-semibold text-leaf-700 underline decoration-leaf-300 underline-offset-2 hover:text-peach-600"
+                >
+                  {IMPACT_EVIDENCE.sourceLabel}
+                </a>
+              </p>
+              <p className="mt-2.5 text-[12px] leading-relaxed text-leaf-600">
+                {IMPACT_EVIDENCE.limit}
+              </p>
+            </div>
 
             <div className="mt-4 rounded-3xl border border-rose-100/70 bg-gradient-to-b from-[#fdeff1] to-[#fbe4e8] p-5">
               <h3 className="font-poppins text-[17px] font-extrabold text-leaf-900">

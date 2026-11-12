@@ -21,7 +21,7 @@ import {
   PageHero,
   PageShell,
 } from "@/components/ui/pieces";
-import { BUILD_LOG, BUILD_LOG_TOTAL } from "@/lib/week6Data";
+import { BUILD_LOG, BUILD_LOG_TOTAL, IMPACT_EVIDENCE } from "@/lib/week6Data";
 
 /** Shared classes for the bulleted and numbered lists on this page. */
 const LIST = "docs-list mt-4 space-y-2.5 text-leaf-800";
@@ -735,6 +735,17 @@ export default function DocsPage() {
             <li>
               The results of each run are written to{" "}
               <code className={CODE}>docs/regression-report.md</code>.
+            </li>
+            <li>
+              Practical impact evidence:{" "}
+              <a
+                href={IMPACT_EVIDENCE.sourceUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className={ROUTE_LINK}
+              >
+                ENSANUT 2020-2022 (INSP)
+              </a>
             </li>
           </ul>
         </Card>

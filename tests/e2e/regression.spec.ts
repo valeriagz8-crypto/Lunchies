@@ -195,6 +195,23 @@ test("/demo exposes every section anchor", async ({ page }) => {
   }
 });
 
+test("/demo cites the source for its impact evidence", async ({ page }) => {
+  await page.goto("/demo");
+  await settle(page);
+
+  const link = page.locator('#impact a[href*="ensanut.insp.mx"]');
+  await expect(link, "ENSANUT source link present").toHaveCount(1);
+  await expect(link).toHaveAttribute("target", "_blank");
+  await expect(link).toHaveAttribute("rel", /noopener/);
+
+  const text = await page.evaluate(() => document.body.innerText);
+  expect(text, "overweight figure").toContain("19.2%");
+  expect(text, "obesity figure").toContain("18.1%");
+  expect(text, "says plainly it is not a Lunchies result").toContain(
+    "not a Lunchies result",
+  );
+});
+
 test("/dashboard exposes #testing and #saved-records, and reports honestly", async ({
   page,
 }) => {

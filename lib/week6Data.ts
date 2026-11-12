@@ -194,6 +194,23 @@ export const IMPACT_CARDS = [
 export const IMPACT_DISCLAIMER =
   "These are intended benefits. Nothing here has been measured yet.";
 
+/**
+ * Context for the impact section. These figures describe the problem in
+ * Mexico; they are not a Lunchies result and nothing here has been measured
+ * by this project.
+ */
+export const IMPACT_EVIDENCE = {
+  heading: "Why this matters (context, not a Lunchies result)",
+  text:
+    "In Mexico, 19.2% of children aged 5 to 11 had overweight and 18.1% had obesity in the 2020-2022 national survey. Obesity in this age group rose from 14.6% in 2006 to 18.1% in 2020-2022.",
+  sourceLabel:
+    "ENSANUT 2020-2022, Sobrepeso y obesidad, Instituto Nacional de Salud Pública, Cuadro I, p. S220",
+  sourceUrl:
+    "https://ensanut.insp.mx/encuestas/ensanutcontinua2022/doctos/analiticos/28-Sobrepeso.y.obesidad-ENSANUT2022-14762-72492-2-10-20230619.pdf",
+  limit:
+    "Lunchies has not measured any change in children's habits. This figure only shows the size of the problem the project addresses.",
+} as const;
+
 export const RISKS_TITLE = "Risks and limits";
 
 export const RISKS: string[] = [
@@ -219,8 +236,8 @@ export type TestingRow = {
  */
 export const REGRESSION_RUN = {
   date: "2026-11-12",
-  checks: 36,
-  passed: 36,
+  checks: 37,
+  passed: 37,
   failed: 0,
 } as const;
 

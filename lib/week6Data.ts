@@ -20,7 +20,7 @@ export const DEMO_HERO = {
   titleLead: "Lunchies in",
   titleAccent: "action.",
   subtitle:
-    "A guided walkthrough of the full product, our agent system, impact, testing and what's next.",
+    "A guided walkthrough of the full product, our agent system, impact, testing and what's next. Lunchies plans lunches; it does not sell or deliver food.",
   cta: "Start demo",
   ctaHref: "#product-tour",
   /** The taped note beside the hero illustration. Decorative. */
@@ -242,6 +242,8 @@ export type TestingRow = {
   description: string;
   /** null until the work is actually done. Renders as "Pending". */
   result: string | null;
+  /** Shown as a short bullet list under the description, when there is one. */
+  bullets?: readonly string[];
 };
 
 /**
@@ -264,13 +266,75 @@ export const REGRESSION_RESULT = `${REGRESSION_RUN.passed}/${REGRESSION_RUN.chec
 /** The same figure as a one-line value for the dashboard stat tile. */
 export const REGRESSION_SHORT = `${REGRESSION_RUN.passed}/${REGRESSION_RUN.checks}`;
 
+/* --------------------------------------------- external user tests */
+
+/**
+ * Results of the external user test, taken from the Google Form responses
+ * collected 12-16 November 2026. Six people, chosen by the team, so these
+ * are tendencies and not a representative sample.
+ *
+ * No names, contact details or full responses are stored here: only the
+ * counts, the averages and short anonymised findings.
+ *
+ * Note on chatUsefulness: the form recorded six ratings even though five
+ * people reported using the chat. Both figures are written here exactly as
+ * they came back rather than reconciled.
+ */
+export const USER_TEST_RESULTS = {
+  n: 6,
+  window: "12-16 November 2026",
+  sourceLabel: "Google Form responses, 12-16 Nov 2026 (6 people)",
+  devices: { phone: 5, computer: 1 },
+  parentsOfSchoolAgeChildren: 2,
+  notParentsOfSchoolAgeChildren: 4,
+  planGenerated: { ok: 6, of: 6 },
+  planUsefulness: { scores: [5, 5, 5, 5, 4, 3], average: 4.5 },
+  clarityOfWhatLunchiesIs: { scores: [4, 5, 5, 2, 4, 3], average: 3.8 },
+  chatUsed: { used: 5, of: 6, note: "1 could not use it, reason unknown" },
+  chatUsefulness: { scores: [4, 5, 5, 4, 3, 3], average: 4.0 },
+  dashboardEase: { scores: [3, 5, 5, 1, 2, 3], average: 3.2 },
+  brokenReports: 0,
+  findings: [
+    "The plan works and was rated well.",
+    "The dashboard was the most confusing page: 4 of 6 described it as being about how the page was built or the page's statistics.",
+    "1 of 6 described Lunchies as \"like Rappi but for kids' lunches\", although Lunchies does not sell or deliver food.",
+    "The chat has few answer options; 1 tester said it should \"answer more like a human\".",
+    "Liked: design and ease of use (3 mentions), the chat, the marketing page.",
+    "Requested: characters for kids, a video of the service, more selection options by need.",
+  ],
+  limits:
+    "6 people, chosen by the team, mostly without school-age children. These are tendencies, not a representative sample.",
+} as const;
+
+/**
+ * Averages are kept as numbers so they stay checkable, and printed with one
+ * decimal so an average of exactly 4 still reads as 4.0 like the rest.
+ */
+const oneDecimal = (value: number) => value.toFixed(1);
+
+/** The headline figures, phrased once so every page agrees. */
+export const USER_TEST_SUMMARY = `${USER_TEST_RESULTS.planGenerated.ok} of ${USER_TEST_RESULTS.planGenerated.of} generated a plan`;
+
+export const USER_TEST_TILE_VALUE = String(USER_TEST_RESULTS.n);
+
+/** The short block shown on /demo beside the impact benefits. */
+export const TESTER_FEEDBACK = {
+  heading: "What testers said (context, not proof of impact)",
+  lines: [
+    `Plan usefulness ${oneDecimal(USER_TEST_RESULTS.planUsefulness.average)}/5 (n=${USER_TEST_RESULTS.n}).`,
+    `Chat usefulness ${oneDecimal(USER_TEST_RESULTS.chatUsefulness.average)}/5 (${USER_TEST_RESULTS.chatUsed.used} people).`,
+  ],
+  limits: USER_TEST_RESULTS.limits,
+  source: USER_TEST_RESULTS.sourceLabel,
+} as const;
+
 export const TESTING_INTRO = "External user tests and a full-site regression test.";
 
 export const TESTING_ROWS: TestingRow[] = [
   {
-    title: "5 external users",
-    description: "Parents with different family needs.",
-    result: null,
+    title: `${USER_TEST_RESULTS.n} external users`,
+    description: `Convenience sample, ${USER_TEST_RESULTS.window}. ${USER_TEST_RESULTS.devices.phone} on a phone, ${USER_TEST_RESULTS.devices.computer} on a computer.`,
+    result: USER_TEST_SUMMARY,
   },
   {
     title: "Full-site regression test",
@@ -281,8 +345,9 @@ export const TESTING_ROWS: TestingRow[] = [
   },
   {
     title: "Main findings",
-    description: "Usability, value and improvement areas.",
-    result: null,
+    description: "What the six responses showed.",
+    result: `${USER_TEST_RESULTS.findings.length} findings`,
+    bullets: USER_TEST_RESULTS.findings,
   },
 ];
 
@@ -298,7 +363,10 @@ export const DEMO_TESTING_INTRO = "What will be checked before launch.";
 export type DemoTestingStep = { title: string; result: string | null };
 
 export const DEMO_TESTING_STEPS: DemoTestingStep[] = [
-  { title: "5 external users", result: null },
+  {
+    title: `${USER_TEST_RESULTS.n} external users`,
+    result: `${USER_TEST_SUMMARY} · usefulness ${oneDecimal(USER_TEST_RESULTS.planUsefulness.average)}/5`,
+  },
   { title: "Full-site regression test", result: REGRESSION_RESULT },
 ];
 
@@ -306,7 +374,7 @@ export const DEMO_TESTING_CTA = "View testing details";
 export const DEMO_TESTING_HREF = "/dashboard#testing";
 
 export const TESTING_NOTE =
-  "The regression test has been run and its result is shown above. The external user tests and the findings they produce have not happened yet, so those fields stay empty until they do.";
+  "Both the external user test and the regression test have been run, and the figures above are their real results. The user test was 6 people chosen by the team, mostly without school-age children, so it shows tendencies rather than a representative sample.";
 
 /* ------------------------------------------------------------ version 2 */
 
@@ -345,6 +413,8 @@ export const ROADMAP_PHASES: RoadmapPhase[] = [
       { label: "Integration with retailers" },
       { label: "Nutrition insights and recommendations" },
       { label: "Favorite meals and child profiles" },
+      { label: "More chat answer options", note: "Requested by a tester" },
+      { label: "Characters or illustrations for kids", note: "Requested by a tester" },
     ],
   },
   {
@@ -382,6 +452,9 @@ export const DASHBOARD_HERO = {
   titleAccent: "& progress.",
   subtitle:
     "Track our product, testing and project milestones in one place.",
+  /** Added after testers read this page as being about how the site was built. */
+  scopeNote:
+    "This page is the project status summary for the Lunchies course project. Parents use /core and /chat.",
   noteItems: ["Product", "Testing", "Impact", "Next steps"],
 } as const;
 

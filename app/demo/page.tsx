@@ -53,6 +53,7 @@ import {
   IMPACT_DISCLAIMER,
   IMPACT_EVIDENCE,
   IMPACT_INTRO,
+  TESTER_FEEDBACK,
   PRODUCT_TOUR,
   PRODUCT_TOUR_INTRO,
   PRODUCT_TOUR_SAVES_LABEL,
@@ -404,6 +405,34 @@ export default function DemoPage() {
               </p>
             </div>
 
+            {/* Ratings from the six testers. Context for the claims above,
+                not evidence that the impact happened — the limit line and
+                the heading both say so. */}
+            <div className="mt-4 rounded-3xl border border-leaf-100 bg-leaf-50/70 p-5">
+              <h3 className="font-poppins text-[15px] font-extrabold leading-snug text-leaf-900">
+                {TESTER_FEEDBACK.heading}
+              </h3>
+              <ul className="mt-2.5 space-y-1.5">
+                {TESTER_FEEDBACK.lines.map((line) => (
+                  <li
+                    key={line}
+                    className="flex gap-2 text-[13px] leading-relaxed text-leaf-800"
+                  >
+                    <span aria-hidden="true" className="text-leaf-400">
+                      •
+                    </span>
+                    <span className="min-w-0">{line}</span>
+                  </li>
+                ))}
+              </ul>
+              <p className="mt-2.5 text-[12px] leading-relaxed text-leaf-600">
+                {TESTER_FEEDBACK.limits}
+              </p>
+              <p className="mt-2 text-[12px] leading-relaxed text-leaf-500">
+                {TESTER_FEEDBACK.source}
+              </p>
+            </div>
+
             <div className="mt-4 rounded-3xl border border-rose-100/70 bg-gradient-to-b from-[#fdeff1] to-[#fbe4e8] p-5">
               <h3 className="font-poppins text-[17px] font-extrabold text-leaf-900">
                 {RISKS_TITLE}
@@ -448,7 +477,7 @@ export default function DemoPage() {
                       </p>
                     {/* A check mark only where there is a real result. */}
                       <span
-                        className={`inline-flex shrink-0 items-center gap-1.5 rounded-full border px-3 py-1.5 text-[12px] font-bold ${
+                        className={`inline-flex max-w-full items-center gap-1.5 rounded-full border px-3 py-1.5 text-left text-[12px] font-bold ${
                           row.result
                             ? "border-leaf-600 bg-leaf-600 text-white"
                             : "border-leaf-200 bg-white text-leaf-500"

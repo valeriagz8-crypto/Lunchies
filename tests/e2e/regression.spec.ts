@@ -263,9 +263,51 @@ test("/dashboard exposes #testing and #saved-records, and reports honestly", asy
     "regression row shows its result",
   ).toHaveCount(1);
 
-  // The two rows that have no result must still say Pending, on both pages.
+  // The external user test has now run, so its real result must be on the
+  // page, phrased the one way lib/week6Data.ts phrases it.
+  await expect(
+    testing.getByText("6 of 6 generated a plan", { exact: true }),
+    "external users row shows the real result",
+  ).toHaveCount(1);
+  await expect(
+    testing.getByText("6 findings", { exact: true }),
+    "main findings row shows how many findings there are",
+  ).toHaveCount(1);
+
+  // Every one of those findings is listed, not just counted.
+  for (const finding of [
+    "The plan works and was rated well.",
+    "The dashboard was the most confusing page",
+    "although Lunchies does not sell or deliver food",
+    "The chat has few answer options",
+    "Liked: design and ease of use (3 mentions)",
+    "Requested: characters for kids",
+  ]) {
+    await expect(
+      testing.getByText(finding, { exact: false }),
+      `findings list mentions: ${finding}`,
+    ).not.toHaveCount(0);
+  }
+
+  // The sample limit travels with the numbers.
+  await expect(
+    testing.getByText(/tendencies rather than a representative sample/),
+    "the testing note states the sample limit",
+  ).toHaveCount(1);
+
+  // Nothing in the testing summary is pending any more.
   const pending = await testing.getByText("Pending", { exact: true }).count();
-  expect(pending, "external users and main findings stay Pending").toBe(2);
+  expect(pending, "no row claims to be pending once it has a result").toBe(0);
+
+  // The tile agrees with the row, and the page says what it is.
+  await expect(
+    page.getByText("external users tested", { exact: true }),
+    "the stat tile labels the head count",
+  ).toHaveCount(1);
+  await expect(
+    page.getByText(/This page is the project status summary/),
+    "the hero says plainly what this page is",
+  ).toHaveCount(1);
 });
 
 test("/demo's short testing step mirrors the same result", async ({ page }) => {
@@ -276,10 +318,46 @@ test("/demo's short testing step mirrors the same result", async ({ page }) => {
     testing.getByText(/^\d+\/\d+ checks passed$/),
     "regression step shows its result",
   ).toHaveCount(1);
+  // The user-test step carries its real result here too.
+  await expect(
+    testing.getByText("6 external users", { exact: true }),
+    "the user-test step names the head count",
+  ).toHaveCount(1);
+  await expect(
+    testing.getByText(/6 of 6 generated a plan . usefulness 4\.5\/5/),
+    "the user-test step shows the real result",
+  ).toHaveCount(1);
   expect(
     await testing.getByText("Pending", { exact: true }).count(),
-    "external users stays Pending on /demo",
-  ).toBe(1);
+    "no testing step claims to be pending once it has a result",
+  ).toBe(0);
+
+  // The ratings shown beside Practical impact, with their limit.
+  const impact = page.locator("#impact");
+  await expect(
+    impact.getByText("What testers said (context, not proof of impact)", {
+      exact: true,
+    }),
+    "the tester block is labelled as context, not as proof",
+  ).toHaveCount(1);
+  await expect(
+    impact.getByText("Plan usefulness 4.5/5 (n=6).", { exact: true }),
+    "plan usefulness is shown with its sample size",
+  ).toHaveCount(1);
+  await expect(
+    impact.getByText("Chat usefulness 4.0/5 (5 people).", { exact: true }),
+    "chat usefulness is shown with how many people used the chat",
+  ).toHaveCount(1);
+  await expect(
+    impact.getByText(/These are tendencies, not a representative sample\./),
+    "the tester block states the sample limit",
+  ).toHaveCount(1);
+
+  // The hero says what Lunchies is not, after a tester read it as delivery.
+  await expect(
+    page.getByText(/it does not sell or deliver food/),
+    "the hero rules out selling or delivering food",
+  ).toHaveCount(1);
 });
 
 /* ------------------------------------------------- dashboard record counts */

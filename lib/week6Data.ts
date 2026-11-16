@@ -358,7 +358,7 @@ export const TESTING_PENDING_LABEL = "Pending";
  * with its three rows, lives on /dashboard#testing so the two pages do not
  * repeat the same information.
  */
-export const DEMO_TESTING_INTRO = "What will be checked before launch.";
+export const DEMO_TESTING_INTRO = "What has been checked, and what it found.";
 
 export type DemoTestingStep = { title: string; result: string | null };
 

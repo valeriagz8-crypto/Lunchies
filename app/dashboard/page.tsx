@@ -56,6 +56,7 @@ import {
   ROADMAP_PHASES,
   TESTING_INTRO,
   TESTING_NOTE,
+  USER_TEST_TILE_VALUE,
   TESTING_PENDING_LABEL,
   TESTING_ROWS,
 } from "@/lib/week6Data";
@@ -135,7 +136,7 @@ export default function DashboardPage() {
     {
       tint: "green",
       icon: Users,
-      value: externalUsersResult ?? TESTING_PENDING_LABEL,
+      value: externalUsersResult ? USER_TEST_TILE_VALUE : TESTING_PENDING_LABEL,
       label: DASHBOARD_TILE_LABELS.externalUsers,
       pending: externalUsersResult === null,
       href: DASHBOARD_LINKS.testing,
@@ -224,6 +225,12 @@ export default function DashboardPage() {
         }
       />
 
+      {/* Added after the user test: testers read this page as being about
+          how the site was built, so it says plainly what it is. */}
+      <p className="mt-6 max-w-[46rem] text-[15px] leading-relaxed text-leaf-600">
+        {DASHBOARD_HERO.scopeNote}
+      </p>
+
       {/* Stat tiles */}
       <div className="mt-8 grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
         {statTiles.map((tile) => {
@@ -284,7 +291,9 @@ export default function DashboardPage() {
               title="Project modules"
               subtitle={PROJECT_MODULES_INTRO}
             />
-            <ul className="mt-5 divide-y divide-leaf-100">
+            {/* The rows spread over whatever height the taller card in this
+                row sets, instead of leaving the bottom of the card empty. */}
+            <ul className="mt-5 flex flex-1 flex-col justify-between divide-y divide-leaf-100">
               {PROJECT_MODULES.map((mod, index) => {
                 const ModIcon =
                   PROJECT_MODULE_ICONS[index % PROJECT_MODULE_ICONS.length];
@@ -336,7 +345,9 @@ export default function DashboardPage() {
                 return (
                   <li
                     key={row.title}
-                    className="flex min-h-[70px] items-center gap-3 rounded-2xl border border-leaf-100 bg-leaf-50/60 px-4 py-3"
+                    className={`flex min-h-[70px] gap-3 rounded-2xl border border-leaf-100 bg-leaf-50/60 px-4 py-3 ${
+                      row.bullets ? "items-start" : "items-center"
+                    }`}
                   >
                     <IconBadge tint="green" size="sm" icon={Icon} />
                     <div className="min-w-0 flex-1">
@@ -346,6 +357,21 @@ export default function DashboardPage() {
                       <p className="text-[14px] leading-snug text-leaf-600">
                         {row.description}
                       </p>
+                      {row.bullets && (
+                        <ul className="mt-2 space-y-1">
+                          {row.bullets.map((bullet) => (
+                            <li
+                              key={bullet}
+                              className="flex gap-2 text-[13px] leading-snug text-leaf-700"
+                            >
+                              <span aria-hidden="true" className="text-leaf-400">
+                                •
+                              </span>
+                              <span className="min-w-0">{bullet}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      )}
                     </div>
                     {/* A check mark only where there is a real result. */}
                     <span

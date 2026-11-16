@@ -658,7 +658,9 @@ export default function DocsPage() {
               A practical impact section written as intention, not as
               measurement: healthier habits, time savings and more
               personalization, with a line saying plainly that nothing has
-              been measured yet.
+              been measured yet. Beside it sit the two ratings the six
+              testers gave, headed as context rather than proof that the
+              impact happened, with the limits of the sample.
             </li>
             <li>
               A risks and limits block: allergy mistakes are the most serious
@@ -667,8 +669,9 @@ export default function DocsPage() {
               no real orders or payments.
             </li>
             <li>
-              A short testing step and a Version 2 roadmap where every item is
-              labelled an idea that has not been built.
+              A short testing step carrying the real result of both tests,
+              and a Version 2 roadmap where every item is labelled an idea
+              that has not been built.
             </li>
           </ul>
 
@@ -678,10 +681,11 @@ export default function DocsPage() {
           </h3>
           <ul className={LIST}>
             <li>
-              Four stat tiles. The two testing tiles read the same empty
-              fields the testing summary uses, so they say{" "}
-              <strong>Pending</strong>; the module count and the roadmap count
-              are computed from the lists themselves.
+              Four stat tiles. The two testing tiles read the same fields the
+              testing summary uses, so a tile can never claim a result the
+              summary does not have; the module count and the roadmap count
+              are computed from the lists themselves. A field with no result
+              still says <strong>Pending</strong>.
             </li>
             <li>
               The ten project modules, each with its route and a status badge.
@@ -689,7 +693,9 @@ export default function DocsPage() {
             <li>
               The full testing summary, at{" "}
               <code className={CODE}>#testing</code>. It is the only place the
-              three testing rows appear, and all three are Pending.
+              three testing rows appear. All three now carry a real result:
+              the external user test, the regression run and the six findings
+              that test produced.
             </li>
             <li>
               A revenue model computed by the same{" "}
@@ -754,6 +760,91 @@ export default function DocsPage() {
               >
                 ENSANUT 2020-2022 (INSP)
               </a>
+            </li>
+          </ul>
+
+          <h3 className={SUBHEAD}>Iteration log — what the user test changed</h3>
+          <p className="mt-4 text-leaf-800">
+            Six people answered a Google Form between 12 and 16 November
+            2026, five on a phone and one on a computer; two of them are
+            parents or carers of school-age children. Four findings led to a
+            change. Each change below is wording or a roadmap entry: no logic
+            and no new feature was added in response to the test.
+          </p>
+          <ul className={LIST}>
+            <li>
+              <strong>The dashboard read as a page about itself.</strong>{" "}
+              Four of the six described /dashboard as being about how the
+              page was built or about the page&apos;s own statistics, and it
+              scored lowest of the four questions for ease of understanding
+              (3.2 of 5). One plain sentence now sits under the hero saying
+              that the page is the project status summary and that parents
+              use /core and /chat. Wording in{" "}
+              <code className={CODE}>269be4b</code>, rendered in{" "}
+              <code className={CODE}>6d5ba65</code>.
+            </li>
+            <li>
+              <strong>One tester read Lunchies as a delivery service.</strong>{" "}
+              One of the six described it as &quot;like Rappi but for
+              kids&apos; lunches&quot;, which Lunchies is not: it plans
+              lunches and never sells or delivers food. The /demo hero
+              subtitle now says so in the first thing a visitor reads.{" "}
+              <code className={CODE}>269be4b</code>.
+            </li>
+            <li>
+              <strong>The chat has few answer options.</strong> One tester
+              said it should &quot;answer more like a human&quot;; the five
+              who used it rated its answer 4.0 of 5. The chat itself was not
+              changed. Version 2.2 of the roadmap gained{" "}
+              <em>More chat answer options</em>, labelled an idea that has not
+              been built and marked as requested by a tester.{" "}
+              <code className={CODE}>269be4b</code>.
+            </li>
+            <li>
+              <strong>Testers asked for three things.</strong> Characters for
+              kids, a video of the service, and more selection options by
+              need. The first became a roadmap entry,{" "}
+              <em>Characters or illustrations for kids</em>, again marked an
+              idea and requested by a tester. The second already exists as
+              the walkthrough video button on /demo, which stays disabled
+              while <code className={CODE}>DEMO_VIDEO_URL</code> is empty. The
+              third was recorded but nothing was built for it.{" "}
+              <code className={CODE}>269be4b</code>.
+            </li>
+          </ul>
+          <p className="mt-4 text-leaf-800">
+            The results themselves were filled in at the same time: the data
+            in <code className={CODE}>269be4b</code>, the /dashboard tile,
+            rows and findings in <code className={CODE}>6d5ba65</code>, and
+            the /demo testing step and the tester ratings beside Practical
+            impact in <code className={CODE}>04a797f</code>, which also
+            replaced the regression suite&apos;s Pending assertions with the
+            real result strings.
+          </p>
+
+          <h3 className={SUBHEAD}>What the test does not tell us</h3>
+          <ul className={LIST}>
+            <li>
+              Six people, chosen by the team, mostly without school-age
+              children. These are tendencies, not a representative sample,
+              and every figure on /demo and /dashboard is labelled that way.
+            </li>
+            <li>
+              The four earliest respondents saw an earlier version of the
+              product tour, the one that still showed Planned cards for
+              features that had not been built. Their answers about what
+              Lunchies is were given against that version of the page.
+            </li>
+            <li>
+              One of the six could not use the chat. The form does not say
+              what failed, and nothing was reproduced afterwards, so the
+              reason is unknown. No respondent reported anything broken.
+            </li>
+            <li>
+              The form returned six ratings for the chat answer although five
+              people reported using it. Both figures are shown as they came
+              back rather than reconciled: an average of 4.0 of 5, from five
+              people who said they used the chat.
             </li>
           </ul>
         </Card>

@@ -195,6 +195,40 @@ test("/demo exposes every section anchor", async ({ page }) => {
   }
 });
 
+test("/demo's product tour only shows features that exist", async ({ page }) => {
+  await page.goto("/demo");
+  await settle(page);
+
+  const tour = page.locator("#product-tour");
+
+  // Six cards, every one of them a link to a route that really serves 200.
+  const cards = tour.locator("a[href^='/']");
+  await expect(cards, "six tour cards").toHaveCount(6);
+  const hrefs = await cards.evaluateAll((els) =>
+    els.map((e) => e.getAttribute("href")),
+  );
+  expect(new Set(hrefs), "tour routes").toEqual(
+    new Set(["/core", "/chat", "/research", "/pricing", "/marketing"]),
+  );
+  for (const href of new Set(hrefs)) {
+    const res = await page.request.get(href as string);
+    expect(res.status(), `${href} reachable`).toBe(200);
+  }
+
+  // Nothing in the tour may be advertised as not built.
+  const tourText = await tour.innerText();
+  expect(tourText, "no Planned pill in the tour").not.toContain("Planned");
+  for (const gone of ["Shop", "Cook", "Track"]) {
+    expect(tourText, `${gone} is not a tour feature`).not.toContain(gone);
+  }
+
+  // The unbuilt ideas live on the roadmap instead.
+  const roadmap = await page.locator("#version-2").innerText();
+  expect(roadmap).toContain("Shopping list from the plan");
+  expect(roadmap).toContain("Favorite meals and child profiles");
+  expect(roadmap).toContain("Idea, not built");
+});
+
 test("/demo cites the source for its impact evidence", async ({ page }) => {
   await page.goto("/demo");
   await settle(page);

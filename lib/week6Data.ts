@@ -24,7 +24,7 @@ export const DEMO_HERO = {
   cta: "Start demo",
   ctaHref: "#product-tour",
   /** The taped note beside the hero illustration. Decorative. */
-  noteItems: ["Plan", "Personalize", "Shop", "Cook"],
+  noteItems: ["Plan", "Personalize", "Ask", "Price"],
 } as const;
 
 export const DEMO_STEPS = [
@@ -46,59 +46,73 @@ export const DEMO_VIDEO_URL = "";
 export const DEMO_VIDEO_LABEL = "Watch full walkthrough (5 min)";
 export const DEMO_VIDEO_PENDING_LABEL = "Video coming soon";
 
-export type TourStatus = "Live" | "Planned";
-
+/**
+ * The product tour lists only features that really run today. Every card
+ * links to its route and names the Supabase table it writes to, so a claim
+ * on this page can always be checked against the code.
+ *
+ * Unbuilt ideas are not shown here at all; they live on the Version 2
+ * roadmap, marked as ideas.
+ */
 export type TourCard = {
   title: string;
   description: string;
-  status: TourStatus;
-  /** Only set when the step is Live and has a route a visitor can open. */
-  href: string | null;
-  /** Why this status was given, shown on the page. */
-  evidence: string;
+  /** The real route this feature runs on. */
+  href: string;
+  /** The Supabase tables it writes to. */
+  tables: string[];
 };
 
 export const PRODUCT_TOUR: TourCard[] = [
   {
     title: "Plan",
-    description: "Create a 5-day lunch plan, Monday to Friday.",
-    status: "Live",
+    description:
+      "Generates a 5-day lunch plan, Monday to Friday, from the menu lists in the repository.",
     href: "/core",
-    evidence: "Runs today on /core and saves to core_outputs.",
+    tables: ["core_outputs"],
   },
   {
     title: "Personalize",
-    description: "Adjust for a child's age, allergies and food preferences.",
-    status: "Live",
+    description:
+      "Takes the child's age, filters out the allergens you mark and applies food preferences.",
     href: "/core",
-    evidence:
-      "The /core planner filters the allergens you mark, and /chat answers from the same rules.",
+    tables: ["core_outputs"],
   },
   {
-    title: "Shop",
-    description: "Get an automatic shopping list with local options.",
-    status: "Planned",
-    href: null,
-    evidence: "No shopping list exists in the code yet.",
+    title: "Ask",
+    description:
+      "A guided assistant that answers from fixed rules, refuses medical questions and hands over to a person.",
+    href: "/chat",
+    tables: ["chat_sessions"],
   },
   {
-    title: "Cook",
-    description: "Access kid-friendly, balanced recipes.",
-    status: "Planned",
-    href: null,
-    evidence: "No recipe feature exists in the code yet.",
+    title: "Research",
+    description:
+      "An intake form, 8 competitors and substitutes you can search, filter and sort, and a risk map.",
+    href: "/research",
+    tables: ["research_notes"],
   },
   {
-    title: "Track",
-    description: "Save favorites and manage several child profiles.",
-    status: "Planned",
-    href: null,
-    evidence:
-      "Saved plans already live on /core, but favorites and child profiles are not built.",
+    title: "Price",
+    description:
+      "A revenue calculator with three scenarios, sliders per plan and saved comparisons.",
+    href: "/pricing",
+    tables: ["pricing_scenarios"],
+  },
+  {
+    title: "Market",
+    description:
+      "Brand system, persona, landing copy, 10 social posts, 3 video scripts and live A/B tests.",
+    href: "/marketing",
+    tables: ["marketing_assets", "ab_events"],
   },
 ];
 
-export const PRODUCT_TOUR_INTRO = "Explore the main features of Lunchies.";
+/** The one-line label above each card's table chips. */
+export const PRODUCT_TOUR_SAVES_LABEL = "Saves to";
+
+export const PRODUCT_TOUR_INTRO =
+  "The six features that run today. Each one links to its route.";
 
 /* ------------------------------------------------------------ agent map */
 
@@ -235,9 +249,9 @@ export type TestingRow = {
  * docs/regression-report.md is generated from the same run.
  */
 export const REGRESSION_RUN = {
-  date: "2026-11-12",
-  checks: 37,
-  passed: 37,
+  date: "2026-11-16",
+  checks: 38,
+  passed: 38,
   failed: 0,
 } as const;
 
@@ -320,6 +334,7 @@ export const ROADMAP_PHASES: RoadmapPhase[] = [
       { label: "Inventory at home" },
       { label: "More recipe filters" },
       { label: "Export grocery list" },
+      { label: "Shopping list from the plan" },
       { label: "Downloadable weekly menu as PDF", note: "Requested by a tester" },
     ],
   },
@@ -329,6 +344,7 @@ export const ROADMAP_PHASES: RoadmapPhase[] = [
     items: [
       { label: "Integration with retailers" },
       { label: "Nutrition insights and recommendations" },
+      { label: "Favorite meals and child profiles" },
     ],
   },
   {

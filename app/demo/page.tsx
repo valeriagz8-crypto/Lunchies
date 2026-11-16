@@ -4,16 +4,16 @@ import {
   ArrowRight,
   CalendarDays,
   CheckCircle2,
-  ChefHat,
   CircleDashed,
   Clock,
   Database,
   Laptop,
   Leaf,
   LineChart,
+  Megaphone,
   MessageCircle,
   Play,
-  ShoppingCart,
+  Search,
   SlidersHorizontal,
   Sparkles,
   UserRound,
@@ -55,6 +55,7 @@ import {
   IMPACT_INTRO,
   PRODUCT_TOUR,
   PRODUCT_TOUR_INTRO,
+  PRODUCT_TOUR_SAVES_LABEL,
   RISKS,
   RISKS_TITLE,
   ROADMAP_INTRO,
@@ -65,13 +66,14 @@ import {
 } from "@/lib/week6Data";
 import AgentMapDiagram, { type DiagramNode } from "./AgentMapDiagram";
 
-/** Pastel tint and icon per product-tour card, in the mockup's order. */
+/** Pastel tint and icon per product-tour card, in the data's order. */
 const TOUR_STYLE: { tint: TintName; icon: typeof CalendarDays }[] = [
   { tint: "green", icon: CalendarDays },
   { tint: "peach", icon: SlidersHorizontal },
-  { tint: "blue", icon: ShoppingCart },
-  { tint: "cream", icon: ChefHat },
+  { tint: "blue", icon: MessageCircle },
+  { tint: "cream", icon: Search },
   { tint: "pink", icon: LineChart },
+  { tint: "green", icon: Megaphone },
 ];
 
 /** Icon and tint per module, in the order lib/week6Data lists them. */
@@ -207,14 +209,17 @@ export default function DemoPage() {
             }
           />
 
-          <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
+          <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {PRODUCT_TOUR.map((card, index) => {
               const style = TOUR_STYLE[index % TOUR_STYLE.length];
               const tint = TINT[style.tint];
               const Icon = style.icon;
-              const live = card.status === "Live";
-              const body = (
-                <>
+              return (
+                <Link
+                  key={card.title}
+                  href={card.href}
+                  className={`flex h-full flex-col rounded-3xl border p-5 shadow-sm transition-transform hover:-translate-y-0.5 lg:p-6 ${tint.card}`}
+                >
                   <span
                     className={`flex h-12 w-12 items-center justify-center rounded-2xl bg-white/85 shadow-sm lg:h-14 lg:w-14 ${tint.badgeInk}`}
                   >
@@ -226,15 +231,23 @@ export default function DemoPage() {
                   <p className="mt-2 text-[14px] leading-snug text-leaf-700 lg:text-[16px]">
                     {card.description}
                   </p>
+
+                  {/* Where this feature's data actually goes. */}
+                  <span className="mt-4 flex flex-wrap items-center gap-1.5 text-[11px] font-semibold text-leaf-600">
+                    {PRODUCT_TOUR_SAVES_LABEL}
+                    {card.tables.map((t) => (
+                      <span
+                        key={t}
+                        className="inline-flex items-center rounded-full bg-white/80 px-2 py-0.5 font-mono text-[10.5px] font-semibold text-leaf-700 ring-1 ring-leaf-100"
+                      >
+                        {t}
+                      </span>
+                    ))}
+                  </span>
+
                   <span className="mt-auto flex items-center justify-between gap-2 pt-4">
-                    <span
-                      className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide ${
-                        live
-                          ? "bg-leaf-600 text-white"
-                          : "border border-leaf-200 bg-white/80 text-leaf-500"
-                      }`}
-                    >
-                      {card.status}
+                    <span className="inline-flex items-center gap-1 rounded-full bg-leaf-600 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-white">
+                      Live
                     </span>
                     <span
                       className={`flex h-8 w-8 items-center justify-center rounded-full bg-white/85 shadow-sm ${tint.badgeInk}`}
@@ -242,42 +255,11 @@ export default function DemoPage() {
                       <ArrowRight className="h-4 w-4" aria-hidden="true" />
                     </span>
                   </span>
-                </>
-              );
-
-              const shell = `flex h-full flex-col rounded-3xl border p-5 lg:p-6 ${tint.card}`;
-
-              return live && card.href ? (
-                <Link
-                  key={card.title}
-                  href={card.href}
-                  title={card.evidence}
-                  className={`${shell} shadow-sm transition-transform hover:-translate-y-0.5`}
-                >
-                  {body}
                 </Link>
-              ) : (
-                <div key={card.title} title={card.evidence} className={shell}>
-                  {body}
-                </div>
               );
             })}
           </div>
-
-          {/* The evidence for every badge, kept out of the cards so they all
-              share one height. */}
-          <dl className="mt-5 grid gap-x-6 gap-y-1.5 rounded-2xl bg-cream-100 px-4 py-3.5 text-[12px] leading-snug text-leaf-600 sm:grid-cols-2 lg:grid-cols-3">
-            {PRODUCT_TOUR.map((card) => (
-              <div key={card.title} className="flex gap-1.5">
-                <dt className="shrink-0 font-bold text-leaf-700">
-                  {card.title}:
-                </dt>
-                <dd>{card.evidence}</dd>
-              </div>
-            ))}
-          </dl>
         </Card>
-
         {/* 2 + 3 — Agent map beside Practical impact */}
         <div className="grid gap-6 lg:grid-cols-[1.3fr_1fr]">
           <Card id="agent-map" tint="green" className="flex scroll-mt-24 flex-col p-6 sm:p-8">

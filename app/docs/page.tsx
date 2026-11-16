@@ -260,11 +260,11 @@ export default function DocsPage() {
             <li>
               <strong>Week 6 — Guided walkthrough (/demo):</strong> Build
               /demo from <code className={CODE}>mockups/demo.png</code> with a
-              product tour whose cards are badged Live or Planned according to
-              what the code really does, an agent map of only the real
-              modules, a practical impact section written as intention with a
-              risks and limits block, a short testing step and a Version 2
-              roadmap where every item is marked as an idea.
+              product tour that lists only features that really run, each one
+              linking to its route and naming the table it writes to, an agent
+              map of only the real modules, a practical impact section written
+              as intention with a risks and limits block, a short testing step
+              and a Version 2 roadmap where every item is marked as an idea.
             </li>
             <li>
               <strong>Week 6 — Project dashboard (/dashboard):</strong> Build
@@ -626,12 +626,20 @@ export default function DocsPage() {
           </h3>
           <ul className={LIST}>
             <li>
-              A product tour of five steps. Plan and Personalize carry a{" "}
-              <strong>Live</strong> badge because the /core planner really
-              generates and filters a 5-day plan today. Shop, Cook and Track
-              carry a <strong>Planned</strong> badge: no shopping list, no
-              recipe feature and no child profiles exist in the code. Each
-              badge is shown with the evidence for it.
+              A product tour of six features, all of them running today:
+              Plan and Personalize on{" "}
+              <Link href="/core" className={ROUTE_LINK}>/core</Link>, Ask on{" "}
+              <Link href="/chat" className={ROUTE_LINK}>/chat</Link>, Research
+              on <Link href="/research" className={ROUTE_LINK}>/research</Link>,
+              Price on{" "}
+              <Link href="/pricing" className={ROUTE_LINK}>/pricing</Link> and
+              Market on{" "}
+              <Link href="/marketing" className={ROUTE_LINK}>/marketing</Link>.
+              Each card links to its route and names the Supabase table it
+              writes to, so the claim can be checked against the code. Nothing
+              unbuilt appears in the tour: a shopping list, recipes, favorite
+              meals and child profiles are Version 2 ideas and are listed only
+              on the roadmap.
             </li>
             <li>
               An agent map of the five modules that are real routes: the Core

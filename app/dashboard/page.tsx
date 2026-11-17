@@ -281,7 +281,7 @@ export default function DashboardPage() {
               aria-hidden="true"
               className="relative w-[98%] max-w-[550px] -translate-x-[7%] object-contain drop-shadow-[0_18px_28px_rgba(61,48,34,0.16)]"
             />
-            <div className="absolute right-0 top-1/2 w-[46%] max-w-[232px] -translate-y-[58%] xl:right-[-3%]">
+            <div className="absolute right-0 top-1/2 w-[40%] max-w-[158px] -translate-y-[58%] sm:w-[46%] sm:max-w-[232px] xl:right-[-3%]">
               <StickyNote tone="cream">
                 <span className="flex flex-col gap-1.5">
                   {DASHBOARD_HERO.noteItems.map((item) => (
@@ -472,9 +472,11 @@ export default function DashboardPage() {
             title={FINDINGS_TITLE}
             subtitle={FINDINGS_INTRO}
             action={
-              <span className="inline-flex items-center gap-1.5 rounded-full border border-leaf-600 bg-leaf-600 px-3 py-1.5 text-[12px] font-bold text-white">
-                <CheckCircle2 className="h-3.5 w-3.5" aria-hidden="true" />
-                {TESTING_ROWS[2]?.result}
+              <span className="w-full sm:w-auto">
+                <span className="inline-flex items-center gap-1.5 rounded-full border border-leaf-600 bg-leaf-600 px-3 py-1.5 text-[12px] font-bold text-white">
+                  <CheckCircle2 className="h-3.5 w-3.5" aria-hidden="true" />
+                  {TESTING_ROWS[2]?.result}
+                </span>
               </span>
             }
           />
@@ -509,13 +511,15 @@ export default function DashboardPage() {
                   </span>
                 }
                 action={
-                  <Link
-                    href="/pricing"
-                    className="inline-flex items-center gap-1.5 text-[13px] font-bold text-leaf-700 hover:text-peach-600"
-                  >
-                    Open the calculator
-                    <ArrowRight className="h-4 w-4" aria-hidden="true" />
-                  </Link>
+                  <span className="w-full sm:w-auto">
+                    <Link
+                      href="/pricing"
+                      className="inline-flex items-center gap-1.5 text-[13px] font-bold text-leaf-700 hover:text-peach-600"
+                    >
+                      Open the calculator
+                      <ArrowRight className="h-4 w-4" aria-hidden="true" />
+                    </Link>
+                  </span>
                 }
               />
               <div className="mt-5 grid flex-1 gap-3 sm:grid-cols-3">

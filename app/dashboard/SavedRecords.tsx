@@ -233,9 +233,11 @@ export default function SavedRecords({
           title={DATA_LIVES_TITLE}
           subtitle={DATA_LIVES_INTRO}
           action={
-            <span className="inline-flex items-center gap-1.5 rounded-full bg-white px-3 py-1.5 text-[12px] font-bold text-leaf-700 ring-1 ring-leaf-100">
-              <Zap className="h-3.5 w-3.5 text-peach-500" aria-hidden="true" />
-              {DATA_LIVES_SOURCE}
+            <span className="w-full sm:w-auto">
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-white px-3 py-1.5 text-[12px] font-bold text-leaf-700 ring-1 ring-leaf-100">
+                <Zap className="h-3.5 w-3.5 text-peach-500" aria-hidden="true" />
+                {DATA_LIVES_SOURCE}
+              </span>
             </span>
           }
         />

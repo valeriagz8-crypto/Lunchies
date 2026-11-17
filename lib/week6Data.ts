@@ -1412,10 +1412,45 @@ export const BUILD_LOG: BuildLogWeek[] = [
         hash: "ef18be1",
         subject: "Rebuild /dashboard as the compact infographic in the mockup",
         date: "2026-11-17"
+      },
+      {
+        hash: "b31f126",
+        subject: "Regenerate the build log, and keep a script that can do it again",
+        date: "2026-11-17"
+      },
+      {
+        hash: "6a9fb7c",
+        subject: "Call the ten routes pages, and keep \"module\" for the five",
+        date: "2026-11-17"
+      },
+      {
+        hash: "b8b5d70",
+        subject: "Say it in plain English for a reader from outside",
+        date: "2026-11-17"
+      },
+      {
+        hash: "ed80584",
+        subject: "Drop the duplicate roadmap idea and name the saved scenarios",
+        date: "2026-11-17"
+      },
+      {
+        hash: "7ce2bc8",
+        subject: "Key the strawberries out of their background",
+        date: "2026-11-17"
+      },
+      {
+        hash: "3c487f0",
+        subject: "Fit the /demo hero and banner to a phone",
+        date: "2026-11-17"
+      },
+      {
+        hash: "0985fb6",
+        subject: "Give the card titles the full width on a phone",
+        date: "2026-11-17"
       }
     ]
   }
 ];
 
-export const BUILD_LOG_TOTAL = 140;
+export const BUILD_LOG_TOTAL = 147;
 /* build-log:end */

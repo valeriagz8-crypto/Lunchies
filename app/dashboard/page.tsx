@@ -27,12 +27,12 @@ import {
 import {
   Card,
   CardHead,
-  HeroArt,
   HeroLabel,
   IconBadge,
   NoteTick,
   PageHero,
   PageShell,
+  Sparkle,
   StickyNote,
 } from "@/components/ui/pieces";
 import { TINT, type TintName } from "@/components/ui/theme";
@@ -46,6 +46,9 @@ import {
   DASHBOARD_V2_INTRO,
   DASHBOARD_V2_LINKS,
   DASHBOARD_V2_TITLE,
+  DATA_LIVES_SOURCE,
+  FINDINGS_INTRO,
+  FINDINGS_TITLE,
   PROJECT_MODULES,
   PROJECT_MODULES_INTRO,
   REVENUE_MODEL_CUSTOMERS,
@@ -57,6 +60,7 @@ import {
   ROADMAP_PHASES,
   TESTING_INTRO,
   TESTING_NOTE,
+  USER_TEST_RESULTS,
   USER_TEST_TILE_VALUE,
   TESTING_PENDING_LABEL,
   TESTING_ROWS,
@@ -64,6 +68,20 @@ import {
 import SavedRecords from "./SavedRecords";
 
 const TESTING_ICONS = [Users, Laptop, ClipboardList];
+
+/** One tint per project module tile, cycled in the mockup's order. */
+const PROJECT_MODULE_TINTS: TintName[] = [
+  "green",
+  "peach",
+  "blue",
+  "green",
+  "cream",
+  "cream",
+  "pink",
+  "blue",
+  "green",
+  "pink",
+];
 
 /** One icon per project module, in the order lib/week6Data lists them. */
 const PROJECT_MODULE_ICONS = [
@@ -118,13 +136,23 @@ export default function DashboardPage() {
       REVENUE_MODEL_SCENARIO,
     ).monthly,
   }));
-  const topPlan = planRevenues.reduce((top, current) =>
-    current.monthly > top.monthly ? current : top,
+  // Plans can tie for the top: Basic and Plus both bring in the same
+  // monthly revenue on the default split. Saying one of them is "the top
+  // plan" would be false, so a tie is shown as a tie.
+  const topMonthly = Math.max(...planRevenues.map((p) => p.monthly));
+  const topPlans = planRevenues.filter(
+    (p) => Math.abs(p.monthly - topMonthly) < 0.01,
   );
   const topPlanShare =
-    revenue.monthly > 0
-      ? Math.round((topPlan.monthly / revenue.monthly) * 100)
-      : 0;
+    revenue.monthly > 0 ? Math.round((topMonthly / revenue.monthly) * 100) : 0;
+  const topPlanValue =
+    topPlans.length > 1
+      ? topPlans.map((p) => p.plan.name).join(" = ")
+      : `${topPlans[0].plan.name} (${topPlanShare}%)`;
+  const topPlanLabel =
+    topPlans.length > 1
+      ? `tied for top plan by revenue, ${topPlanShare}% each`
+      : "top plan by revenue";
 
   const statTiles: {
     tint: TintName;
@@ -133,6 +161,8 @@ export default function DashboardPage() {
     label: string;
     href?: string;
     pending?: boolean;
+    /** A check beside the number, where the run itself passed. */
+    check?: boolean;
   }[] = [
     {
       tint: "green",
@@ -148,6 +178,7 @@ export default function DashboardPage() {
       value: regressionResult ? REGRESSION_SHORT : TESTING_PENDING_LABEL,
       label: DASHBOARD_TILE_LABELS.regression,
       pending: regressionResult === null,
+      check: regressionResult !== null,
       href: DASHBOARD_LINKS.testing,
     },
     {
@@ -182,8 +213,8 @@ export default function DashboardPage() {
     {
       tint: "peach" as TintName,
       icon: Trophy,
-      value: `${topPlan.plan.name} (${topPlanShare}%)`,
-      label: "top plan by revenue",
+      value: topPlanValue,
+      label: topPlanLabel,
     },
   ];
 
@@ -206,15 +237,49 @@ export default function DashboardPage() {
         }
         subtitle={DASHBOARD_HERO.subtitle}
         subtitleWidth="max-w-[23rem] lg:max-w-[26rem]"
+        actions={
+          <>
+            <div className="mt-5 flex flex-wrap items-center gap-3">
+              <Link
+                href={DASHBOARD_HERO.primary.href}
+                className="inline-flex items-center gap-2.5 rounded-full bg-leaf-700 px-7 py-3.5 text-[15px] font-bold text-white shadow-btn transition-colors hover:bg-leaf-800"
+              >
+                {DASHBOARD_HERO.primary.label}
+                <ArrowRight className="h-4 w-4" aria-hidden="true" />
+              </Link>
+              <Link
+                href={DASHBOARD_HERO.secondary.href}
+                className="inline-flex items-center gap-2.5 rounded-full border border-leaf-300 bg-white px-6 py-3.5 text-[15px] font-bold text-leaf-700 shadow-sm transition-colors hover:bg-leaf-50"
+              >
+                <Play className="h-4 w-4 fill-current" aria-hidden="true" />
+                {DASHBOARD_HERO.secondary.label}
+              </Link>
+            </div>
+
+            {/* Added after the user test: testers read this page as being
+                about how the site was built, so it says plainly what it is. */}
+            <p className="mt-3.5 max-w-[30rem] text-[13px] leading-relaxed text-leaf-600">
+              {DASHBOARD_HERO.scopeNote}
+            </p>
+          </>
+        }
         art={
-          <HeroArt
-            src="/images/week6/dash-hero.webp"
-            width={374}
-            height={266}
-            imageClassName="w-[62%] max-w-[380px] -translate-x-[25%]"
-            tone="leaf"
-            priority
-            note={
+          <div className="relative flex min-h-[210px] items-center justify-center sm:min-h-[250px] lg:min-h-[300px]">
+            <Sparkle className="absolute left-2 top-1 h-8 w-10" color="peach" />
+            <Sparkle
+              className="absolute bottom-2 left-8 hidden h-7 w-9 rotate-[200deg] sm:block"
+              color="leaf"
+            />
+            <Image
+              src="/images/week6/dash-hero-lg.webp"
+              alt=""
+              width={440}
+              height={286}
+              priority
+              aria-hidden="true"
+              className="relative w-[98%] max-w-[550px] -translate-x-[7%] object-contain drop-shadow-[0_18px_28px_rgba(61,48,34,0.16)]"
+            />
+            <div className="absolute right-0 top-1/2 w-[46%] max-w-[232px] -translate-y-[58%] xl:right-[-3%]">
               <StickyNote tone="cream">
                 <span className="flex flex-col gap-1.5">
                   {DASHBOARD_HERO.noteItems.map((item) => (
@@ -222,19 +287,13 @@ export default function DashboardPage() {
                   ))}
                 </span>
               </StickyNote>
-            }
-          />
+            </div>
+          </div>
         }
       />
 
-      {/* Added after the user test: testers read this page as being about
-          how the site was built, so it says plainly what it is. */}
-      <p className="mt-6 max-w-[46rem] text-[15px] leading-relaxed text-leaf-600">
-        {DASHBOARD_HERO.scopeNote}
-      </p>
-
       {/* Stat tiles */}
-      <div className="mt-8 grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
+      <div className="mt-7 grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
         {statTiles.map((tile) => {
           const Icon = tile.icon;
           const body = (
@@ -246,10 +305,10 @@ export default function DashboardPage() {
               />
               <div className="min-w-0">
                 <p
-                  className={`whitespace-nowrap font-poppins font-extrabold leading-none text-leaf-900 ${
+                  className={`flex items-center gap-1.5 whitespace-nowrap font-poppins font-extrabold leading-none text-leaf-900 ${
                     tile.pending
                       ? "text-[20px] sm:text-[26px]"
-                      : "text-[28px] sm:text-[38px]"
+                      : "text-[27px] sm:text-[36px]"
                   }`}
                 >
                   {tile.pending ? (
@@ -258,7 +317,15 @@ export default function DashboardPage() {
                       {tile.value}
                     </span>
                   ) : (
-                    tile.value
+                    <>
+                      {tile.value}
+                      {tile.check && (
+                        <CheckCircle2
+                          className="h-5 w-5 shrink-0 text-leaf-600"
+                          aria-hidden="true"
+                        />
+                      )}
+                    </>
                   )}
                 </p>
                 <p className="mt-1.5 text-[12.5px] font-medium leading-snug text-leaf-600 sm:text-[14px]">
@@ -267,7 +334,7 @@ export default function DashboardPage() {
               </div>
             </div>
           );
-          const shell = `flex h-[118px] items-center rounded-[28px] border px-4 shadow-card sm:h-[132px] sm:px-6 ${TINT[tile.tint].card}`;
+          const shell = `flex h-[104px] items-center rounded-[26px] border px-4 shadow-card sm:h-[116px] sm:px-5 ${TINT[tile.tint].card}`;
           return tile.href ? (
             <Link
               key={tile.label}
@@ -286,53 +353,50 @@ export default function DashboardPage() {
 
       <div className="mt-6 space-y-6">
         {/* Project modules + Testing summary */}
-        <div className="grid gap-6 lg:grid-cols-2">
+        <div className="grid items-start gap-6 lg:grid-cols-2">
           <Card tint="plain" className="flex flex-col p-6 sm:p-8">
             <CardHead
               badge={<IconBadge tint="green" icon={BarChart3} />}
               title="Project modules"
               subtitle={PROJECT_MODULES_INTRO}
             />
-            {/* The rows spread over whatever height the taller card in this
-                row sets, instead of leaving the bottom of the card empty. */}
-            <ul className="mt-5 flex flex-1 flex-col justify-between divide-y divide-leaf-100">
+            {/* A tile per module, five across, as the mockup lays them out. */}
+            <div className="mt-5 grid grid-cols-2 gap-2.5 sm:grid-cols-3 lg:grid-cols-5">
               {PROJECT_MODULES.map((mod, index) => {
                 const ModIcon =
                   PROJECT_MODULE_ICONS[index % PROJECT_MODULE_ICONS.length];
+                const tint = TINT[PROJECT_MODULE_TINTS[index % PROJECT_MODULE_TINTS.length]];
                 return (
-                <li key={mod.route}>
                   <Link
+                    key={mod.route}
                     href={mod.route}
                     title={mod.route}
-                    className="flex items-center gap-3 py-[7px] transition-colors hover:text-leaf-600"
+                    className={`flex h-[116px] flex-col items-center justify-center gap-1.5 rounded-2xl border px-1.5 text-center transition-transform hover:-translate-y-0.5 ${tint.card}`}
                   >
                     <ModIcon
-                      className="h-[22px] w-[22px] shrink-0 text-leaf-600"
+                      className={`h-6 w-6 shrink-0 ${tint.badgeInk}`}
                       aria-hidden="true"
                       strokeWidth={2.1}
                     />
-                    <span className="min-w-0 flex-1 font-poppins text-[15px] font-extrabold text-leaf-900">
+                    <span className="min-w-0 font-poppins text-[14px] font-extrabold leading-tight text-leaf-900">
                       {mod.name}
                     </span>
                     <span
-                      className={`inline-flex shrink-0 items-center gap-1.5 rounded-full border px-3 py-1 text-[12px] font-bold ${
-                        mod.status === "Live"
-                          ? "border-leaf-200 bg-white text-leaf-700"
-                          : "border-leaf-200 bg-white text-leaf-400"
+                      className={`inline-flex shrink-0 items-center gap-1 rounded-full border border-leaf-200 bg-white px-2 py-0.5 text-[11px] font-bold ${
+                        mod.status === "Live" ? "text-leaf-700" : "text-leaf-400"
                       }`}
                     >
                       {mod.status === "Live" ? (
-                        <CheckCircle2 className="h-3.5 w-3.5 text-leaf-600" aria-hidden="true" />
+                        <CheckCircle2 className="h-3 w-3 text-leaf-600" aria-hidden="true" />
                       ) : (
-                        <CircleDashed className="h-3.5 w-3.5" aria-hidden="true" />
+                        <CircleDashed className="h-3 w-3" aria-hidden="true" />
                       )}
                       {mod.status}
                     </span>
                   </Link>
-                </li>
                 );
               })}
-            </ul>
+            </div>
           </Card>
 
           <Card id="testing" tint="plain" className="flex scroll-mt-24 flex-col p-6 sm:p-8">
@@ -340,76 +404,93 @@ export default function DashboardPage() {
               badge={<IconBadge tint="green" icon={Users} />}
               title="Testing summary"
               subtitle={TESTING_INTRO}
-              action={
-                <Image
-                  src="/images/week6/dash-notepad.webp"
-                  alt=""
-                  width={168}
-                  height={217}
-                  loading="lazy"
-                  aria-hidden="true"
-                  className="pointer-events-none -mt-1 hidden h-auto w-[88px] drop-shadow-[0_10px_16px_rgba(61,48,34,0.16)] md:block"
-                />
-              }
             />
-            <ul className="mt-5 space-y-3">
-              {TESTING_ROWS.map((row, index) => {
-                const Icon = TESTING_ICONS[index % TESTING_ICONS.length];
-                return (
-                  <li
-                    key={row.title}
-                    className={`flex min-h-[70px] gap-3 rounded-2xl border border-leaf-100 bg-leaf-50/60 px-4 py-3 ${
-                      row.bullets ? "items-start" : "items-center"
-                    }`}
-                  >
-                    <IconBadge tint="green" size="sm" icon={Icon} />
-                    <div className="min-w-0 flex-1">
-                      <p className="font-poppins text-[16px] font-extrabold text-leaf-900">
-                        {row.title}
-                      </p>
-                      <p className="text-[14px] leading-snug text-leaf-600">
-                        {row.description}
-                      </p>
-                      {row.bullets && (
-                        <ul className="mt-2 space-y-1">
-                          {row.bullets.map((bullet) => (
-                            <li
-                              key={bullet}
-                              className="flex gap-2 text-[13px] leading-snug text-leaf-700"
-                            >
-                              <span aria-hidden="true" className="text-leaf-400">
-                                •
-                              </span>
-                              <span className="min-w-0">{bullet}</span>
-                            </li>
-                          ))}
-                        </ul>
-                      )}
-                    </div>
-                    {/* A check mark only where there is a real result. */}
-                    <span
-                      className={`inline-flex shrink-0 items-center gap-1.5 rounded-full border px-3 py-1.5 text-[12px] font-bold ${
-                        row.result
-                          ? "border-leaf-600 bg-leaf-600 text-white"
-                          : "border-leaf-200 bg-white text-leaf-500"
-                      }`}
+
+            {/* The notepad stands beside the rows, as tall as all three. */}
+            <div className="mt-5 grid flex-1 items-stretch gap-3.5 md:grid-cols-[150px_1fr]">
+              <Image
+                src="/images/week6/dash-notepad-lg.webp"
+                alt=""
+                width={184}
+                height={228}
+                loading="lazy"
+                aria-hidden="true"
+                className="pointer-events-none hidden h-full w-full object-contain drop-shadow-[0_10px_16px_rgba(61,48,34,0.16)] md:block"
+              />
+
+              <ul className="flex min-w-0 flex-col justify-center gap-2.5">
+                {TESTING_ROWS.map((row, index) => {
+                  const Icon = TESTING_ICONS[index % TESTING_ICONS.length];
+                  return (
+                    <li
+                      key={row.title}
+                      className="flex flex-wrap items-center gap-x-2.5 gap-y-2 rounded-2xl border border-leaf-100 bg-leaf-50/60 px-3 py-2.5"
                     >
-                      {row.result ? (
-                        <CheckCircle2 className="h-3.5 w-3.5" aria-hidden="true" />
-                      ) : (
-                        <CircleDashed className="h-3.5 w-3.5" aria-hidden="true" />
-                      )}
-                      {row.result ?? TESTING_PENDING_LABEL}
-                    </span>
-                  </li>
-                );
-              })}
-            </ul>
-            <p className="mt-4 rounded-2xl bg-cream-100 px-4 py-3 text-[13px] font-medium text-leaf-700">
+                      <IconBadge tint="green" size="sm" icon={Icon} />
+                      <div className="min-w-0 flex-1 basis-[190px]">
+                        <p className="font-poppins text-[14px] font-extrabold leading-tight text-leaf-900">
+                          {row.title}
+                        </p>
+                        <p className="mt-0.5 text-[12px] leading-snug text-leaf-600">
+                          {row.description}
+                        </p>
+                      </div>
+                      {/* A check mark only where there is a real result. */}
+                      <span
+                        className={`inline-flex shrink-0 items-center gap-1 rounded-full border px-2.5 py-1 text-[11px] font-bold ${
+                          row.result
+                            ? "border-leaf-600 bg-leaf-600 text-white"
+                            : "border-leaf-200 bg-white text-leaf-500"
+                        }`}
+                      >
+                        {row.result ? (
+                          <CheckCircle2 className="h-3.5 w-3.5" aria-hidden="true" />
+                        ) : (
+                          <CircleDashed className="h-3.5 w-3.5" aria-hidden="true" />
+                        )}
+                        {row.result ?? TESTING_PENDING_LABEL}
+                      </span>
+                    </li>
+                  );
+                })}
+              </ul>
+            </div>
+
+            <p className="mt-4 rounded-2xl bg-cream-100 px-4 py-2.5 text-[12.5px] font-medium text-leaf-700">
               {TESTING_NOTE}
             </p>
           </Card>
         </div>
+
+        {/* The six findings in full, lifted out of the testing summary so
+            that card stays as compact as the mockup's. */}
+        <Card id="findings" tint="plain" className="scroll-mt-24 p-6 sm:p-8">
+          <CardHead
+            badge={<IconBadge tint="green" icon={ClipboardList} />}
+            title={FINDINGS_TITLE}
+            subtitle={FINDINGS_INTRO}
+            action={
+              <span className="inline-flex items-center gap-1.5 rounded-full border border-leaf-600 bg-leaf-600 px-3 py-1.5 text-[12px] font-bold text-white">
+                <CheckCircle2 className="h-3.5 w-3.5" aria-hidden="true" />
+                {TESTING_ROWS[2]?.result}
+              </span>
+            }
+          />
+          <ul className="mt-4 gap-x-8 md:columns-2 [&>li]:mb-2 [&>li]:break-inside-avoid">
+            {USER_TEST_RESULTS.findings.map((finding) => (
+              <li
+                key={finding}
+                className="flex gap-2 text-[13px] leading-snug text-leaf-800"
+              >
+                <span
+                  aria-hidden="true"
+                  className="mt-[6px] h-1.5 w-1.5 shrink-0 rounded-full bg-leaf-400"
+                />
+                <span className="min-w-0">{finding}</span>
+              </li>
+            ))}
+          </ul>
+        </Card>
 
         {/* Key metrics beside Where the data lives, then Saved records and
             the Version 2 links. The counts are fetched once, in the client
@@ -425,21 +506,30 @@ export default function DashboardPage() {
                     {REVENUE_MODEL_BADGE}
                   </span>
                 }
+                action={
+                  <Link
+                    href="/pricing"
+                    className="inline-flex items-center gap-1.5 text-[13px] font-bold text-leaf-700 hover:text-peach-600"
+                  >
+                    Open the calculator
+                    <ArrowRight className="h-4 w-4" aria-hidden="true" />
+                  </Link>
+                }
               />
-              <div className="mt-5 grid gap-3 sm:grid-cols-3">
+              <div className="mt-5 grid flex-1 gap-3 sm:grid-cols-3">
                 {metricTiles.map((tile) => {
                   const Icon = tile.icon;
                   return (
                     <div
                       key={tile.label}
-                      className={`rounded-2xl border px-2.5 py-4 text-center ${TINT[tile.tint].card}`}
+                      className={`flex flex-col items-center justify-center rounded-2xl border px-2.5 py-6 text-center ${TINT[tile.tint].card}`}
                     >
                       <span
                         className={`mx-auto flex h-9 w-9 items-center justify-center rounded-full bg-white/80 ${TINT[tile.tint].badgeInk}`}
                       >
                         <Icon className="h-4 w-4" aria-hidden="true" strokeWidth={2.2} />
                       </span>
-                      <p className="mt-2 whitespace-nowrap font-poppins text-[20px] font-extrabold leading-none text-leaf-900">
+                      <p className="mt-2.5 font-poppins text-[24px] font-extrabold leading-tight text-leaf-900">
                         {tile.value}
                       </p>
                       <p className="mt-1.5 text-[11px] leading-[1.35] text-leaf-600">
@@ -449,16 +539,9 @@ export default function DashboardPage() {
                   );
                 })}
               </div>
-              <p className="mt-4 rounded-2xl bg-cream-100 px-4 py-3 text-[13px] font-medium text-leaf-700">
+              <p className="mt-4 rounded-2xl bg-cream-100 px-4 py-2.5 text-[12.5px] font-medium text-leaf-700">
                 {REVENUE_MODEL_NOTE}
               </p>
-              <Link
-                href="/pricing"
-                className="mt-auto inline-flex items-center gap-2 pt-4 text-[14px] font-bold text-leaf-700 hover:text-peach-600"
-              >
-                Open the calculator
-                <ArrowRight className="h-4 w-4" aria-hidden="true" />
-              </Link>
             </Card>
           }
           versionCard={
@@ -477,12 +560,19 @@ export default function DashboardPage() {
                     <Link
                       key={link.href}
                       href={link.href}
-                      className={`flex items-center justify-between gap-3 rounded-full px-6 py-4 font-poppins text-[16px] font-extrabold text-leaf-900 shadow-btn transition-transform hover:-translate-y-0.5 ${
+                      className={`flex items-center justify-between gap-3 rounded-full py-3 pl-6 pr-3 text-left shadow-btn transition-transform hover:-translate-y-0.5 ${
                         index === 0 ? "bg-white" : "bg-peach-100"
                       }`}
                     >
-                      {link.label}
-                      <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-white text-peach-500">
+                      <span className="min-w-0">
+                        <span className="block font-poppins text-[16px] font-extrabold leading-tight text-leaf-900">
+                          {link.label}
+                        </span>
+                        <span className="mt-0.5 block text-[12.5px] leading-snug text-leaf-600">
+                          {link.note}
+                        </span>
+                      </span>
+                      <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-white text-peach-500 shadow-sm">
                         <ArrowRight className="h-4 w-4" aria-hidden="true" />
                       </span>
                     </Link>

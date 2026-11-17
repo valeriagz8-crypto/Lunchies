@@ -367,6 +367,10 @@ export const TESTING_ROWS: TestingRow[] = [
 
 export const TESTING_PENDING_LABEL = "Pending";
 
+/** The findings get their own card, so the testing summary stays compact. */
+export const FINDINGS_TITLE = "Main findings";
+export const FINDINGS_INTRO = `What the ${USER_TEST_RESULTS.n} responses showed, in their own words.`;
+
 /**
  * /demo shows only the short version of the testing step. The full summary,
  * with its three rows, lives on /dashboard#testing so the two pages do not
@@ -470,6 +474,9 @@ export const DASHBOARD_HERO = {
   scopeNote:
     "This page is the project status summary for the Lunchies course project. Parents use /core and /chat.",
   noteItems: ["Product", "Testing", "Impact", "Next steps"],
+  /** The two hero buttons, both pointing at pages that exist. */
+  primary: { label: "View full project", href: "/docs" },
+  secondary: { label: "See demo", href: "/demo" },
 } as const;
 
 export type ModuleStatus = "Live" | "Planned";
@@ -599,6 +606,8 @@ export const DASHBOARD_SEE_ROADMAP = "See the full roadmap";
  * modules.
  */
 export const DATA_LIVES_TITLE = "Where the data lives";
+/** Named on the card, because every row below is counted in Supabase. */
+export const DATA_LIVES_SOURCE = "Supabase";
 
 export const DATA_LIVES_INTRO =
   "Each module and the rows it has written so far.";
@@ -623,8 +632,16 @@ export const DASHBOARD_V2_INTRO =
   "The roadmap and the full agent map live on the demo walkthrough.";
 
 export const DASHBOARD_V2_LINKS = [
-  { label: "Version 2 roadmap", href: "/demo#version-2" },
-  { label: "Agent map", href: "/demo#agent-map" },
+  {
+    label: "Version 2 roadmap",
+    note: "Next features, timeline and scope.",
+    href: "/demo#version-2",
+  },
+  {
+    label: "Agent map",
+    note: "How the modules work together.",
+    href: "/demo#agent-map",
+  },
 ] as const;
 
 /* ------------------------------------------------------- build log */

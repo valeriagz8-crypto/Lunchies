@@ -274,7 +274,10 @@ test("/dashboard exposes #testing and #saved-records, and reports honestly", asy
     "main findings row shows how many findings there are",
   ).toHaveCount(1);
 
-  // Every one of those findings is listed, not just counted.
+  // Every one of those findings is listed in full, in the card that now
+  // holds them, and that card is reachable by its own anchor.
+  await expect(page.locator("#findings")).toHaveCount(1);
+  const findings = page.locator("#findings");
   for (const finding of [
     "The plan works and was rated well.",
     "The dashboard was the most confusing page",
@@ -284,10 +287,14 @@ test("/dashboard exposes #testing and #saved-records, and reports honestly", asy
     "Requested: characters for kids",
   ]) {
     await expect(
-      testing.getByText(finding, { exact: false }),
+      findings.getByText(finding, { exact: false }),
       `findings list mentions: ${finding}`,
     ).not.toHaveCount(0);
   }
+  await expect(
+    findings.getByText("6 findings", { exact: true }),
+    "the findings card carries the same count as the row",
+  ).toHaveCount(1);
 
   // The sample limit travels with the numbers.
   await expect(
@@ -295,9 +302,20 @@ test("/dashboard exposes #testing and #saved-records, and reports honestly", asy
     "the testing note states the sample limit",
   ).toHaveCount(1);
 
-  // Nothing in the testing summary is pending any more.
-  const pending = await testing.getByText("Pending", { exact: true }).count();
+  // Nothing on the page is pending any more.
+  const pending = await page.getByText("Pending", { exact: true }).count();
   expect(pending, "no row claims to be pending once it has a result").toBe(0);
+
+  // Basic and Plus bring in the same revenue on the default split, so the
+  // page must show the tie instead of crowning one of them.
+  await expect(
+    page.getByText("Basic = Plus", { exact: true }),
+    "the tied plans are shown as a tie",
+  ).toHaveCount(1);
+  await expect(
+    page.getByText(/tied for top plan by revenue, \d+% each/),
+    "the tie is labelled, with the share each plan holds",
+  ).toHaveCount(1);
 
   // The tile agrees with the row, and the page says what it is.
   await expect(

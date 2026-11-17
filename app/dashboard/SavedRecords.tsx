@@ -4,13 +4,14 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import type { ReactNode } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { Database, Lock } from "lucide-react";
+import { Database, Lock, Zap } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import { TIMED_OUT, withTimeout } from "@/lib/requestTimeout";
 import {
   DATA_LIVES_INTRO,
   DATA_LIVES_NOTE,
   DATA_LIVES_ROWS,
+  DATA_LIVES_SOURCE,
   DATA_LIVES_TITLE,
   SAVED_RECORDS_COPY,
   SAVED_RECORDS_INTRO,
@@ -231,28 +232,36 @@ export default function SavedRecords({
           badge={<IconBadge tint="green" icon={Database} />}
           title={DATA_LIVES_TITLE}
           subtitle={DATA_LIVES_INTRO}
+          action={
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-white px-3 py-1.5 text-[12px] font-bold text-leaf-700 ring-1 ring-leaf-100">
+              <Zap className="h-3.5 w-3.5 text-peach-500" aria-hidden="true" />
+              {DATA_LIVES_SOURCE}
+            </span>
+          }
         />
-        <ul className="mt-5 space-y-2">
+        <ul className="mt-5 grid flex-1 content-start gap-2 lg:grid-cols-2">
           {liveRows.map((row) => (
             <li key={row.module}>
               <Link
                 href={row.route}
-                className="flex items-center gap-3 rounded-2xl border border-leaf-100 bg-white px-3.5 py-2.5 transition-transform hover:-translate-y-0.5"
+                className="flex h-full items-center gap-2.5 rounded-2xl border border-leaf-100 bg-white px-3 py-2.5 transition-transform hover:-translate-y-0.5"
               >
-                <span className="min-w-0 flex-1 truncate font-poppins text-[14px] font-extrabold leading-tight text-leaf-900">
-                  {row.module}
+                <span className="min-w-0 flex-1">
+                  <span className="block font-poppins text-[14px] font-extrabold leading-tight text-leaf-900">
+                    {row.module}
+                  </span>
+                  <span className="mt-1 flex flex-wrap gap-1">
+                    {row.tables.map((t) => (
+                      <span
+                        key={t}
+                        className="inline-flex items-center rounded-full bg-leaf-50 px-1.5 py-0.5 font-mono text-[10px] font-semibold text-leaf-700 ring-1 ring-leaf-100"
+                      >
+                        {t}
+                      </span>
+                    ))}
+                  </span>
                 </span>
-                <span className="hidden shrink-0 gap-1.5 sm:flex">
-                  {row.tables.map((t) => (
-                    <span
-                      key={t}
-                      className="inline-flex items-center rounded-full bg-leaf-50 px-2 py-0.5 font-mono text-[10.5px] font-semibold text-leaf-700 ring-1 ring-leaf-100"
-                    >
-                      {t}
-                    </span>
-                  ))}
-                </span>
-                <span className="w-[62px] shrink-0 text-right">
+                <span className="w-[56px] shrink-0 text-right">
                   <span className="font-poppins text-[18px] font-extrabold leading-none text-leaf-900">
                     {loading ? "…" : row.total === null ? "—" : formatInt(row.total)}
                   </span>
@@ -271,28 +280,25 @@ export default function SavedRecords({
     </div>
 
     <Card tint="plain" className="scroll-mt-24 p-6 sm:p-8" id="saved-records">
-      <CardHead
-        badge={<IconBadge tint="green" icon={Database} />}
-        title={SAVED_RECORDS_TITLE}
-        subtitle={SAVED_RECORDS_INTRO}
-        action={
+      <div className="grid gap-5 lg:grid-cols-[296px_1fr] lg:items-center">
+        <div>
+          <CardHead
+            badge={<IconBadge tint="green" icon={Database} />}
+            title={SAVED_RECORDS_TITLE}
+            subtitle={SAVED_RECORDS_INTRO}
+          />
           <Image
-            src="/images/week6/dash-strawberries.webp"
+            src="/images/week6/straw-lg.webp"
             alt=""
-            width={192}
-            height={94}
+            width={175}
+            height={74}
             loading="lazy"
             aria-hidden="true"
-            className="pointer-events-none hidden h-auto w-[132px] drop-shadow-[0_10px_14px_rgba(61,48,34,0.2)] md:block"
+            className="pointer-events-none mt-3 hidden h-auto w-[172px] drop-shadow-[0_10px_14px_rgba(61,48,34,0.18)] lg:block"
           />
-        }
-      />
+        </div>
 
-      <p className="mt-4 flex items-center gap-2.5 rounded-2xl bg-leaf-50 px-4 py-3 text-[13px] font-semibold text-leaf-700">
-        <Lock className="h-4 w-4 shrink-0" aria-hidden="true" />
-        {SAVED_RECORDS_PRIVACY_NOTE}
-      </p>
-
+        <div className="min-w-0">
       {loading && (
         <p className="mt-5 text-[15px] text-leaf-600">
           {SAVED_RECORDS_COPY.loading}
@@ -310,7 +316,7 @@ export default function SavedRecords({
 
       {!loading && (
         <>
-          <div className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
             {SAVED_RECORD_TABLES.map((t, index) => {
               const value = counts[t.table];
               const tint = TINT[TILE_TINTS[index % TILE_TINTS.length]];
@@ -347,8 +353,19 @@ export default function SavedRecords({
           <p className="mt-3 text-[12px] text-leaf-500">
             Chat sessions: {SAVED_RECORDS_COPY.countOnly}
           </p>
+        </>
+      )}
+        </div>
+      </div>
 
-          <div className="mt-6 grid gap-4 lg:grid-cols-2">
+      <p className="mt-5 flex items-center gap-2.5 rounded-2xl bg-leaf-50 px-4 py-2.5 text-[12.5px] font-semibold text-leaf-700">
+        <Lock className="h-4 w-4 shrink-0" aria-hidden="true" />
+        {SAVED_RECORDS_PRIVACY_NOTE}
+      </p>
+
+      {!loading && (
+        <>
+          <div className="mt-4 grid gap-4 lg:grid-cols-2">
             {previews.map((preview) => (
               <div
                 key={preview.table}

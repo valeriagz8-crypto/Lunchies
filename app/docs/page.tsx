@@ -853,7 +853,7 @@ export default function DocsPage() {
           <CardHead
             badge={<IconBadge tint="green" icon={GitCommitHorizontal} />}
             title="Build log"
-            subtitle={`${BUILD_LOG_TOTAL} commits, generated from git log.`}
+            subtitle={`${BUILD_LOG_TOTAL} commits, regenerated from git log with npm run build-log.`}
           />
           <div className="mt-5 space-y-5">
             {BUILD_LOG.map((week) => (

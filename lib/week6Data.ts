@@ -659,6 +659,7 @@ export type BuildLogWeek = {
   commits: BuildLogCommit[];
 };
 
+/* build-log:start */
 export const BUILD_LOG: BuildLogWeek[] = [
   {
     week: "Week 0",
@@ -1139,8 +1140,8 @@ export const BUILD_LOG: BuildLogWeek[] = [
   },
   {
     week: "Week 6",
-    title: "Redesign, /demo, /dashboard, regression test",
-    range: "2026-11-11",
+    title: "Redesign, /demo, /dashboard, regression test, user test",
+    range: "2026-11-11 to 2026-11-17",
     commits: [
       {
         hash: "dee1dde",
@@ -1296,9 +1297,120 @@ export const BUILD_LOG: BuildLogWeek[] = [
         hash: "7eba3dc",
         subject: "Redirect the four orphan routes and drop their placeholders",
         date: "2026-11-11"
+      },
+      {
+        hash: "078db22",
+        subject: "Document Weeks 4 and 6, the build log and the remaining RLS in /docs",
+        date: "2026-11-11"
+      },
+      {
+        hash: "2e93147",
+        subject: "Stop the navbar loop tests from timing out",
+        date: "2026-11-12"
+      },
+      {
+        hash: "412ae95",
+        subject: "Add docs/regression-report.md from the real run",
+        date: "2026-11-12"
+      },
+      {
+        hash: "b2bae2b",
+        subject: "Record the real regression result in the Week 6 data",
+        date: "2026-11-12"
+      },
+      {
+        hash: "7d5872d",
+        subject: "Show the regression result on /demo and mark completed rows with a check",
+        date: "2026-11-12"
+      },
+      {
+        hash: "36b1a08",
+        subject: "Match /dashboard to its mockup",
+        date: "2026-11-12"
+      },
+      {
+        hash: "e670ec9",
+        subject: "Match /demo to its mockup",
+        date: "2026-11-12"
+      },
+      {
+        hash: "a5ec791",
+        subject: "Fix layout bugs on /dashboard and /demo at mid widths",
+        date: "2026-11-12"
+      },
+      {
+        hash: "609433c",
+        subject: "Cite the evidence behind the impact section on /demo",
+        date: "2026-11-12"
+      },
+      {
+        hash: "96cff61",
+        subject: "Show only real features in the /demo product tour",
+        date: "2026-11-16"
+      },
+      {
+        hash: "269be4b",
+        subject: "Record the real external user test results",
+        date: "2026-11-16"
+      },
+      {
+        hash: "6d5ba65",
+        subject: "Show the real test results on the dashboard",
+        date: "2026-11-16"
+      },
+      {
+        hash: "04a797f",
+        subject: "Put the tester ratings and the real result on /demo",
+        date: "2026-11-16"
+      },
+      {
+        hash: "9f279a6",
+        subject: "Document what the user test changed",
+        date: "2026-11-16"
+      },
+      {
+        hash: "59f94b5",
+        subject: "Regenerate the regression report from the run at 9f279a6",
+        date: "2026-11-16"
+      },
+      {
+        hash: "63a0c5b",
+        subject: "Add the Week 6 illustrations and their credits",
+        date: "2026-11-16"
+      },
+      {
+        hash: "12765bc",
+        subject: "Let HeroArt size its illustration per page",
+        date: "2026-11-16"
+      },
+      {
+        hash: "5abb7be",
+        subject: "Bring /demo up to the Week 6 mockup",
+        date: "2026-11-16"
+      },
+      {
+        hash: "afbfbeb",
+        subject: "Bring /dashboard up to the Week 6 mockup",
+        date: "2026-11-16"
+      },
+      {
+        hash: "f022df9",
+        subject: "Re-cut the Week 6 illustrations at the size the pages show them",
+        date: "2026-11-17"
+      },
+      {
+        hash: "2774317",
+        subject: "Rebuild /demo as the compact infographic in the mockup",
+        date: "2026-11-17"
+      },
+      {
+        hash: "ef18be1",
+        subject: "Rebuild /dashboard as the compact infographic in the mockup",
+        date: "2026-11-17"
       }
     ]
   }
 ];
 
-export const BUILD_LOG_TOTAL = 118;
+export const BUILD_LOG_TOTAL = 140;
+/* build-log:end */

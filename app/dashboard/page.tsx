@@ -51,6 +51,7 @@ import {
   FINDINGS_TITLE,
   PROJECT_MODULES,
   PROJECT_MODULES_INTRO,
+  PROJECT_PAGES_TITLE,
   REVENUE_MODEL_CUSTOMERS,
   REVENUE_MODEL_NOTE,
   REVENUE_MODEL_SCENARIO,
@@ -357,7 +358,7 @@ export default function DashboardPage() {
           <Card tint="plain" className="flex flex-col p-6 sm:p-8">
             <CardHead
               badge={<IconBadge tint="green" icon={BarChart3} />}
-              title="Project modules"
+              title={PROJECT_PAGES_TITLE}
               subtitle={PROJECT_MODULES_INTRO}
             />
             {/* A tile per module, five across, as the mockup lays them out. */}

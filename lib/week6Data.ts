@@ -492,6 +492,8 @@ export type ProjectModule = {
  * real page in app/, so the count of "Live" below is a fact about the
  * repository rather than a number someone typed.
  */
+export const PROJECT_PAGES_TITLE = "Project pages";
+
 export const PROJECT_MODULES: ProjectModule[] = [
   { name: "Home", route: "/", status: "Live" },
   { name: "Core", route: "/core", status: "Live" },
@@ -506,7 +508,7 @@ export const PROJECT_MODULES: ProjectModule[] = [
 ];
 
 export const PROJECT_MODULES_INTRO =
-  "Status of each integrated page and feature.";
+  "Every page of the site and whether it is working.";
 
 /**
  * The customer split the /pricing calculator starts from. It is an
@@ -581,7 +583,7 @@ export const SAVED_RECORDS_PREVIEW_COUNT = 3;
 export const DASHBOARD_TILE_LABELS = {
   externalUsers: "external users tested",
   regression: "regression checks passed",
-  modules: "modules integrated (live)",
+  modules: "live pages",
   roadmap: "development roadmap",
 } as const;
 

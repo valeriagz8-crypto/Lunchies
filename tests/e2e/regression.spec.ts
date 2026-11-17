@@ -317,6 +317,21 @@ test("/dashboard exposes #testing and #saved-records, and reports honestly", asy
     "the tie is labelled, with the share each plan holds",
   ).toHaveCount(1);
 
+  // The ten live routes are pages; only the five agent-map parts are
+  // called modules, so the tile and the card must say "pages".
+  await expect(
+    page.getByText("live pages", { exact: true }),
+    "the stat tile counts pages, not modules",
+  ).toHaveCount(1);
+  await expect(
+    page.getByText("Project pages", { exact: true }),
+    "the card is titled Project pages",
+  ).toHaveCount(1);
+  expect(
+    await page.getByText(/modules integrated/).count(),
+    "the old module wording is gone",
+  ).toBe(0);
+
   // The tile agrees with the row, and the page says what it is.
   await expect(
     page.getByText("external users tested", { exact: true }),

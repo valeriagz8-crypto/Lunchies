@@ -341,6 +341,7 @@ export function HeroArt({
   className = "",
   glyph,
   note,
+  imageClassName,
 }: {
   src: string;
   width: number;
@@ -351,6 +352,8 @@ export function HeroArt({
   glyph?: ReactNode;
   /** The taped sticky note the mockups pin beside the illustration. */
   note?: ReactNode;
+  /** Replaces the default width/offset of the illustration when a page's crop has a different shape. */
+  imageClassName?: string;
 }) {
   return (
     <div
@@ -381,7 +384,8 @@ export function HeroArt({
         priority={priority}
         aria-hidden="true"
         className={`relative max-h-[230px] object-contain drop-shadow-[0_18px_28px_rgba(61,48,34,0.18)] sm:max-h-[260px] lg:max-h-[330px] ${
-          note ? "w-[70%] max-w-[420px] -translate-x-[18%]" : "w-[88%] max-w-[430px]"
+          imageClassName ??
+          (note ? "w-[70%] max-w-[420px] -translate-x-[18%]" : "w-[88%] max-w-[430px]")
         }`}
       />
       {note && (

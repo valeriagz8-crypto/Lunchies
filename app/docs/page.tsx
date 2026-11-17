@@ -777,9 +777,9 @@ export default function DocsPage() {
               Four of the six described /dashboard as being about how the
               page was built or about the page&apos;s own statistics, and it
               scored lowest of the four questions for ease of understanding
-              (3.2 of 5). One plain sentence now sits under the hero saying
-              that the page is the project status summary and that parents
-              use /core and /chat. Wording in{" "}
+              (3.2/5 from 6 people). One plain sentence now sits under the
+              hero saying what the page shows, who it is for, and that a
+              parent who wants a lunch plan should use /core or /chat. Wording in{" "}
               <code className={CODE}>269be4b</code>, rendered in{" "}
               <code className={CODE}>6d5ba65</code>.
             </li>
@@ -794,7 +794,7 @@ export default function DocsPage() {
             <li>
               <strong>The chat has few answer options.</strong> One tester
               said it should &quot;answer more like a human&quot;; the five
-              who used it rated its answer 4.0 of 5. The chat itself was not
+              who used it rated its answer 4.0/5 from 5 people. The chat itself was not
               changed. Version 2.2 of the roadmap gained{" "}
               <em>More chat answer options</em>, labelled an idea that has not
               been built and marked as requested by a tester.{" "}
@@ -843,7 +843,7 @@ export default function DocsPage() {
             <li>
               The form returned six ratings for the chat answer although five
               people reported using it. Both figures are shown as they came
-              back rather than reconciled: an average of 4.0 of 5, from five
+              back rather than reconciled: an average of 4.0/5 from the 5
               people who said they used the chat.
             </li>
           </ul>

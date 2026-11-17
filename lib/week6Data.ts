@@ -194,7 +194,7 @@ export const AGENT_DETAILS_TITLE = "Module details";
 export const AGENT_DETAILS_HINT = `What each of the ${AGENT_MODULES.length} modules receives, produces and writes to.`;
 
 export const AGENT_MAP_NOTE =
-  "These modules run on fixed rules and the data in this repository. There is no external AI API, so the same input always produces the same output.";
+  "A module is one part of the project that does its own job on its own page. The five do not call each other: each one runs on its own and writes its own rows, and a person moves between them. They run on fixed rules and the data in this repository. There is no external AI API, so the same input always produces the same output.";
 
 /* --------------------------------------------------------------- impact */
 
@@ -335,8 +335,8 @@ export const USER_TEST_TILE_VALUE = String(USER_TEST_RESULTS.n);
 export const TESTER_FEEDBACK = {
   heading: "What testers said (context, not proof of impact)",
   lines: [
-    `Plan usefulness ${oneDecimal(USER_TEST_RESULTS.planUsefulness.average)}/5 (n=${USER_TEST_RESULTS.n}).`,
-    `Chat usefulness ${oneDecimal(USER_TEST_RESULTS.chatUsefulness.average)}/5 (${USER_TEST_RESULTS.chatUsed.used} people).`,
+    `Plan usefulness ${oneDecimal(USER_TEST_RESULTS.planUsefulness.average)}/5 from ${USER_TEST_RESULTS.n} people.`,
+    `Chat usefulness ${oneDecimal(USER_TEST_RESULTS.chatUsefulness.average)}/5 from ${USER_TEST_RESULTS.chatUsed.used} people.`,
   ],
   limits: USER_TEST_RESULTS.limits,
   source: USER_TEST_RESULTS.sourceLabel,
@@ -352,14 +352,15 @@ export const TESTING_ROWS: TestingRow[] = [
   },
   {
     title: "Full-site regression test",
-    description: "All pages and key flows verified.",
+    description:
+      "An automatic test that opens every page and checks it works.",
     // Comes straight from REGRESSION_RUN, so it can never drift from the
     // run that docs/regression-report.md was generated from.
     result: REGRESSION_RESULT,
   },
   {
-    title: "Main findings",
-    description: "What the six responses showed.",
+    title: `${USER_TEST_RESULTS.findings.length} findings, listed below`,
+    description: "What the six people told us.",
     result: `${USER_TEST_RESULTS.findings.length} findings`,
     bullets: USER_TEST_RESULTS.findings,
   },
@@ -383,7 +384,7 @@ export type DemoTestingStep = { title: string; result: string | null };
 export const DEMO_TESTING_STEPS: DemoTestingStep[] = [
   {
     title: `${USER_TEST_RESULTS.n} external users`,
-    result: `${USER_TEST_SUMMARY} · usefulness ${oneDecimal(USER_TEST_RESULTS.planUsefulness.average)}/5`,
+    result: `${USER_TEST_SUMMARY} · usefulness ${oneDecimal(USER_TEST_RESULTS.planUsefulness.average)}/5 from ${USER_TEST_RESULTS.n} people`,
   },
   { title: "Full-site regression test", result: REGRESSION_RESULT },
 ];
@@ -392,7 +393,7 @@ export const DEMO_TESTING_CTA = "View testing details";
 export const DEMO_TESTING_HREF = "/dashboard#testing";
 
 export const TESTING_NOTE =
-  "Both the external user test and the regression test have been run, and the figures above are their real results. The user test was 6 people chosen by the team, mostly without school-age children, so it shows tendencies rather than a representative sample.";
+  "Both tests have been run. The user test was 6 people chosen by the team, mostly without school-age children, so it shows tendencies, not a representative sample.";
 
 /* ------------------------------------------------------------ version 2 */
 
@@ -472,7 +473,7 @@ export const DASHBOARD_HERO = {
     "Track our product, testing and project milestones in one place.",
   /** Added after testers read this page as being about how the site was built. */
   scopeNote:
-    "This page is the project status summary for the Lunchies course project. Parents use /core and /chat.",
+    "This page is for anyone who wants to check how Lunchies is going: what we tested and what people said, which pages are working, and what the site has saved so far. To plan a lunch, use /core or /chat.",
   noteItems: ["Product", "Testing", "Impact", "Next steps"],
   /** The two hero buttons, both pointing at pages that exist. */
   primary: { label: "View full project", href: "/docs" },

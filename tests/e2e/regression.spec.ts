@@ -298,7 +298,7 @@ test("/dashboard exposes #testing and #saved-records, and reports honestly", asy
 
   // The sample limit travels with the numbers.
   await expect(
-    testing.getByText(/tendencies rather than a representative sample/),
+    testing.getByText(/tendencies, not a representative sample/),
     "the testing note states the sample limit",
   ).toHaveCount(1);
 
@@ -338,8 +338,8 @@ test("/dashboard exposes #testing and #saved-records, and reports honestly", asy
     "the stat tile labels the head count",
   ).toHaveCount(1);
   await expect(
-    page.getByText(/This page is the project status summary/),
-    "the hero says plainly what this page is",
+    page.getByText(/This page is for anyone who wants to check how Lunchies is going/),
+    "the hero says plainly what this page is and who it is for",
   ).toHaveCount(1);
 });
 
@@ -376,11 +376,11 @@ test("/demo's short testing step mirrors the same result", async ({ page }) => {
     "the tester block is labelled as context, not as proof",
   ).toHaveCount(1);
   await expect(
-    impact.getByText("Plan usefulness 4.5/5 (n=6).", { exact: true }),
+    impact.getByText("Plan usefulness 4.5/5 from 6 people.", { exact: true }),
     "plan usefulness is shown with its sample size",
   ).toHaveCount(1);
   await expect(
-    impact.getByText("Chat usefulness 4.0/5 (5 people).", { exact: true }),
+    impact.getByText("Chat usefulness 4.0/5 from 5 people.", { exact: true }),
     "chat usefulness is shown with how many people used the chat",
   ).toHaveCount(1);
   await expect(

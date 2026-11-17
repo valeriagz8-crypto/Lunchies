@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import {
   ArrowRight,
@@ -207,9 +208,10 @@ export default function DashboardPage() {
         subtitleWidth="max-w-[23rem] lg:max-w-[26rem]"
         art={
           <HeroArt
-            src="/images/redesign/hero-product.webp"
-            width={560}
-            height={510}
+            src="/images/week6/dash-hero.webp"
+            width={374}
+            height={266}
+            imageClassName="w-[62%] max-w-[380px] -translate-x-[25%]"
             tone="leaf"
             priority
             note={
@@ -338,6 +340,17 @@ export default function DashboardPage() {
               badge={<IconBadge tint="green" icon={Users} />}
               title="Testing summary"
               subtitle={TESTING_INTRO}
+              action={
+                <Image
+                  src="/images/week6/dash-notepad.webp"
+                  alt=""
+                  width={168}
+                  height={217}
+                  loading="lazy"
+                  aria-hidden="true"
+                  className="pointer-events-none -mt-1 hidden h-auto w-[88px] drop-shadow-[0_10px_16px_rgba(61,48,34,0.16)] md:block"
+                />
+              }
             />
             <ul className="mt-5 space-y-3">
               {TESTING_ROWS.map((row, index) => {
@@ -449,25 +462,34 @@ export default function DashboardPage() {
             </Card>
           }
           versionCard={
-            <Card tint="plain" className="p-6 sm:p-8">
-              <CardHead
-                badge={<IconBadge tint="blue" icon={Flag} />}
-                title={DASHBOARD_V2_TITLE}
-                subtitle={DASHBOARD_V2_INTRO}
-              />
-              <div className="mt-5 grid gap-3 sm:grid-cols-2">
-                {DASHBOARD_V2_LINKS.map((link) => (
-                  <Link
-                    key={link.href}
-                    href={link.href}
-                    className="flex items-center justify-between gap-3 rounded-2xl border border-leaf-100 bg-leaf-50/60 px-5 py-4 font-poppins text-[15px] font-extrabold text-leaf-900 transition-transform hover:-translate-y-0.5"
-                  >
-                    {link.label}
-                    <ArrowRight className="h-4 w-4 shrink-0 text-leaf-500" aria-hidden="true" />
-                  </Link>
-                ))}
+            <div className="relative overflow-hidden rounded-[28px] bg-gradient-to-r from-leaf-800 to-leaf-700 p-6 shadow-card sm:p-8">
+              <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
+                <div className="max-w-[24rem]">
+                  <h2 className="font-poppins text-[30px] font-extrabold leading-tight text-white sm:text-[36px]">
+                    {DASHBOARD_V2_TITLE}
+                  </h2>
+                  <p className="mt-1 text-[15px] leading-snug text-leaf-100">
+                    {DASHBOARD_V2_INTRO}
+                  </p>
+                </div>
+                <div className="grid gap-3 sm:grid-cols-2 lg:w-[62%]">
+                  {DASHBOARD_V2_LINKS.map((link, index) => (
+                    <Link
+                      key={link.href}
+                      href={link.href}
+                      className={`flex items-center justify-between gap-3 rounded-full px-6 py-4 font-poppins text-[16px] font-extrabold text-leaf-900 shadow-btn transition-transform hover:-translate-y-0.5 ${
+                        index === 0 ? "bg-white" : "bg-peach-100"
+                      }`}
+                    >
+                      {link.label}
+                      <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-white text-peach-500">
+                        <ArrowRight className="h-4 w-4" aria-hidden="true" />
+                      </span>
+                    </Link>
+                  ))}
+                </div>
               </div>
-            </Card>
+            </div>
           }
         />
 

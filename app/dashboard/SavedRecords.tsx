@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { ReactNode } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { Database, Lock } from "lucide-react";
 import { supabase } from "@/lib/supabase";
@@ -50,6 +51,16 @@ const TILE_TINTS: TintName[] = [
   "peach",
   "green",
 ];
+
+/** Decorative picture per saved-records tile, keyed by table. */
+const TILE_PICTURES: Record<string, { src: string; width: number; height: number }> = {
+  core_outputs: { src: "/images/week6/rec-lunch.webp", width: 98, height: 66 },
+  research_notes: { src: "/images/week6/rec-laptop.webp", width: 94, height: 68 },
+  pricing_scenarios: { src: "/images/week6/rec-calc.webp", width: 88, height: 68 },
+  marketing_assets: { src: "/images/week6/rec-note.webp", width: 92, height: 66 },
+  ab_events: { src: "/images/week6/rec-paper.webp", width: 92, height: 60 },
+  chat_sessions: { src: "/images/week6/rec-chat.webp", width: 74, height: 66 },
+};
 
 function formatInt(value: number): string {
   return new Intl.NumberFormat("en-US").format(value);
@@ -264,6 +275,17 @@ export default function SavedRecords({
         badge={<IconBadge tint="green" icon={Database} />}
         title={SAVED_RECORDS_TITLE}
         subtitle={SAVED_RECORDS_INTRO}
+        action={
+          <Image
+            src="/images/week6/dash-strawberries.webp"
+            alt=""
+            width={192}
+            height={94}
+            loading="lazy"
+            aria-hidden="true"
+            className="pointer-events-none hidden h-auto w-[132px] drop-shadow-[0_10px_14px_rgba(61,48,34,0.2)] md:block"
+          />
+        }
       />
 
       <p className="mt-4 flex items-center gap-2.5 rounded-2xl bg-leaf-50 px-4 py-3 text-[13px] font-semibold text-leaf-700">
@@ -297,6 +319,17 @@ export default function SavedRecords({
                   key={t.table}
                   className={`rounded-2xl border p-4 text-center ${tint.card}`}
                 >
+                  {TILE_PICTURES[t.table] && (
+                    <Image
+                      src={TILE_PICTURES[t.table].src}
+                      alt=""
+                      width={TILE_PICTURES[t.table].width}
+                      height={TILE_PICTURES[t.table].height}
+                      loading="lazy"
+                      aria-hidden="true"
+                      className="mx-auto mb-1 h-[58px] w-auto object-contain"
+                    />
+                  )}
                   <p className="font-poppins text-[24px] font-extrabold leading-tight text-leaf-900">
                     {value === null || value === undefined ? "—" : formatInt(value)}
                   </p>

@@ -17,8 +17,8 @@
 
 export const DEMO_HERO = {
   eyebrow: "Demo",
-  titleLead: "Lunchies in",
-  titleAccent: "action.",
+  titleLead: "Lunchies",
+  titleAccent: "in action.",
   subtitle:
     "A guided walkthrough of the full product, our agent system, impact, testing and what's next. Lunchies plans lunches; it does not sell or deliver food.",
   cta: "Start demo",
@@ -119,6 +119,8 @@ export const PRODUCT_TOUR_INTRO =
 export type AgentModule = {
   name: string;
   route: string;
+  /** One line, short enough for the node box on the agent map. */
+  short: string;
   receives: string;
   produces: string;
   /** Supabase tables this module writes to. */
@@ -138,6 +140,7 @@ export const AGENT_MAP_INTRO =
 export const AGENT_MODULES: AgentModule[] = [
   {
     name: "Core planner",
+    short: "Creates the weekly lunch plan.",
     route: "/core",
     receives: "A child's age, allergies and food preferences.",
     produces: "A 5-day lunch plan with a protein, a side and a fruit per day.",
@@ -146,6 +149,7 @@ export const AGENT_MODULES: AgentModule[] = [
   },
   {
     name: "Research",
+    short: "Analyzes competitors and substitutes.",
     route: "/research",
     receives: "A research topic, the problem to validate, a target user and a market.",
     produces:
@@ -155,6 +159,7 @@ export const AGENT_MODULES: AgentModule[] = [
   },
   {
     name: "Pricing",
+    short: "Calculates revenue and plan scenarios.",
     route: "/pricing",
     receives: "Customers per plan, a scenario multiplier and a billing period.",
     produces: "Monthly and annual revenue, plus the assumptions behind them.",
@@ -163,6 +168,7 @@ export const AGENT_MODULES: AgentModule[] = [
   },
   {
     name: "Marketing",
+    short: "Builds the brand, content and tests.",
     route: "/marketing",
     receives: "The brand system, the target persona and the campaign data in the repository.",
     produces:
@@ -172,6 +178,7 @@ export const AGENT_MODULES: AgentModule[] = [
   },
   {
     name: "Chat assistant",
+    short: "Answers questions and hands over to a person.",
     route: "/chat",
     receives: "Three intake answers and whatever the parent types.",
     produces:
@@ -181,6 +188,10 @@ export const AGENT_MODULES: AgentModule[] = [
       "The medical guardrail refuses and points to a professional, and a flagged conversation is passed to a person.",
   },
 ];
+
+/** The one disclosure that holds what each module receives and writes. */
+export const AGENT_DETAILS_TITLE = "Module details";
+export const AGENT_DETAILS_HINT = `What each of the ${AGENT_MODULES.length} modules receives, produces and writes to.`;
 
 export const AGENT_MAP_NOTE =
   "These modules run on fixed rules and the data in this repository. There is no external AI API, so the same input always produces the same output.";
@@ -226,6 +237,9 @@ export const IMPACT_EVIDENCE = {
 } as const;
 
 export const RISKS_TITLE = "Risks and limits";
+/** Testers and risks share one quiet strip, so neither reads as a result. */
+export const CONTEXT_STRIP_NOTE =
+  "Context and limits, not results.";
 
 export const RISKS: string[] = [
   "An allergy mistake is the most serious risk. A generated plan is never confirmed as safe for an allergy; a Lunchies team member has to check it.",

@@ -26,7 +26,7 @@ const ROUTES: { path: string; heading: RegExp }[] = [
   { path: "/marketing", heading: /Lunchies/i },
   { path: "/chat", heading: /./ },
   { path: "/docs", heading: /Project Docs/i },
-  { path: "/demo", heading: /Lunchies in/i },
+  { path: "/demo", heading: /Lunchies\s+in action\./i },
   { path: "/dashboard", heading: /Project overview/i },
 ];
 
@@ -332,8 +332,10 @@ test("/demo's short testing step mirrors the same result", async ({ page }) => {
     "no testing step claims to be pending once it has a result",
   ).toBe(0);
 
-  // The ratings shown beside Practical impact, with their limit.
-  const impact = page.locator("#impact");
+  // The ratings and the risks now share one quiet strip under the agent
+  // map and impact row, instead of sitting inside the impact card.
+  const impact = page.locator("#context-limits");
+  await expect(impact, "the context strip exists").toHaveCount(1);
   await expect(
     impact.getByText("What testers said (context, not proof of impact)", {
       exact: true,
@@ -351,6 +353,14 @@ test("/demo's short testing step mirrors the same result", async ({ page }) => {
   await expect(
     impact.getByText(/These are tendencies, not a representative sample\./),
     "the tester block states the sample limit",
+  ).toHaveCount(1);
+  await expect(
+    impact.getByText("Risks and limits", { exact: true }),
+    "the risks sit in the same strip",
+  ).toHaveCount(1);
+  await expect(
+    impact.getByText(/An allergy mistake is the most serious risk/),
+    "the allergy risk is still spelled out",
   ).toHaveCount(1);
 
   // The hero says what Lunchies is not, after a tester read it as delivery.

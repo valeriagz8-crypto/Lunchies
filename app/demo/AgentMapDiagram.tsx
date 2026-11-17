@@ -3,19 +3,21 @@ import { Apple } from "lucide-react";
 import { TINT, type TintName } from "@/components/ui/theme";
 
 /**
- * The radial module diagram from the mockup: a green hub with arrows out to
- * the five modules that really run in this project.
+ * The radial module diagram from the mockup: a green hub with solid arrows
+ * out to the five modules that really run in this project, and dashed arcs
+ * running around the ring from one module to the next.
  *
- * Geometry lives in one viewBox so the arrows and the nodes stay aligned at
- * any width: the SVG scales with the container and every node is positioned
- * with the same percentage coordinates the paths are drawn from.
+ * Everything is sized as a percentage of one viewBox, so the boxes, the
+ * arrows and the hub keep their positions at any width. The boxes are HTML
+ * rather than SVG text, so their labels stay selectable and crisp.
  */
 
-const VB = { w: 800, h: 560 };
-const HUB = { x: 400, y: 280 };
+const VB = { w: 860, h: 470 };
+const HUB = { x: 430, y: 235 };
 
 export type DiagramNode = {
   name: string;
+  short: string;
   icon: LucideIcon;
   tint: TintName;
   /** Centre of the node, in viewBox units. */
@@ -23,14 +25,9 @@ export type DiagramNode = {
   y: number;
 };
 
-/**
- * Arrows run between the two boxes, not between their centres: both ends are
- * the point where the line leaves the box, so an arrowhead never hides
- * underneath a node.
- */
-const VB_PER_PX = VB.w / 660; // the diagram's max rendered width
-const NODE_HALF = { w: (168 / 2) * VB_PER_PX, h: (48 / 2) * VB_PER_PX };
-const HUB_HALF = { w: (156 / 2) * VB_PER_PX, h: (126 / 2) * VB_PER_PX };
+/** Half the size of a box, in viewBox units, for the arrow geometry. */
+const NODE_HALF = { w: 164, h: 56 };
+const HUB_HALF = { w: 95, h: 68 };
 
 function exitPoint(
   cx: number,
@@ -51,12 +48,29 @@ function unit(x: number, y: number) {
   return { ux: x / len, uy: y / len };
 }
 
+/** An arc that bows away from the hub, so the ring reads as a circle. */
+function ringArc(a: DiagramNode, b: DiagramNode) {
+  const from = unit(b.x - a.x, b.y - a.y);
+  const start = exitPoint(a.x, a.y, from.ux, from.uy, NODE_HALF, 6);
+  const end = exitPoint(b.x, b.y, -from.ux, -from.uy, NODE_HALF, 10);
+  const mx = (start.x + end.x) / 2;
+  const my = (start.y + end.y) / 2;
+  const out = unit(mx - HUB.x, my - HUB.y);
+  const bow = 46;
+  return `M ${start.x} ${start.y} Q ${mx + out.ux * bow} ${my + out.uy * bow} ${end.x} ${end.y}`;
+}
+
 const pct = (v: number, total: number) => `${(v / total) * 100}%`;
 
 export default function AgentMapDiagram({ nodes }: { nodes: DiagramNode[] }) {
+  const ring = [...nodes].sort(
+    (a, b) =>
+      Math.atan2(a.y - HUB.y, a.x - HUB.x) - Math.atan2(b.y - HUB.y, b.x - HUB.x),
+  );
+
   return (
     <div
-      className="relative mx-auto hidden w-full max-w-[660px] lg:block"
+      className="relative mx-auto hidden w-full lg:block"
       style={{ aspectRatio: `${VB.w} / ${VB.h}` }}
       aria-hidden="true"
     >
@@ -71,37 +85,44 @@ export default function AgentMapDiagram({ nodes }: { nodes: DiagramNode[] }) {
             viewBox="0 0 10 10"
             refX="8"
             refY="5"
-            markerWidth="6"
-            markerHeight="6"
+            markerWidth="5.5"
+            markerHeight="5.5"
             orient="auto-start-reverse"
           >
             <path d="M 0 0 L 10 5 L 0 10 z" fill="#2f7d49" />
           </marker>
         </defs>
+
+        {/* The ring: one dashed arc from each module to the next, taken
+            around the circle rather than in the order the data lists them. */}
+        {ring.map((n, i) => (
+          <path
+            key={`ring-${n.name}`}
+            d={ringArc(n, ring[(i + 1) % ring.length])}
+            fill="none"
+            stroke="#5aa06d"
+            strokeWidth="2.8"
+            strokeLinecap="round"
+            strokeDasharray="10 10"
+            markerEnd="url(#agent-arrow)"
+            opacity="0.85"
+          />
+        ))}
+
+        {/* The hub feeding each module. */}
         {nodes.map((n) => {
           const { ux, uy } = unit(n.x - HUB.x, n.y - HUB.y);
-          const a = exitPoint(HUB.x, HUB.y, ux, uy, HUB_HALF, 10);
-          const b = exitPoint(n.x, n.y, -ux, -uy, NODE_HALF, 12);
-          // A gentle bow, perpendicular to the line, like the mockup's arcs.
-          const mx = (a.x + b.x) / 2;
-          const my = (a.y + b.y) / 2;
-          const nx = -(b.y - a.y);
-          const ny = b.x - a.x;
-          const nl = Math.hypot(nx, ny) || 1;
-          const seg = Math.hypot(b.x - a.x, b.y - a.y);
-          const bow = Math.min(18, seg * 0.12);
-          const cx = mx + (nx / nl) * bow;
-          const cy = my + (ny / nl) * bow;
+          const a = exitPoint(HUB.x, HUB.y, ux, uy, HUB_HALF, 8);
+          const b = exitPoint(n.x, n.y, -ux, -uy, NODE_HALF, 11);
           return (
             <path
-              key={n.name}
-              d={`M ${a.x} ${a.y} Q ${cx} ${cy} ${b.x} ${b.y}`}
+              key={`spoke-${n.name}`}
+              d={`M ${a.x} ${a.y} L ${b.x} ${b.y}`}
               fill="none"
               stroke="#2f7d49"
-              strokeWidth="2.6"
+              strokeWidth="3"
               strokeLinecap="round"
               markerEnd="url(#agent-arrow)"
-              opacity="0.85"
             />
           );
         })}
@@ -109,14 +130,14 @@ export default function AgentMapDiagram({ nodes }: { nodes: DiagramNode[] }) {
 
       {/* Hub */}
       <div
-        className="absolute flex h-[126px] w-[156px] -translate-x-1/2 -translate-y-1/2 flex-col items-center justify-center rounded-3xl bg-leaf-700 text-white shadow-soft-lg"
+        className="absolute flex h-[25%] w-[22%] -translate-x-1/2 -translate-y-1/2 flex-col items-center justify-center rounded-[26px] bg-leaf-700 text-white shadow-soft-lg"
         style={{ left: pct(HUB.x, VB.w), top: pct(HUB.y, VB.h) }}
       >
         <Apple className="h-7 w-7" strokeWidth={2.2} />
-        <span className="mt-1 font-poppins text-[17px] font-extrabold leading-tight">
+        <span className="mt-1 font-poppins text-[16px] font-extrabold leading-tight">
           Lunchies
         </span>
-        <span className="text-[11px] font-semibold text-leaf-100">modules</span>
+        <span className="text-[10.5px] font-semibold text-leaf-100">modules</span>
       </div>
 
       {/* Nodes */}
@@ -126,16 +147,21 @@ export default function AgentMapDiagram({ nodes }: { nodes: DiagramNode[] }) {
         return (
           <div
             key={n.name}
-            className={`absolute flex w-[168px] -translate-x-1/2 -translate-y-1/2 items-center gap-2 rounded-2xl border px-3 py-2.5 shadow-sm ${tint.card}`}
+            className={`absolute flex w-[38%] -translate-x-1/2 -translate-y-1/2 items-start gap-2.5 rounded-2xl border px-3 py-2.5 shadow-sm ${tint.card}`}
             style={{ left: pct(n.x, VB.w), top: pct(n.y, VB.h) }}
           >
             <span
-              className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-white/90 ${tint.badgeInk}`}
+              className={`mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-white/90 ${tint.badgeInk}`}
             >
               <Icon className="h-4 w-4" strokeWidth={2.4} />
             </span>
-            <span className="font-poppins text-[14px] font-extrabold leading-tight text-leaf-900">
-              {n.name}
+            <span className="min-w-0">
+              <span className="block font-poppins text-[14px] font-extrabold leading-tight text-leaf-900">
+                {n.name}
+              </span>
+              <span className="mt-0.5 block text-[12px] leading-snug text-leaf-700">
+                {n.short}
+              </span>
             </span>
           </div>
         );

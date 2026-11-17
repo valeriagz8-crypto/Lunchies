@@ -4,6 +4,11 @@ Every file in this folder is a crop of the author's own AI-generated mockups
 (`mockups/week6-v2/demo-v2.png` and `dashboard-v2.png`), cut with a script
 (Pillow), edge-feathered and re-encoded as WebP (each under 30 KB).
 
+`straw-lg.webp` is keyed out rather than feathered: it sits on the dark
+green banner, where a feathered crop showed its pale background as a
+rectangle. Its mask comes from the same script, by how close each pixel is
+to the mockup's near-white page.
+
 The six `-lg` files replaced smaller first-round crops of the same
 illustrations: the rebuilt pages show these pictures much larger, so they
 were re-cut from the mockups at the size they are rendered at. The crops

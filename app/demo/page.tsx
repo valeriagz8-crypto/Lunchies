@@ -202,9 +202,9 @@ export default function DemoPage() {
               height={250}
               priority
               aria-hidden="true"
-              className="relative w-[98%] max-w-[540px] -translate-x-[7%] object-contain drop-shadow-[0_18px_28px_rgba(61,48,34,0.16)]"
+              className="relative w-[86%] max-w-[540px] object-contain drop-shadow-[0_18px_28px_rgba(61,48,34,0.16)] sm:w-[98%] sm:-translate-x-[7%]"
             />
-            <div className="absolute right-0 top-1/2 w-[46%] max-w-[232px] -translate-y-[58%] xl:right-[-3%]">
+            <div className="absolute right-0 top-1/2 w-[40%] max-w-[158px] -translate-y-[72%] sm:w-[46%] sm:max-w-[232px] sm:-translate-y-[58%] xl:right-[-3%]">
               <StickyNote>
                 <span className="flex flex-col gap-1.5">
                   {DEMO_HERO.noteItems.map((item) => (
@@ -696,7 +696,7 @@ export default function DemoPage() {
         </div>
 
         {/* Final CTA */}
-        <div className="relative flex flex-col items-center gap-4 overflow-hidden rounded-[28px] bg-gradient-to-r from-leaf-800 to-leaf-700 p-6 pt-[78px] text-center shadow-card sm:flex-row sm:justify-between sm:gap-4 sm:p-7 sm:pl-[272px] sm:text-left">
+        <div className="relative flex flex-col items-center gap-4 overflow-hidden rounded-[28px] bg-gradient-to-r from-leaf-800 to-leaf-700 p-6 pt-[92px] text-center shadow-card sm:flex-row sm:justify-between sm:gap-4 sm:p-7 sm:pl-[272px] sm:text-left">
           <Image
             src="/images/week6/straw-lg.webp"
             alt=""
@@ -704,7 +704,7 @@ export default function DemoPage() {
             height={74}
             loading="lazy"
             aria-hidden="true"
-            className="pointer-events-none absolute left-1/2 top-1 w-[185px] -translate-x-1/2 drop-shadow-[0_10px_14px_rgba(0,0,0,0.28)] sm:left-[-22px] sm:top-1/2 sm:w-[290px] sm:translate-x-0 sm:-translate-y-1/2"
+            className="pointer-events-none absolute left-1/2 top-3.5 w-[172px] -translate-x-1/2 drop-shadow-[0_10px_14px_rgba(0,0,0,0.28)] sm:left-[-22px] sm:top-1/2 sm:w-[290px] sm:translate-x-0 sm:-translate-y-1/2"
           />
           <div className="relative">
             <p className="font-poppins text-[24px] font-extrabold text-white sm:text-[28px]">

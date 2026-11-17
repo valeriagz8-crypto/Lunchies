@@ -1,4 +1,5 @@
 import { Fragment } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import {
   ArrowRight,
@@ -68,13 +69,19 @@ import {
 import AgentMapDiagram, { type DiagramNode } from "./AgentMapDiagram";
 
 /** Pastel tint and icon per product-tour card, in the data's order. */
-const TOUR_STYLE: { tint: TintName; icon: typeof CalendarDays }[] = [
-  { tint: "green", icon: CalendarDays },
-  { tint: "peach", icon: SlidersHorizontal },
-  { tint: "blue", icon: MessageCircle },
-  { tint: "cream", icon: Search },
-  { tint: "pink", icon: LineChart },
-  { tint: "green", icon: Megaphone },
+type Picture = { src: string; width: number; height: number };
+
+const TOUR_STYLE: {
+  tint: TintName;
+  icon: typeof CalendarDays;
+  picture: Picture;
+}[] = [
+  { tint: "green", icon: CalendarDays, picture: { src: "/images/week6/tour-plan.webp", width: 116, height: 66 } },
+  { tint: "peach", icon: SlidersHorizontal, picture: { src: "/images/week6/tour-personalize.webp", width: 100, height: 76 } },
+  { tint: "blue", icon: MessageCircle, picture: { src: "/images/week6/rec-chat.webp", width: 74, height: 66 } },
+  { tint: "cream", icon: Search, picture: { src: "/images/week6/tour-research.webp", width: 94, height: 72 } },
+  { tint: "pink", icon: LineChart, picture: { src: "/images/week6/rec-calc.webp", width: 88, height: 68 } },
+  { tint: "green", icon: Megaphone, picture: { src: "/images/week6/tour-market.webp", width: 96, height: 74 } },
 ];
 
 /** Icon and tint per module, in the order lib/week6Data lists them. */
@@ -149,9 +156,10 @@ export default function DemoPage() {
         }
         art={
           <HeroArt
-            src="/images/redesign/hero-core.webp"
-            width={592}
-            height={488}
+            src="/images/week6/demo-hero.webp"
+            width={352}
+            height={244}
+            imageClassName="w-[60%] max-w-[370px] -translate-x-[27%]"
             tone="leaf"
             priority
             note={
@@ -219,8 +227,21 @@ export default function DemoPage() {
                 <Link
                   key={card.title}
                   href={card.href}
-                  className={`flex h-full flex-col rounded-3xl border p-5 shadow-sm transition-transform hover:-translate-y-0.5 lg:p-6 ${tint.card}`}
+                  className={`relative flex h-full flex-col rounded-3xl border p-5 shadow-sm transition-transform hover:-translate-y-0.5 lg:p-6 ${tint.card}`}
                 >
+                  <span
+                    aria-hidden="true"
+                    className="pointer-events-none absolute right-3 top-3 flex h-[76px] w-[120px] items-start justify-end lg:right-4 lg:top-4 lg:h-[88px] lg:w-[136px]"
+                  >
+                    <Image
+                      src={style.picture.src}
+                      alt=""
+                      width={style.picture.width}
+                      height={style.picture.height}
+                      loading="lazy"
+                      className="h-full w-full object-contain object-right-top"
+                    />
+                  </span>
                   <span
                     className={`flex h-12 w-12 items-center justify-center rounded-2xl bg-white/85 shadow-sm lg:h-14 lg:w-14 ${tint.badgeInk}`}
                   >
@@ -357,7 +378,8 @@ export default function DemoPage() {
           <Card id="impact" tint="plain" className="flex scroll-mt-24 flex-col p-6 sm:p-8">
             <CardHead step="3" title="Practical impact" subtitle={IMPACT_INTRO} />
 
-            <ul className="mt-5 flex flex-1 flex-col justify-around divide-y divide-leaf-100">
+            <div className="mt-5 flex flex-1 items-center gap-4">
+            <ul className="flex min-w-0 flex-1 flex-col justify-around divide-y divide-leaf-100 self-stretch">
               {IMPACT_CARDS.map((card, index) => {
                 const style = IMPACT_STYLE[index % IMPACT_STYLE.length];
                 const Icon = style.icon;
@@ -376,6 +398,16 @@ export default function DemoPage() {
                 );
               })}
             </ul>
+            <Image
+              src="/images/week6/impact-lunchbox.webp"
+              alt=""
+              width={198}
+              height={184}
+              loading="lazy"
+              aria-hidden="true"
+              className="hidden h-auto w-[150px] shrink-0 rounded-3xl drop-shadow-[0_14px_22px_rgba(61,48,34,0.18)] md:block xl:w-[176px]"
+            />
+            </div>
 
             <p className="mb-4 mt-2 rounded-2xl bg-cream-100 px-4 py-3 text-[12.5px] font-medium text-leaf-700">
               {IMPACT_DISCLAIMER}
@@ -404,10 +436,6 @@ export default function DemoPage() {
                 {IMPACT_EVIDENCE.limit}
               </p>
             </div>
-
-            {/* Ratings from the six testers. Context for the claims above,
-                not evidence that the impact happened — the limit line and
-                the heading both say so. */}
             <div className="mt-4 rounded-3xl border border-leaf-100 bg-leaf-50/70 p-5">
               <h3 className="font-poppins text-[15px] font-extrabold leading-snug text-leaf-900">
                 {TESTER_FEEDBACK.heading}
@@ -433,11 +461,16 @@ export default function DemoPage() {
               </p>
             </div>
 
-            <div className="mt-4 rounded-3xl border border-rose-100/70 bg-gradient-to-b from-[#fdeff1] to-[#fbe4e8] p-5">
+          </Card>
+        </div>
+
+        {/* The limits, full width under the agent map and impact row so
+            that row stays compact like the mockup. */}
+        <div className="rounded-3xl border border-rose-100/70 bg-gradient-to-b from-[#fdeff1] to-[#fbe4e8] p-5">
               <h3 className="font-poppins text-[17px] font-extrabold text-leaf-900">
                 {RISKS_TITLE}
               </h3>
-              <ul className="mt-3 space-y-2">
+              <ul className="mt-3 gap-x-8 space-y-2 md:columns-2 md:space-y-0 [&>li]:mb-2 [&>li]:break-inside-avoid">
                 {RISKS.map((risk) => (
                   <li
                     key={risk}
@@ -452,15 +485,23 @@ export default function DemoPage() {
                 ))}
               </ul>
             </div>
-          </Card>
-        </div>
 
         {/* 4 + 5 — Testing step beside the roadmap */}
-        <div className="grid items-start gap-6 lg:grid-cols-[0.78fr_1.22fr]">
-          <Card id="testing" tint="plain" className="scroll-mt-24 p-6 sm:p-8">
+        <div className="grid items-stretch gap-6 lg:grid-cols-[0.78fr_1.22fr]">
+          <Card id="testing" tint="plain" className="flex scroll-mt-24 flex-col p-6 sm:p-8">
             <CardHead step="4" title="Testing" subtitle={DEMO_TESTING_INTRO} />
 
-            <ul className="mt-5 space-y-3">
+            <div className="mt-5 grid items-center gap-4 sm:grid-cols-[112px_1fr]">
+            <Image
+              src="/images/week6/testing-clipboard.webp"
+              alt=""
+              width={162}
+              height={186}
+              loading="lazy"
+              aria-hidden="true"
+              className="mx-auto hidden h-auto w-[112px] drop-shadow-[0_12px_18px_rgba(61,48,34,0.16)] sm:block"
+            />
+            <ul className="min-w-0 space-y-3">
               {DEMO_TESTING_STEPS.map((row, index) => {
                 const Icon = TESTING_STEP_ICONS[index % TESTING_STEP_ICONS.length];
                 return (
@@ -495,10 +536,11 @@ export default function DemoPage() {
                 );
               })}
             </ul>
+            </div>
 
             <Link
               href={DEMO_TESTING_HREF}
-              className="mt-5 inline-flex w-full items-center justify-center gap-2 rounded-full bg-leaf-100 px-6 py-3 text-[14px] font-bold text-leaf-700 transition-colors hover:bg-leaf-200"
+              className="mt-auto inline-flex w-full items-center justify-center gap-2 rounded-full bg-leaf-100 px-6 py-3 text-[14px] font-bold text-leaf-700 transition-colors hover:bg-leaf-200"
             >
               {DEMO_TESTING_CTA}
               <ArrowRight className="h-4 w-4" aria-hidden="true" />
@@ -573,16 +615,25 @@ export default function DemoPage() {
         </div>
 
         {/* Final CTA */}
-        <div className="relative flex flex-col items-center gap-5 overflow-hidden rounded-[28px] border border-rose-100/70 bg-gradient-to-r from-[#fdeff1] to-[#fde9ec] p-6 text-center shadow-card sm:flex-row sm:justify-between sm:gap-4 sm:p-8 sm:text-left">
+        <div className="relative flex flex-col items-center gap-5 overflow-hidden rounded-[28px] bg-gradient-to-r from-leaf-800 to-leaf-700 p-6 text-center shadow-card sm:flex-row sm:justify-between sm:gap-4 sm:p-8 sm:pl-[220px] sm:text-left">
+          <Image
+            src="/images/week6/dash-strawberries.webp"
+            alt=""
+            width={192}
+            height={94}
+            loading="lazy"
+            aria-hidden="true"
+            className="pointer-events-none h-auto w-[150px] drop-shadow-[0_10px_14px_rgba(0,0,0,0.25)] sm:absolute sm:bottom-3 sm:left-5 sm:w-[190px]"
+          />
           <Sparkle
-            className="absolute right-4 top-4 h-6 w-8 opacity-70"
+            className="absolute right-4 top-4 h-6 w-8 opacity-80"
             color="peach"
           />
           <div>
-            <p className="font-poppins text-[22px] font-extrabold text-leaf-900">
+            <p className="font-poppins text-[24px] font-extrabold text-white sm:text-[28px]">
               {DEMO_CTA.title}
             </p>
-            <p className="mt-1 text-[15px] text-leaf-700">{DEMO_CTA.subtitle}</p>
+            <p className="mt-1 text-[15px] text-leaf-100">{DEMO_CTA.subtitle}</p>
           </div>
           <Link
             href={DEMO_CTA.href}

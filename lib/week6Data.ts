@@ -420,7 +420,6 @@ export const ROADMAP_PHASES: RoadmapPhase[] = [
     items: [
       { label: "Inventory at home" },
       { label: "More recipe filters" },
-      { label: "Export grocery list" },
       { label: "Shopping list from the plan" },
       { label: "Downloadable weekly menu as PDF", note: "Requested by a tester" },
     ],
@@ -528,6 +527,9 @@ export const REVENUE_MODEL_TITLE = "Key metrics";
 
 /** The honesty label, shown as a small badge rather than a three-line title. */
 export const REVENUE_MODEL_BADGE = "Revenue model: assumptions, not real sales";
+
+export const REVENUE_MODEL_SAVED_NOTE =
+  "The pricing scenarios saved further down are separate tests saved from /pricing, each with its own customers and scenario. They are not this base scenario.";
 
 export const REVENUE_MODEL_NOTE =
   "These figures come from the /pricing calculator running its default customer split on the base scenario. Nothing here has been sold.";

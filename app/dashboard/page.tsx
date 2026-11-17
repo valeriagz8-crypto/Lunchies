@@ -54,6 +54,7 @@ import {
   PROJECT_PAGES_TITLE,
   REVENUE_MODEL_CUSTOMERS,
   REVENUE_MODEL_NOTE,
+  REVENUE_MODEL_SAVED_NOTE,
   REVENUE_MODEL_SCENARIO,
   REGRESSION_SHORT,
   REVENUE_MODEL_BADGE,
@@ -541,7 +542,7 @@ export default function DashboardPage() {
                 })}
               </div>
               <p className="mt-4 rounded-2xl bg-cream-100 px-4 py-2.5 text-[12.5px] font-medium text-leaf-700">
-                {REVENUE_MODEL_NOTE}
+                {REVENUE_MODEL_NOTE} {REVENUE_MODEL_SAVED_NOTE}
               </p>
             </Card>
           }

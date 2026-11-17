@@ -225,6 +225,10 @@ test("/demo's product tour only shows features that exist", async ({ page }) => 
   // The unbuilt ideas live on the roadmap instead.
   const roadmap = await page.locator("#version-2").innerText();
   expect(roadmap).toContain("Shopping list from the plan");
+  expect(
+    roadmap,
+    "the grocery list idea is listed once, not twice",
+  ).not.toContain("Export grocery list");
   expect(roadmap).toContain("Favorite meals and child profiles");
   expect(roadmap).toContain("Idea, not built");
 });
@@ -326,6 +330,10 @@ test("/dashboard exposes #testing and #saved-records, and reports honestly", asy
   await expect(
     page.getByText("Project pages", { exact: true }),
     "the card is titled Project pages",
+  ).toHaveCount(1);
+  await expect(
+    page.getByText(/development roadmap, 12 ideas/),
+    "the roadmap tile counts the ideas that are really listed",
   ).toHaveCount(1);
   expect(
     await page.getByText(/modules integrated/).count(),

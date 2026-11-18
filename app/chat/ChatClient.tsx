@@ -242,6 +242,8 @@ export default function ChatClient() {
 
   // Ingredient ids the child has turned down, kept for the whole chat.
   const [excluded, setExcluded] = useState<string[]>([]);
+  /** Service topics already answered, so a suggested question is offered once. */
+  const [askedTopics, setAskedTopics] = useState<string[]>([]);
   const [draft, setDraft] = useState("");
   const [saveError, setSaveError] = useState<string | null>(null);
 
@@ -442,7 +444,15 @@ export default function ChatClient() {
     const text = draft.trim();
     if (!text) return;
     setDraft("");
+    askText(text);
+  }
 
+  /**
+   * One path for every question, however it arrives: typed in the composer
+   * or tapped as a suggested chip. Nothing here decides what the answer is;
+   * it runs the same guardrail, exclusion and service-answer rules as before.
+   */
+  function askText(text: string) {
     const next: Bubble[] = [parent(text, { lang })];
 
     // 1. Guardrail first: medical and dietary-treatment requests are refused.
@@ -475,6 +485,12 @@ export default function ChatClient() {
     // 4. Answer from the fixed service answers, unless the guardrail fired.
     if (!guardrail.triggered) {
       const result = answerServiceQuestion(text, lang);
+      if (result.topic) {
+        const topic = result.topic;
+        setAskedTopics((current) =>
+          current.includes(topic) ? current : [...current, topic],
+        );
+      }
       const reviewForAnswer = !result.matched
         ? needsHumanReview({
             allergyStatus,
@@ -751,6 +767,11 @@ export default function ChatClient() {
   }
 
   /* ---- render ---------------------------------------------------------- */
+
+  // Up to six suggestions at a time, dropping any topic already answered.
+  const openChips = COPY.questionChips.options
+    .filter((chip) => !askedTopics.includes(chip.topic))
+    .slice(0, 6);
 
   const listStep = step === "allergy-list" || step === "preference-list";
   const listOptions = step === "allergy-list" ? CHAT_ALLERGENS : CHAT_PREFERENCES;
@@ -1081,6 +1102,26 @@ export default function ChatClient() {
                   />
                 ))}
             </div>
+
+            {/* Questions the chat can already answer, minus the ones that
+                have been answered in this conversation. Tapping one sends
+                the same text typing it would, through the same path. */}
+            {openChips.length > 0 && (
+              <div className="mt-3">
+                <p className="text-xs text-leaf-600">
+                  {COPY.questionChips.intro}
+                </p>
+                <div className="mt-2 flex flex-wrap gap-2">
+                  {openChips.map((chip) => (
+                    <QuickReply
+                      key={chip.id}
+                      label={chip.text}
+                      onClick={() => askText(chip.text)}
+                    />
+                  ))}
+                </div>
+              </div>
+            )}
 
             {/* Contact form */}
             {reviewOpen && (

@@ -34,6 +34,22 @@ const EN = {
   },
   askQuestion:
     "Sure. Type your question about Lunchies below and I'll answer from what's on the site.",
+  // Tappable questions, offered from the first screen on. Each one is sent
+  // through the same path as typing it, and each leads to an answer that is
+  // already on the site: no new facts, no new topics.
+  questionChips: {
+    intro: "Or tap a question:",
+    options: [
+      { id: "prices", topic: "plans-and-prices", text: "How much does it cost?" },
+      { id: "allergies", topic: "allergies-and-preferences", text: "What about allergies?" },
+      { id: "how", topic: "what-is-lunchies", text: "How does it work?" },
+      { id: "delivery", topic: "delivery", text: "How is the lunch delivered?" },
+      { id: "difference", topic: "plan-differences", text: "What is the difference between the plans?" },
+      { id: "ages", topic: "ages-covered", text: "What ages do you cover?" },
+      { id: "weekly", topic: "core-planner", text: "Is there a weekly menu?" },
+      { id: "siblings", topic: "multi-child", text: "What if I have two children?" },
+    ],
+  },
   ideaIntro: (age: string) =>
     `Here's a balanced lunchbox idea for a ${age} year old:`,
   languageLabel: "Language",
@@ -135,6 +151,19 @@ const ES: typeof EN = {
   },
   askQuestion:
     "Claro. Escribe tu duda sobre Lunchies aquí abajo y te respondo con lo que está en el sitio.",
+  questionChips: {
+    intro: "O toca una pregunta:",
+    options: [
+      { id: "prices", topic: "plans-and-prices", text: "¿Cuánto cuesta?" },
+      { id: "allergies", topic: "allergies-and-preferences", text: "¿Y las alergias?" },
+      { id: "how", topic: "what-is-lunchies", text: "¿Cómo funciona?" },
+      { id: "delivery", topic: "delivery", text: "¿Cómo se entrega la lonchera?" },
+      { id: "difference", topic: "plan-differences", text: "¿Cuál es la diferencia entre los planes?" },
+      { id: "ages", topic: "ages-covered", text: "¿Qué edades cubren?" },
+      { id: "weekly", topic: "core-planner", text: "¿Tienen un menú semanal?" },
+      { id: "siblings", topic: "multi-child", text: "¿Y si tengo dos hijos?" },
+    ],
+  },
   ideaIntro: (age: string) =>
     `Esta es una idea de lonchera balanceada para ${age} años:`,
   languageLabel: "Idioma",

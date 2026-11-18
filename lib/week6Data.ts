@@ -1458,10 +1458,20 @@ export const BUILD_LOG: BuildLogWeek[] = [
         hash: "a3d1792",
         subject: "Check that /demo offers no video and no dead button",
         date: "2026-11-18"
+      },
+      {
+        hash: "43bacbf",
+        subject: "Regenerate the build log through 87660b3",
+        date: "2026-11-18"
+      },
+      {
+        hash: "afe29a1",
+        subject: "Say on the first screen of /chat that it runs on rules",
+        date: "2026-11-18"
       }
     ]
   }
 ];
 
-export const BUILD_LOG_TOTAL = 151;
+export const BUILD_LOG_TOTAL = 153;
 /* build-log:end */

@@ -813,6 +813,19 @@ export default function DocsPage() {
             </li>
           </ul>
           <p className="mt-4 text-leaf-800">
+            One of those ideas has since been built. A tester asked for more
+            answer options in the chat, so{" "}
+            <Link href="/chat" className={ROUTE_LINK}>/chat</Link> now offers
+            up to six tappable questions under the conversation and drops each
+            one once it has been answered. Every chip sends its text through
+            the same path as typing it, so the answer is the one the site
+            already gives: no new fact, topic or service was added, and the
+            guardrail still runs first. The roadmap entry is marked{" "}
+            <strong>Built</strong> and keeps its note that a tester asked for
+            it.
+          </p>
+
+          <p className="mt-4 text-leaf-800">
             The results themselves were filled in at the same time: the data
             in <code className={CODE}>269be4b</code>, the /dashboard tile,
             rows and findings in <code className={CODE}>6d5ba65</code>, and

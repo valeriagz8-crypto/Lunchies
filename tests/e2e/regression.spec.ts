@@ -231,6 +231,11 @@ test("/demo's product tour only shows features that exist", async ({ page }) => 
   ).not.toContain("Export grocery list");
   expect(roadmap).toContain("Favorite meals and child profiles");
   expect(roadmap).toContain("Idea, not built");
+  // One roadmap item has shipped; it must say so rather than keep claiming
+  // to be an idea, and the closing line must allow for it.
+  expect(roadmap).toContain("More chat answer options");
+  expect(roadmap).toContain("Built");
+  expect(roadmap).toContain("except the ones marked Built");
 });
 
 test("/demo cites the source for its impact evidence", async ({ page }) => {
@@ -332,8 +337,8 @@ test("/dashboard exposes #testing and #saved-records, and reports honestly", asy
     "the card is titled Project pages",
   ).toHaveCount(1);
   await expect(
-    page.getByText(/development roadmap, 12 ideas/),
-    "the roadmap tile counts the ideas that are really listed",
+    page.getByText(/development roadmap, 11 ideas/),
+    "the roadmap tile counts only the items still unbuilt",
   ).toHaveCount(1);
   expect(
     await page.getByText(/modules integrated/).count(),

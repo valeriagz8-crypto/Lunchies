@@ -392,6 +392,8 @@ export type RoadmapItem = {
   label: string;
   /** Shown under the item when there is something to add. */
   note?: string;
+  /** Set once the item has actually shipped, so it stops counting as an idea. */
+  built?: boolean;
 };
 
 export type RoadmapPhase = {
@@ -403,6 +405,8 @@ export type RoadmapPhase = {
 export const ROADMAP_INTRO = "Next features to expand value and scale Lunchies.";
 
 export const ROADMAP_STATUS_LABEL = "Idea, not built";
+/** The one state an item can be in besides an idea. */
+export const ROADMAP_BUILT_LABEL = "Built";
 
 export const ROADMAP_PHASES: RoadmapPhase[] = [
   {
@@ -422,7 +426,11 @@ export const ROADMAP_PHASES: RoadmapPhase[] = [
       { label: "Integration with retailers" },
       { label: "Nutrition insights and recommendations" },
       { label: "Favorite meals and child profiles" },
-      { label: "More chat answer options", note: "Requested by a tester" },
+      {
+        label: "More chat answer options",
+        note: "Requested by a tester",
+        built: true,
+      },
       { label: "Characters or illustrations for kids", note: "Requested by a tester" },
     ],
   },
@@ -438,7 +446,7 @@ export const ROADMAP_PHASES: RoadmapPhase[] = [
 ];
 
 export const ROADMAP_NOTE =
-  "Every item on this roadmap is an idea. None of it is built.";
+  "Every item on this roadmap is an idea that has not been built, except the ones marked Built.";
 
 /* ------------------------------------------------------------ final CTA */
 

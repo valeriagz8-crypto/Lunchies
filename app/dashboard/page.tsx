@@ -107,7 +107,7 @@ export default function DashboardPage() {
 
   // Roadmap idea count comes from the roadmap itself.
   const roadmapIdeas = ROADMAP_PHASES.reduce(
-    (total, phase) => total + phase.items.length,
+    (total, phase) => total + phase.items.filter((item) => !item.built).length,
     0,
   );
 

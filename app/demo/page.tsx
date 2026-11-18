@@ -63,6 +63,7 @@ import {
   ROADMAP_INTRO,
   ROADMAP_NOTE,
   ROADMAP_PHASES,
+  ROADMAP_BUILT_LABEL,
   ROADMAP_STATUS_LABEL,
   TESTER_FEEDBACK,
   TESTING_PENDING_LABEL,
@@ -627,10 +628,12 @@ export default function DemoPage() {
                               ({phase.term})
                             </span>
                           </div>
-                          <span className="mx-auto mt-1.5 inline-flex items-center gap-1.5 rounded-full border border-leaf-200 bg-white/85 px-2.5 py-0.5 text-[10.5px] font-bold text-leaf-500">
-                            <CircleDashed className="h-3 w-3" aria-hidden="true" />
-                            {ROADMAP_STATUS_LABEL}
-                          </span>
+                          {phase.items.some((item) => !item.built) && (
+                            <span className="mx-auto mt-1.5 inline-flex items-center gap-1.5 rounded-full border border-leaf-200 bg-white/85 px-2.5 py-0.5 text-[10.5px] font-bold text-leaf-500">
+                              <CircleDashed className="h-3 w-3" aria-hidden="true" />
+                              {ROADMAP_STATUS_LABEL}
+                            </span>
+                          )}
                           <ul className="mt-2.5 space-y-1.5">
                             {phase.items.map((item) => (
                               <li
@@ -643,6 +646,12 @@ export default function DemoPage() {
                                 />
                                 <span>
                                   {item.label}
+                                  {item.built && (
+                                    <span className="ml-1.5 inline-flex items-center gap-1 rounded-full bg-leaf-600 px-2 py-0.5 text-[10px] font-bold leading-snug text-white">
+                                      <CheckCircle2 className="h-3 w-3" aria-hidden="true" />
+                                      {ROADMAP_BUILT_LABEL}
+                                    </span>
+                                  )}
                                   {item.note && (
                                     <span className="mt-0.5 block w-fit max-w-full rounded-full bg-white/85 px-2 py-0.5 text-[10px] font-bold leading-snug text-peach-600">
                                       {item.note}

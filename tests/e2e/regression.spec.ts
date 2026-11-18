@@ -409,6 +409,17 @@ test("/demo's short testing step mirrors the same result", async ({ page }) => {
     page.getByText(/it does not sell or deliver food/),
     "the hero rules out selling or delivering food",
   ).toHaveCount(1);
+
+  // The walkthrough video is handed over outside the site, so the page must
+  // not offer one, and must not carry a dead button pretending to.
+  const body = await page.evaluate(() => document.body.innerText);
+  expect(body, "no video is offered on the page").not.toMatch(
+    /Video coming soon|Watch full walkthrough/,
+  );
+  expect(
+    await page.locator("button[disabled], button[aria-disabled='true']").count(),
+    "no disabled button is left in the hero",
+  ).toBe(0);
 });
 
 /* ------------------------------------------------- dashboard record counts */

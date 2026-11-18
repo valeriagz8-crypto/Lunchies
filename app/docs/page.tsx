@@ -805,10 +805,10 @@ export default function DocsPage() {
               kids, a video of the service, and more selection options by
               need. The first became a roadmap entry,{" "}
               <em>Characters or illustrations for kids</em>, again marked an
-              idea and requested by a tester. The second already exists as
-              the walkthrough video button on /demo, which stays disabled
-              while <code className={CODE}>DEMO_VIDEO_URL</code> is empty. The
-              third was recorded but nothing was built for it.{" "}
+              idea and requested by a tester. The second, a video of the
+              service, is delivered with the Word packet and on Brightspace
+              rather than from the site. The third was recorded but nothing
+              was built for it.{" "}
               <code className={CODE}>269be4b</code>.
             </li>
           </ul>

@@ -33,6 +33,7 @@ import {
   SERVICE_ANSWERS,
   SERVICE_ANSWERS_ES,
   SERVICE_FALLBACK,
+  SERVICE_FALLBACK_BY_LANG,
   INGREDIENTS,
 } from "@/lib/chatData";
 import { CHAT_PAGE_COPY } from "@/app/chat/chatCopy";
@@ -398,6 +399,57 @@ describe("Extra unit checks", () => {
     const plain = getLunchboxIdea("7-9", [], []);
     expect(plain.needsHumanConfirmation).toBe(false);
     expect(plain.note).toContain("not a safety guarantee");
+  });
+});
+
+describe("Suggested questions", () => {
+  const CHIPS = CHAT_PAGE_COPY.en.questionChips.options;
+
+  it("offers between four and six at a time, from a longer list", () => {
+    expect(CHIPS.length).toBeGreaterThanOrEqual(6);
+    expect(CHIPS.slice(0, 6).length).toBe(6);
+    // Every id appears once, so dropping an answered topic cannot hide two.
+    expect(new Set(CHIPS.map((chip) => chip.id)).size).toBe(CHIPS.length);
+    expect(new Set(CHIPS.map((chip) => chip.topic)).size).toBe(CHIPS.length);
+  });
+
+  it("every chip is answered from the site, never by the fallback", () => {
+    for (const chip of CHIPS) {
+      const result = answerServiceQuestion(chip.text, "en");
+      expect(result.topic, `${chip.id} falls back`).not.toBeNull();
+      expect(result.topic, `${chip.id} answers the wrong topic`).toBe(
+        chip.topic,
+      );
+      expect(result.answer.trim().length).toBeGreaterThan(0);
+      expect(result.answer).not.toBe(SERVICE_FALLBACK_BY_LANG.en);
+    }
+  });
+
+  it("every Spanish chip is answered from the site too", () => {
+    const es = CHAT_PAGE_COPY.es.questionChips.options;
+    expect(es.map((chip) => chip.id)).toEqual(CHIPS.map((chip) => chip.id));
+    expect(es.map((chip) => chip.topic)).toEqual(CHIPS.map((chip) => chip.topic));
+
+    for (const chip of es) {
+      const result = answerServiceQuestion(chip.text, "es");
+      expect(result.topic, `${chip.id} falls back in Spanish`).not.toBeNull();
+      expect(result.topic, `${chip.id} answers the wrong topic`).toBe(
+        chip.topic,
+      );
+      expect(result.answer).not.toBe(SERVICE_FALLBACK_BY_LANG.es);
+    }
+  });
+
+  it("no chip asks something the guardrail has to refuse", () => {
+    // A suggestion must never walk a parent into the medical refusal.
+    for (const lang of ["en", "es"] as const) {
+      for (const chip of CHAT_PAGE_COPY[lang].questionChips.options) {
+        expect(
+          checkGuardrail(chip.text, lang).triggered,
+          `${chip.id} (${lang}) trips the guardrail`,
+        ).toBe(false);
+      }
+    }
   });
 });
 

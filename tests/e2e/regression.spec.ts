@@ -558,6 +558,25 @@ test("/chat?test=1 answers an intake question and cleans up its row", async ({
     /hand you over to a person/i,
   );
 
+  // The suggested questions are offered from the first screen, and tapping
+  // one answers it with the same answer typing it would give.
+  const chip = page.getByRole("button", { name: "How much does it cost?" });
+  await expect(chip, "a suggested question is offered").toHaveCount(1);
+  await chip.click();
+  await page.waitForTimeout(1200);
+
+  const afterChip = await page.locator('[role="log"]').innerText();
+  expect(afterChip, "the tapped question is shown as asked").toContain(
+    "How much does it cost?",
+  );
+  expect(afterChip, "the chip was answered, not fallen back on").toMatch(
+    /Basic|Plus|Premium/,
+  );
+  await expect(
+    page.getByRole("button", { name: "How much does it cost?" }),
+    "an answered question is not offered again",
+  ).toHaveCount(0);
+
   // Answer the first intake question with a quick reply.
   const reply = page.getByRole("button", { name: "5-6" }).first();
   await expect(reply).toBeVisible();

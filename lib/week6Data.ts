@@ -1137,7 +1137,7 @@ export const BUILD_LOG: BuildLogWeek[] = [
   {
     week: "Week 6",
     title: "Redesign, /demo, /dashboard, regression test, user test",
-    range: "2026-11-11 to 2026-11-17",
+    range: "2026-11-11 to 2026-11-18",
     commits: [
       {
         hash: "dee1dde",
@@ -1438,10 +1438,30 @@ export const BUILD_LOG: BuildLogWeek[] = [
         hash: "0985fb6",
         subject: "Give the card titles the full width on a phone",
         date: "2026-11-17"
+      },
+      {
+        hash: "29ff5a9",
+        subject: "Regenerate the build log through 0985fb6",
+        date: "2026-11-17"
+      },
+      {
+        hash: "2033d8a",
+        subject: "Drop the video button from the /demo hero",
+        date: "2026-11-18"
+      },
+      {
+        hash: "87660b3",
+        subject: "Say where the video actually goes, in the iteration log",
+        date: "2026-11-18"
+      },
+      {
+        hash: "a3d1792",
+        subject: "Check that /demo offers no video and no dead button",
+        date: "2026-11-18"
       }
     ]
   }
 ];
 
-export const BUILD_LOG_TOTAL = 147;
+export const BUILD_LOG_TOTAL = 151;
 /* build-log:end */

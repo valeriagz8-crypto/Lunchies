@@ -401,6 +401,28 @@ describe("Extra unit checks", () => {
   });
 });
 
+describe("What the chat says it is", () => {
+  it("labels itself rule-based, not a doctor and not an AI model", () => {
+    // The label is the first thing on the chat panel, in both languages, so
+    // nobody has to guess what is answering them.
+    const en = CHAT_PAGE_COPY.en.ruleBasedLabel;
+    expect(en).toContain("Rule-based assistant");
+    expect(en).toContain("answers only from fixed information on this site");
+    expect(en).toContain("not a doctor and not an AI model");
+
+    const es = CHAT_PAGE_COPY.es.ruleBasedLabel;
+    expect(es).toContain("basado en reglas");
+    expect(es).toContain("No es un médico ni un modelo de IA");
+  });
+
+  it("says in its first message that it runs on fixed rules and can hand over", () => {
+    expect(CHAT_PAGE_COPY.en.greeting).toMatch(/fixed rules/i);
+    expect(CHAT_PAGE_COPY.en.greeting).toMatch(/hand you over to a person/i);
+    expect(CHAT_PAGE_COPY.es.greeting).toMatch(/reglas fijas/i);
+    expect(CHAT_PAGE_COPY.es.greeting).toMatch(/pasarte con una persona/i);
+  });
+});
+
 describe("Spanish support", () => {
   it("every translation key exists in both languages with no empty value", () => {
     // Walks both copy trees together: same shape, same keys, nothing blank.

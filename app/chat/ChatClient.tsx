@@ -804,6 +804,16 @@ export default function ChatClient() {
       <section className="mx-auto grid max-w-6xl gap-6 px-4 pb-12 pt-1 sm:px-6 lg:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)]">
         {/* Chat panel */}
         <div className="flex min-w-0 flex-col rounded-[2rem] bg-white p-4 shadow-sm sm:p-6">
+          {/* What this assistant is, from the first screen on. It sits above
+              the scrolling conversation, so it stays in view while chatting. */}
+          <p className="mb-3 flex items-start gap-2 rounded-xl bg-leaf-50 px-3 py-2 text-xs leading-snug text-leaf-700">
+            <ShieldCheck
+              className="mt-0.5 h-4 w-4 shrink-0 text-leaf-600"
+              aria-hidden="true"
+            />
+            <span className="min-w-0">{COPY.ruleBasedLabel}</span>
+          </p>
+
           {/* Language toggle. Switching changes the interface and every
               message from here on; what was already said stays as it was. */}
           <div className="mb-3 flex items-center justify-end gap-2">

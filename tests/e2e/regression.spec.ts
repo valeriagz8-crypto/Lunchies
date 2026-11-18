@@ -539,6 +539,25 @@ test("/chat?test=1 answers an intake question and cleans up its row", async ({
   await page.goto("/chat?test=1");
   await settle(page);
 
+  // Before anything is typed, the page must say what is answering: a set of
+  // rules, not a doctor and not a model. The label sits outside the
+  // conversation, so it is still there once the chat has started.
+  const label = page.getByText(
+    "Rule-based assistant — answers only from fixed information on this site. It is not a doctor and not an AI model.",
+    { exact: true },
+  );
+  await expect(label, "the rule-based label is on the first screen").toHaveCount(1);
+  await expect(label).toBeVisible();
+
+  // The opening message says the same in its own words.
+  const opening = await page.locator('[role="log"]').innerText();
+  expect(opening, "the first message names the fixed rules").toMatch(
+    /fixed rules/i,
+  );
+  expect(opening, "the first message offers a person").toMatch(
+    /hand you over to a person/i,
+  );
+
   // Answer the first intake question with a quick reply.
   const reply = page.getByRole("button", { name: "5-6" }).first();
   await expect(reply).toBeVisible();
@@ -548,6 +567,9 @@ test("/chat?test=1 answers an intake question and cleans up its row", async ({
   // The assistant must have said something back.
   const text = await page.evaluate(() => document.body.innerText);
   expect(text.length, "chat produced a reply").toBeGreaterThan(200);
+
+  // The label does not disappear once the conversation has started.
+  await expect(label, "the label survives the first exchange").toBeVisible();
 
   // Remove every is_test row this run created, the way tests/chat.test.ts does.
   if (url && key) {

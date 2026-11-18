@@ -13,13 +13,17 @@ const EN = {
     "Get personalized lunch ideas, information about our service, and general guidance for school lunches.",
   medicalNote:
     "This chat provides general guidance and is not a substitute for professional medical advice.",
+  // Shown at the top of the chat window from the first screen on, so nobody
+  // has to guess what is answering them.
+  ruleBasedLabel:
+    "Rule-based assistant — answers only from fixed information on this site. It is not a doctor and not an AI model.",
   heroCards: [
     { icon: "✨", label: "Lunchbox ideas" },
     { icon: "ℹ️", label: "Questions about the service" },
     { icon: "🧑", label: "Talk to a person" },
   ],
   greeting:
-    "Hi! I'm Lunchies, your guide for healthy and practical school lunches. To give you a better recommendation, let me ask you a few quick questions.",
+    "Hi! I'm Lunchies, your guide for healthy and practical school lunches. I answer from fixed rules and the information on this site, and I can hand you over to a person at any point. To give you a better recommendation, let me ask you a few quick questions.",
   questions: {
     age: "1. What is your child's age?",
     allergy: "2. Does your child have any allergies or food preferences?",
@@ -112,13 +116,15 @@ const ES: typeof EN = {
     "Recibe ideas de loncheras personalizadas, información sobre el servicio y orientación general para las comidas de la escuela.",
   medicalNote:
     "Este chat da orientación general y no sustituye la opinión de un profesional de la salud.",
+  ruleBasedLabel:
+    "Asistente basado en reglas: responde solo con la información fija de este sitio. No es un médico ni un modelo de IA.",
   heroCards: [
     { icon: "✨", label: "Ideas para la lonchera" },
     { icon: "ℹ️", label: "Dudas sobre el servicio" },
     { icon: "🧑", label: "Hablar con una persona" },
   ],
   greeting:
-    "¡Hola! Soy Lunchies, tu guía para loncheras escolares saludables y prácticas. Para darte una mejor recomendación, déjame hacerte unas preguntas rápidas.",
+    "¡Hola! Soy Lunchies, tu guía para loncheras escolares saludables y prácticas. Respondo con reglas fijas y la información de este sitio, y puedo pasarte con una persona en cualquier momento. Para darte una mejor recomendación, déjame hacerte unas preguntas rápidas.",
   questions: {
     age: "1. ¿Qué edad tiene tu hijo?",
     allergy: "2. ¿Tiene alguna alergia o preferencia de comida?",

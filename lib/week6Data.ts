@@ -38,15 +38,6 @@ export const DEMO_STEPS = [
 /* --------------------------------------------------------- product tour */
 
 /**
- * The walkthrough video has not been recorded. While this is an empty
- * string the page shows a disabled button reading "Video coming soon".
- */
-export const DEMO_VIDEO_URL = "";
-
-export const DEMO_VIDEO_LABEL = "Watch full walkthrough (5 min)";
-export const DEMO_VIDEO_PENDING_LABEL = "Video coming soon";
-
-/**
  * The product tour lists only features that really run today. Every card
  * links to its route and names the Supabase table it writes to, so a claim
  * on this page can always be checked against the code.

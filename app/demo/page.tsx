@@ -22,7 +22,6 @@ import {
   SlidersHorizontal,
   Sparkles,
   Users,
-  Video,
 } from "lucide-react";
 import {
   Card,
@@ -53,9 +52,6 @@ import {
   DEMO_TESTING_HREF,
   DEMO_TESTING_INTRO,
   DEMO_TESTING_STEPS,
-  DEMO_VIDEO_LABEL,
-  DEMO_VIDEO_PENDING_LABEL,
-  DEMO_VIDEO_URL,
   IMPACT_CARDS,
   IMPACT_DISCLAIMER,
   IMPACT_EVIDENCE,
@@ -123,8 +119,6 @@ const ROADMAP_STYLE: { tint: TintName; pin: string }[] = [
 ];
 
 export default function DemoPage() {
-  const videoReady = DEMO_VIDEO_URL !== "";
-
   const diagramNodes: DiagramNode[] = AGENT_MODULES.map((mod, i) => ({
     name: mod.name,
     short: mod.short,
@@ -163,29 +157,6 @@ export default function DemoPage() {
               {DEMO_HERO.cta}
               <ArrowRight className="h-4 w-4" aria-hidden="true" />
             </a>
-
-            {/* The walkthrough has not been recorded, so this button stays
-                disabled and says so. */}
-            {videoReady ? (
-              <a
-                href={DEMO_VIDEO_URL}
-                className="inline-flex items-center gap-2.5 rounded-full border border-leaf-300 bg-white px-6 py-3.5 text-[15px] font-bold text-leaf-700 shadow-sm transition-colors hover:bg-leaf-50"
-              >
-                <Video className="h-4 w-4" aria-hidden="true" />
-                {DEMO_VIDEO_LABEL}
-              </a>
-            ) : (
-              <button
-                type="button"
-                disabled
-                aria-disabled="true"
-                title={DEMO_VIDEO_LABEL}
-                className="inline-flex cursor-not-allowed items-center gap-2.5 rounded-full border border-leaf-200 bg-white/70 px-6 py-3.5 text-[15px] font-bold text-leaf-400"
-              >
-                <Video className="h-4 w-4" aria-hidden="true" />
-                {DEMO_VIDEO_PENDING_LABEL}
-              </button>
-            )}
           </div>
         }
         art={
